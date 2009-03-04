@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: Markus Binsteiner
+Main-Class: VomsProxyInit
+Class-Path: bcprov-jdk15-140.jar

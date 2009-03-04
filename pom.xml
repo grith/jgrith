@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>proxy</artifactId>
+    <groupId>au.org.arcs.auth</groupId>
+    <version>0.2</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>au.org.arcs.auth</groupId>
+  <artifactId>simpleProxyLib</artifactId>
+  <version>0.2</version>
+  <repositories>
+  	<repository>
+  		<id>vpac</id>
+  		<url>http://hudson.vpac.org/maven_repository</url>
+  	</repository>
+  </repositories>
+  <properties>
+  	<maven.test.skip>true</maven.test.skip>
+	</properties>
+	
+	<dependencies>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>logkit</groupId>
+					<artifactId>logkit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>avalon-framework</groupId>
+					<artifactId>avalon-framework</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>external.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>140</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>cog-jglobus</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>cog-url</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>cryptix32</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>cryptix-asn1</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>cryptix</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>jgss</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>external.jglobus</groupId>
+			<artifactId>puretls</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+      	<dependency>
+			<groupId>urbanophile</groupId>
+			<artifactId>java-getopt</artifactId>
+			<version>1.0.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>external.jgoodies</groupId>
+			<artifactId>forms</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
