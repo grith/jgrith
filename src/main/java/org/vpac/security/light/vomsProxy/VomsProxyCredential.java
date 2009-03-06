@@ -340,7 +340,7 @@ public class VomsProxyCredential {
 		ArrayList<String> info = new ArrayList<String>();
 		info.add("=== VO extension information ===");
 		try {
-		 info.add("issuer\t: " + vomsac.getIssuer() );
+		 info.add("issuer\t\t: " + vomsac.getIssuer() );
 	       boolean checked = vomsac.verify() ;
 	       if( checked )
 	       {
@@ -358,14 +358,14 @@ public class VomsProxyCredential {
 	        } else {
 	          info.add( "WARNING - this AC is not within its valid time - DO NOT TRUST!" ) ;
 	        }
-	        info.add( "holder\t: " + vomsac.getHolder() ) ;
-	        info.add( "version\t: " + vomsac.getVersion() ) ;
+	        info.add( "holder\t\t: " + vomsac.getHolder() ) ;
+	        info.add( "version\t\t: " + vomsac.getVersion() ) ;
 	        info.add( "algorithm\t: " + vomsac.getAlgorithmIdentifier() ) ;
 	        info.add( "serialNumber\t: " + vomsac.getSerialNumberIntValue() ) ;
 	        for ( String line : vomsac.getVOMSFQANs() ){
 	        	info.add( "attribute\t: "+line);
 	        }
-	        info.addAll(vomsac.getVOMSFQANs());
+//	        info.addAll(vomsac.getVOMSFQANs());
 		 
 		} catch (Exception e){
 			myLogger.error(e);

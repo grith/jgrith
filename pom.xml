@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.org.arcs.auth</groupId>
   <artifactId>simpleProxyLib</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <repositories>
   	<repository>
   		<id>vpac</id>
