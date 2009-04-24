@@ -117,7 +117,7 @@ public class MyProxy_light {
 	 * to actually prepare them.
 	 * 
 	 * @param myproxy the myproxy server to upload the credential to (create with new MyProxy("server", port) - port is usually 7512)
-	 * @param credential the credential you want to delegate to the server (this uses a {@link GlobusCredential) instead of a {@link GSSCredential}
+	 * @param credential the credential you want to delegate to the server (this uses a {@link GlobusCredential}) instead of a {@link GSSCredential}
 	 * @param proxy_parameters the parameters for the credential on the myproxy server. See the prepareProxyParameters() method.
 	 * @param myProxyPassphrase the passphrase for the credentials on the myproxy server.
 	 * @throws GSSException if the credential can't be used (or destroyed after the upload)
