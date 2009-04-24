@@ -29,7 +29,7 @@ public class ProxyInfoPanel extends JPanel {
 		//
 	}
 	/**
-	 * @return
+	 * @return the label
 	 */
 	protected JLabel getSubjectLabel() {
 		if (subjectLabel == null) {
