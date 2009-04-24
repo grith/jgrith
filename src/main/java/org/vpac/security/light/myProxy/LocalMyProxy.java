@@ -112,7 +112,6 @@ public class LocalMyProxy {
 	 * @param username the username the user used when uploading the proxy
 	 * @param passphrase the passphrase the user used when uploading the proxy
 	 * @param lifetime_in_seconds how long you want the proxy to be valid
-	 * @return the proxy credential
 	 * @throws MyProxyException if something did not work
 	 * @throws GSSException if something is wrong with the retrieved proxy
 	 * @throws IOException if the proxy can't be written to disk
