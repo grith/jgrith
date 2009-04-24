@@ -2,12 +2,12 @@
   <parent>
     <artifactId>proxy</artifactId>
     <groupId>au.org.arcs.auth</groupId>
-    <version>0.2</version>
+    <version>0.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.org.arcs.auth</groupId>
   <artifactId>simpleProxyLib</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <repositories>
   	<repository>
   		<id>vpac</id>
