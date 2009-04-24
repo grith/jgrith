@@ -69,7 +69,7 @@ public class LocalMyProxy {
 	/**
 	 * Equivalent to the commandline myproxy-get-delegation command for getting an anonymous proxy. The proxy is retrieved 
 	 * from the MyProxy server and written to disk. This uses default server which is
-	 * hardcoded in this class ({@link LocalMyProxy.DEFAULT_MYPROXY_SERVER}).
+	 * hardcoded in this class (DEFAULT_MYPROXY_SERVER).
 	 * 
 	 * @param username the username the user used when uploading the proxy
 	 * @param passphrase the passphrase the user used when uploading the proxy
@@ -106,7 +106,7 @@ public class LocalMyProxy {
 	/**
 	 * Equivalent to the commandline myproxy-get-delegation command for getting a non-anonymous proxy. The proxy is retrieved 
 	 * from the MyProxy server and written to disk. This uses default server which is
-	 * hardcoded in this class ({@link LocalMyProxy.DEFAULT_MYPROXY_SERVER}).
+	 * hardcoded in this class (LocalMyProxy.DEFAULT_MYPROXY_SERVER).
 	 * 
 	 * @param credential the credential you want to use to authenticate against the MyProxy server
 	 * @param username the username the user used when uploading the proxy
