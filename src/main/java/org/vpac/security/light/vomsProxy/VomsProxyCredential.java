@@ -116,10 +116,11 @@ public class VomsProxyCredential {
 	 * The default constructor. Assembles a VomsProxyCredential.
 	 * @deprecated Don't use this constructor anymore. Use the one that needs seconds for lifetime...
 	 * 
-	 * @param plainProxy a X509 proxy (can be the local proxy or a myproxy proxy credential.
+	 * @param gridProxy a X509 proxy (can be the local proxy or a myproxy proxy credential.
 	 * @param vo the VO
 	 * @param command the command to send to the VOMS server
 	 * @param lifetime_in_hours the lifetime of the proxy in hours
+	 * @param the order
 	 * @throws Exception if something fails, obviously
 	 */
 	public VomsProxyCredential(GlobusCredential gridProxy, VO vo, String command, String order, int lifetime_in_hours)
