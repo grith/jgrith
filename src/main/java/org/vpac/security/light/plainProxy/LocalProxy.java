@@ -117,7 +117,7 @@ public class LocalProxy {
 	
 	/**
 	 * Loads the local proxy into a {@link GlobusCredential}. 
-	 * @return
+	 * @return the credential 
 	 * @throws GlobusCredentialException
 	 */
 	public static GlobusCredential loadGlobusCredential() throws GlobusCredentialException {
