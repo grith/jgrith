@@ -384,15 +384,15 @@ public class VomsProxyCredential {
 				"1.3.6.1.4.1.8005.100.100.5", seqacwrap);
 
 		// Extension 2
-		KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature
-				| KeyUsage.keyEncipherment | KeyUsage.dataEncipherment);
-		BouncyCastleX509Extension kue = new BouncyCastleX509Extension(
-				"2.5.29.15", keyUsage.getDERObject());
+//		KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature
+//				| KeyUsage.keyEncipherment | KeyUsage.dataEncipherment);
+//		BouncyCastleX509Extension kue = new BouncyCastleX509Extension(
+//				"2.5.29.15", keyUsage.getDERObject());
 
 		// Extension Set
 		X509ExtensionSet globusExtensionSet = new X509ExtensionSet();
 		globusExtensionSet.add(ace);
-		globusExtensionSet.add(kue);
+//		globusExtensionSet.add(kue);
 
 		// generate new VOMS proxy
 		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
