@@ -18,45 +18,88 @@
 
 package org.vpac.security.light.plainProxy;
 
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+
 import org.apache.log4j.Logger;
+import org.globus.common.CoGProperties;
+import org.globus.gsi.CertUtil;
+import org.globus.gsi.GSIConstants;
 import org.globus.gsi.GlobusCredential;
-import org.globus.tools.proxy.DefaultGridProxyModel;
+import org.globus.gsi.OpenSSLKey;
+import org.globus.gsi.X509ExtensionSet;
+import org.globus.gsi.bc.BouncyCastleCertProcessingFactory;
+import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
+import org.globus.gsi.bc.BouncyCastleX509Extension;
+import org.globus.gsi.proxy.ext.GlobusProxyCertInfoExtension;
+import org.globus.gsi.proxy.ext.ProxyCertInfo;
+import org.globus.gsi.proxy.ext.ProxyPolicy;
 import org.ietf.jgss.GSSCredential;
 import org.vpac.security.light.CredentialHelpers;
 
 public class PlainProxy {
-	
+
 	static final Logger myLogger = Logger.getLogger(PlainProxy.class.getName());
-	
+
 	/**
-	 * Creates a {@link GSSCredential} using all the (cog-) defaults like cert in $HOME/.globus/usercert.pem...
+	 * Creates a {@link GSSCredential} using all the (cog-) defaults like cert
+	 * in $HOME/.globus/usercert.pem...
 	 * 
-	 * @param passphrase the passphrase of your private key
-	 * @param lifetime_in_hours the lifetime of the proxy
-	 * @return the proxy 
-	 * @throws Exception if something has gone wrong
+	 * @param passphrase
+	 *            the passphrase of your private key
+	 * @param lifetime_in_hours
+	 *            the lifetime of the proxy
+	 * @return the proxy
+	 * @throws Exception
+	 *             if something has gone wrong
 	 */
-	public static GSSCredential init(char[] passphrase, int lifetime_in_hours) throws Exception {
-		
-		// get the cog default model for a proxy
-		DefaultGridProxyModel model =  new DefaultGridProxyModel();
-		// set the lifetime of the proxy
-		model.getProperties().setProxyLifeTime(lifetime_in_hours);
-		
-		GlobusCredential globusCred = null;
-		
-		try {
-			// do the actual grid-proxy-init. the model knows about the default 
-			// private key and certificate location in $HOME/.globus
-			globusCred = model.createProxy(new String(passphrase));
-		} catch (Exception e) {
-			// hm. something's gone wrong. not good.
-			myLogger.error("Could not create local grid proxy: "+e.getMessage());
-			throw e;
+	public static GSSCredential init(char[] passphrase, int lifetime_in_hours)
+			throws Exception {
+
+		CoGProperties props = CoGProperties.getDefault();
+
+		X509Certificate userCert = CertUtil.loadCertificate(props
+				.getUserCertFile());
+
+		OpenSSLKey key = new BouncyCastleOpenSSLKey(props.getUserKeyFile());
+
+		if (key.isEncrypted()) {
+			try {
+				key.decrypt(new String(passphrase));
+			} catch (GeneralSecurityException e) {
+				throw new Exception("Wrong password or other security error");
+			}
 		}
+
+		PrivateKey userKey = key.getPrivateKey();
+
+		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
+				.getDefault();
+
+		int proxyType = GSIConstants.GSI_2_PROXY;
 		
-		return CredentialHelpers.wrapGlobusCredential(globusCred);
-		
+		ProxyPolicy policy = new ProxyPolicy(ProxyPolicy.IMPERSONATION);
+		ProxyCertInfo proxyCertInfo = new ProxyCertInfo(policy);
+
+		BouncyCastleX509Extension certInfoExt = new GlobusProxyCertInfoExtension(
+				proxyCertInfo);
+
+		X509ExtensionSet extSet = null;
+		if (proxyCertInfo != null) {
+			extSet = new X509ExtensionSet();
+
+			// old OID
+			extSet.add(new GlobusProxyCertInfoExtension(proxyCertInfo));
+		}
+
+		GlobusCredential proxy = factory.createCredential(
+				new X509Certificate[] { userCert }, userKey, props
+						.getProxyStrength(), props.getProxyLifeTime() * 3600
+						* lifetime_in_hours, proxyType, extSet);
+
+		return CredentialHelpers.wrapGlobusCredential(proxy);
+
 	}
 
 }

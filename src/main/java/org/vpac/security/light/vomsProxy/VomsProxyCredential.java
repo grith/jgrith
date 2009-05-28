@@ -32,7 +32,6 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.AttributeCertificate;
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.globus.gsi.GSIConstants;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.X509ExtensionSet;
@@ -45,6 +44,9 @@ import org.globus.gsi.gssapi.auth.Authorization;
 import org.globus.gsi.gssapi.auth.IdentityAuthorization;
 import org.globus.gsi.gssapi.net.GssSocket;
 import org.globus.gsi.gssapi.net.GssSocketFactory;
+import org.globus.gsi.proxy.ext.GlobusProxyCertInfoExtension;
+import org.globus.gsi.proxy.ext.ProxyCertInfo;
+import org.globus.gsi.proxy.ext.ProxyPolicy;
 import org.gridforum.jgss.ExtendedGSSContext;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
@@ -383,6 +385,8 @@ public class VomsProxyCredential {
 		BouncyCastleX509Extension ace = new BouncyCastleX509Extension(
 				"1.3.6.1.4.1.8005.100.100.5", seqacwrap);
 
+
+		
 		// Extension 2
 //		KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature
 //				| KeyUsage.keyEncipherment | KeyUsage.dataEncipherment);
