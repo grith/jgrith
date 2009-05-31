@@ -78,6 +78,7 @@ public class PlainProxy {
 				.getDefault();
 
 		int proxyType = GSIConstants.GSI_2_PROXY;
+//		int proxyType = GSIConstants.GSI_3_IMPERSONATION_PROXY;
 		
 		ProxyPolicy policy = new ProxyPolicy(ProxyPolicy.IMPERSONATION);
 		ProxyCertInfo proxyCertInfo = new ProxyCertInfo(policy);
