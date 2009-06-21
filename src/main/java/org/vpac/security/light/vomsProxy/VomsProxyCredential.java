@@ -44,9 +44,6 @@ import org.globus.gsi.gssapi.auth.Authorization;
 import org.globus.gsi.gssapi.auth.IdentityAuthorization;
 import org.globus.gsi.gssapi.net.GssSocket;
 import org.globus.gsi.gssapi.net.GssSocketFactory;
-import org.globus.gsi.proxy.ext.GlobusProxyCertInfoExtension;
-import org.globus.gsi.proxy.ext.ProxyCertInfo;
-import org.globus.gsi.proxy.ext.ProxyPolicy;
 import org.gridforum.jgss.ExtendedGSSContext;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
@@ -265,7 +262,7 @@ public class VomsProxyCredential {
 		ASN1InputStream asnInStream = new ASN1InputStream(is);
 		ASN1Sequence acseq = (ASN1Sequence) asnInStream.readObject();
 
-		ac = new AttributeCertificate(acseq);
+		ac = new org.bouncycastle.asn1.x509.AttributeCertificate(acseq);
 
 		success = true;
 
