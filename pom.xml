@@ -8,12 +8,7 @@
   <groupId>au.org.arcs.auth</groupId>
   <artifactId>simpleProxyLib</artifactId>
   <version>0.4-SNAPSHOT</version>
-  <repositories>
-  	<repository>
-  		<id>vpac</id>
-  		<url>http://hudson.vpac.org/maven_repository</url>
-  	</repository>
-  </repositories>
+
   <properties>
   	<maven.test.skip>true</maven.test.skip>
 	</properties>
@@ -37,7 +32,7 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
+			<version>1.1.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>
