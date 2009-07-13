@@ -1,18 +1,31 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <artifactId>proxy</artifactId>
-    <groupId>au.org.arcs.auth</groupId>
-    <version>0.4-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>au.org.arcs.auth</groupId>
-  <artifactId>simpleProxyLib</artifactId>
-  <version>0.4-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>proxy</artifactId>
+		<groupId>au.org.arcs.auth</groupId>
+		<version>0.4-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>au.org.arcs.auth</groupId>
+	<artifactId>simpleProxyLib</artifactId>
+	<version>0.4-SNAPSHOT</version>
 
-  <properties>
-  	<maven.test.skip>true</maven.test.skip>
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
 	</properties>
-	
+
+	<repositories>
+		<repository>
+			<id>ARCS</id>
+			<url>http://code.arcs.org.au/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>ARCS Snapshots</id>
+			<url>http://code.arcs.org.au/nexus/content/groups/public-snapshots
+			</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 
 		<dependency>
@@ -114,7 +127,7 @@
 			<version>1.6.0</version>
 		</dependency>
 
-      	<dependency>
+		<dependency>
 			<groupId>urbanophile</groupId>
 			<artifactId>java-getopt</artifactId>
 			<version>1.0.9</version>
@@ -127,7 +140,7 @@
 		</dependency>
 
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -140,5 +153,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>
