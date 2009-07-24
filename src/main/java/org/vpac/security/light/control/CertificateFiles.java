@@ -100,7 +100,7 @@ public class CertificateFiles {
 			}
 
 		} catch (IOException e) {
-			myLogger.error(e);
+			myLogger.warn(e.getLocalizedMessage());
 			throw new Exception("Could not write certificate: "+e.getLocalizedMessage(), e);
 		}
 	}
