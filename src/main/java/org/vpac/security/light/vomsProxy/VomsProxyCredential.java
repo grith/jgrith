@@ -254,7 +254,7 @@ public class VomsProxyCredential {
 			return success;
 		}
 
-		System.out.println(" success");
+		myLogger.debug("Success");
 
 		byte[] payload = VincenzoBase64.decode(encoded);
 
