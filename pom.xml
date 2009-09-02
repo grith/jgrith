@@ -139,10 +139,46 @@
 			<version>1.2.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>au.org.arcs.commons</groupId>
+			<artifactId>arcs-jcommons</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+
+							<descriptors>
+								<descriptor>simpleProxyLib.assembly.xml</descriptor>
+							</descriptors>
+							<finalName>proxy</finalName>
+							<archive>
+
+								<index>true</index>
+								<manifest>
+									<mainClass>start.VomsProxyInit</mainClass>
+								</manifest>
+								<manifestEntries>
+									<Class-Path>bcprov.jar bcprov-jdk15-143.jar</Class-Path>
+								</manifestEntries>
+							</archive>
+
+						</configuration>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
