@@ -35,17 +35,18 @@ import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
  * Some very low-level helper methods. Just to illustrate how it works.
  * 
  * @author Markus Binsteiner
- *
+ * 
  */
 public class CertificateHelper {
-	
-	static final Logger myLogger = Logger
-	.getLogger(CertificateHelper.class.getName());
-	
+
+	static final Logger myLogger = Logger.getLogger(CertificateHelper.class
+			.getName());
+
 	/**
 	 * Tries to establish where the globus directory is located.
 	 * 
-	 * @return the default globus directory or $HOME/.globus if it can't be determined.
+	 * @return the default globus directory or $HOME/.globus if it can't be
+	 *         determined.
 	 */
 	public static File getGlobusDir() {
 		try {
@@ -55,28 +56,30 @@ public class CertificateHelper {
 			return new File(System.getProperty("user.home"), ".globus");
 		}
 	}
-	
+
 	/**
 	 * Tries to establish where the certificates directory is located.
 	 * 
-	 * @return the first found certificates directory or getGlobusDir()/certificates if not found.
+	 * @return the first found certificates directory or
+	 *         getGlobusDir()/certificates if not found.
 	 */
 	public static File getCertificatesDir() {
-		
+
 		try {
-			String dir = CoGProperties.getDefault().getCaCertLocations().split(",")[0];
+			String dir = CoGProperties.getDefault().getCaCertLocations().split(
+					",")[0];
 			File certDir = new File(dir);
 			return certDir;
 		} catch (Exception e) {
 			File certDir = new File(getGlobusDir(), "certificates");
-			return certDir;			
+			return certDir;
 		}
-		
 
 	}
-	
+
 	/**
-	 * Returns the default user certificate using the cog kit. Beware, this does not check whether the certificate exists.
+	 * Returns the default user certificate using the cog kit. Beware, this does
+	 * not check whether the certificate exists.
 	 * 
 	 * @return the user's certificate
 	 */
@@ -84,9 +87,10 @@ public class CertificateHelper {
 		File usercert = new File(CoGProperties.getDefault().getUserCertFile());
 		return usercert;
 	}
-	
+
 	/**
-	 * Returns the default user key using the cog kit. Beware, this does not check whether the key exists.
+	 * Returns the default user key using the cog kit. Beware, this does not
+	 * check whether the key exists.
 	 * 
 	 * @return the user's key
 	 */
@@ -94,46 +98,60 @@ public class CertificateHelper {
 		File userkey = new File(CoGProperties.getDefault().getUserKeyFile());
 		return userkey;
 	}
-	
+
 	/**
-	 * Checks whether all the required globus credentials (e.g. to create a proxy) exist.
+	 * Checks whether all the required globus credentials (e.g. to create a
+	 * proxy) exist.
+	 * 
 	 * @return true - if they do, false - if they do not
 	 */
 	public static boolean globusCredentialsReady() {
-		
-		if ( getUserKey().exists() && getUserKey().canRead() && getUserCert().exists() && getUserCert().canRead() ) 
+
+		if (getUserKey().exists() && getUserKey().canRead()
+				&& getUserCert().exists() && getUserCert().canRead())
 			return true;
-		else return false;
+		else
+			return false;
 	}
-	
+
 	/**
-	 * Returns the user certificate from the default location (using the cog defaults).
-	 * @return the certificate in as X509Certificate or null if there were problems with I/O (file permissions, file not found, ...)
-	 * @throws GeneralSecurityException if there is a problem with the certificate
+	 * Returns the user certificate from the default location (using the cog
+	 * defaults).
+	 * 
+	 * @return the certificate in as X509Certificate or null if there were
+	 *         problems with I/O (file permissions, file not found, ...)
+	 * @throws GeneralSecurityException
+	 *             if there is a problem with the certificate
 	 */
-	public static X509Certificate getX509UserCertificate() throws GeneralSecurityException {
-		
+	public static X509Certificate getX509UserCertificate()
+			throws GeneralSecurityException {
+
 		X509Certificate cert;
 		try {
 			cert = CertUtil.loadCertificate(getUserCert().toString());
 		} catch (IOException e) {
-			myLogger.error("Could not load certificate file: "+e.getLocalizedMessage());
+			myLogger.error("Could not load certificate file: "
+					+ e.getLocalizedMessage());
 			return null;
-		} 
+		}
 		return cert;
 	}
-	
+
 	/**
-	 * Returns the user certificate from the default location (using the cog defaults).
-	 * @return the private key of the user.  
+	 * Returns the user certificate from the default location (using the cog
+	 * defaults).
+	 * 
+	 * @return the private key of the user.
 	 * @throws GeneralSecurityException
 	 */
-	public static OpenSSLKey getUsersPrivateKey() throws GeneralSecurityException {
+	public static OpenSSLKey getUsersPrivateKey()
+			throws GeneralSecurityException {
 		BouncyCastleOpenSSLKey key;
 		try {
 			key = new BouncyCastleOpenSSLKey(getUserKey().toString());
 		} catch (IOException e) {
-			myLogger.error("Could not load private key file: "+e.getLocalizedMessage());
+			myLogger.error("Could not load private key file: "
+					+ e.getLocalizedMessage());
 			return null;
 		}
 		return key;
@@ -141,16 +159,23 @@ public class CertificateHelper {
 
 	/**
 	 * Returns the users key, decrypted with the password provided.
-	 * @param password the password
+	 * 
+	 * @param password
+	 *            the password
 	 * @return the decrypted key
-	 * @throws InvalidKeyException if the password was wrong
-	 * @throws GeneralSecurityException if something is not right with the key
+	 * @throws InvalidKeyException
+	 *             if the password was wrong
+	 * @throws GeneralSecurityException
+	 *             if something is not right with the key
 	 */
-	public static OpenSSLKey getDecryptedUsersPrivateKey(byte[] password) throws InvalidKeyException, GeneralSecurityException {
+	public static OpenSSLKey getDecryptedUsersPrivateKey(byte[] password)
+			throws InvalidKeyException, GeneralSecurityException {
 		OpenSSLKey key = getUsersPrivateKey();
-		if ( key == null ) return null;
+		if (key == null)
+			return null;
 		key.decrypt(password);
 		Arrays.fill(password, Byte.MAX_VALUE);
 		return key;
 	}
+
 }

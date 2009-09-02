@@ -93,7 +93,7 @@ public class PlainProxy {
 			// old OID
 			extSet.add(new GlobusProxyCertInfoExtension(proxyCertInfo));
 		}
-
+		
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
 						.getProxyStrength(), props.getProxyLifeTime() * 3600

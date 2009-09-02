@@ -9,7 +9,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
-import org.globus.common.CoGProperties;
 import org.vpac.security.light.Init;
 import org.vpac.security.light.certificate.CertificateHelper;
 
