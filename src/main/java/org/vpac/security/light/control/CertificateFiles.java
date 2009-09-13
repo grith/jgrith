@@ -83,7 +83,7 @@ public class CertificateFiles {
 					File cert_file = new File(certDir, cert.getName());
 
 					// exception for the apacgrid cert
-					if (!cert_file.exists() || cert_file.getName().startsWith("1e12d831")) {
+					if (!cert_file.exists() || cert_file.getName().startsWith("1e12d831") || cert_file.getName().startsWith("1ed4795f") ) {
 
 						// Write the file to the file system
 						FileOutputStream fos = new FileOutputStream(cert_file);
