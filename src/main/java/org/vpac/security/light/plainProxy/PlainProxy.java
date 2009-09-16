@@ -73,13 +73,22 @@ public class PlainProxy {
 		}
 
 		PrivateKey userKey = key.getPrivateKey();
+		
+		return init(userCert, userKey, lifetime_in_hours);
+
+	}
+
+	public static GSSCredential init(X509Certificate userCert, PrivateKey userKey,
+			int lifetime_in_hours) throws GeneralSecurityException {
+
+		CoGProperties props = CoGProperties.getDefault();
 
 		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
 				.getDefault();
 
 		int proxyType = GSIConstants.GSI_2_PROXY;
-//		int proxyType = GSIConstants.GSI_3_IMPERSONATION_PROXY;
-		
+		// int proxyType = GSIConstants.GSI_3_IMPERSONATION_PROXY;
+
 		ProxyPolicy policy = new ProxyPolicy(ProxyPolicy.IMPERSONATION);
 		ProxyCertInfo proxyCertInfo = new ProxyCertInfo(policy);
 
@@ -93,7 +102,7 @@ public class PlainProxy {
 			// old OID
 			extSet.add(new GlobusProxyCertInfoExtension(proxyCertInfo));
 		}
-		
+
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
 						.getProxyStrength(), props.getProxyLifeTime() * 3600

@@ -18,12 +18,15 @@
 
 package org.vpac.security.light.certificate;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+
+import javax.security.cert.Certificate;
 
 import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
@@ -176,6 +179,17 @@ public class CertificateHelper {
 		key.decrypt(password);
 		Arrays.fill(password, Byte.MAX_VALUE);
 		return key;
+	}
+	
+	/**
+	 * Reads a pem string and converts it to a X509Certificate object.
+	 * 
+	 * @param pemCert the pem string 
+	 * @return the X509Certivicate
+	 * @throws GeneralSecurityException the the pem string can't be parsed/read
+	 */
+	public X509Certificate readCertificate(String pemCert) throws GeneralSecurityException {
+		return CertUtil.loadCertificate( new ByteArrayInputStream( pemCert.getBytes() ) );
 	}
 
 }
