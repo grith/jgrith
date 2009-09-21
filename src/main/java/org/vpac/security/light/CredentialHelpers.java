@@ -33,6 +33,7 @@ import org.gridforum.jgss.ExtendedGSSCredential;
 import org.gridforum.jgss.ExtendedGSSManager;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.vpac.security.light.plainProxy.LocalProxy;
 
 public class CredentialHelpers {
 	
@@ -101,6 +102,18 @@ public class CredentialHelpers {
 	}
 	
 	/**
+	 * Writes the specified globus credential to the default globus location on the local machine.
+	 * 
+	 * @param globusCred the credential
+	 * @throws IOException if something goes wrong
+	 */
+	public static void writeToDisk(GlobusCredential globusCred) throws IOException {
+		
+		writeToDisk(globusCred, new File(LocalProxy.PROXY_FILE));
+		
+	}
+	
+	/**
 	 * Loads a GlobusCredential from a file. This method is really trivial and I only included it to have everything 
 	 * in one place.
 	 * 
@@ -129,6 +142,17 @@ public class CredentialHelpers {
 		    FileOutputStream out = new FileOutputStream(path);
 		    out.write(data);
 		    
+	}
+	
+	/**
+	 * Writes a GSSCredential to the default globus location
+	 * 
+	 * @param gssCred the credential
+	 * @throws GSSException if something is strange with the {@link GSSCredential}
+	 * @throws IOException if something's wonky with the file / file permission
+	 */
+	public static void writeToDisk(GSSCredential gssCred) throws IOException, GSSException {
+		writeToDisk(gssCred, new File(LocalProxy.PROXY_FILE));
 	}
 	
 	public static byte[] convertGSSCredentialToByteArray(GSSCredential gssCred) throws GSSException {
