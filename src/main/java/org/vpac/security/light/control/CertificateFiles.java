@@ -78,7 +78,8 @@ public class CertificateFiles {
 			while ((cert = certStream.getNextEntry()) != null) {
 
 				if (!cert.isDirectory()) {
-
+					
+					try {
 					myLogger.debug("Certificate name: " + cert.getName());
 					File cert_file = new File(certDir, cert.getName());
 
@@ -93,6 +94,9 @@ public class CertificateFiles {
 						}
 						dest.flush();
 						dest.close();
+					}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 
 				}
