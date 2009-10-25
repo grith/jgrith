@@ -171,10 +171,13 @@ public class GenericProxyCreationPanel extends JPanel implements
 		if (shibProxyCreatorPanel == null) {
 
 			try {
-				Class shibPanelClass = Class
-						.forName("au.org.mams.slcs.client.view.swing.SlcsLoginPanel");
-				shibProxyCreatorPanel = (ProxyCreatorPanel) shibPanelClass
-						.newInstance();
+//				Class shibPanelClass = Class
+//						.forName("au.org.mams.slcs.client.view.swing.SlcsLoginPanel");
+//				shibProxyCreatorPanel = (ProxyCreatorPanel) shibPanelClass
+//						.newInstance();
+				
+				shibProxyCreatorPanel = new SlcsPanel();
+				shibProxyCreatorPanel.setProxyCreatorHolder(this);
 
 			} catch (Exception e) {
 				myLogger.error("Can't create shibProxyPanel: "

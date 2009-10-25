@@ -92,7 +92,7 @@ public class VomsesFiles {
 							.getName());
 
 					if (!vomses_file.exists()
-							|| "APACGrid".equals(voms.getName())) {
+							|| "ARCS".equals(voms.getName())) {
 
 						// Write the file to the file system
 						FileOutputStream fos = new FileOutputStream(vomses_file);
@@ -109,8 +109,8 @@ public class VomsesFiles {
 
 			for (String vomsFile : VOMSES_TO_ACTIVATE) {
 				File source = new File(AVAILABLE_VOMSES_DIR, vomsFile);
-				if ( source.exists() ) {
-					File target = new File(USER_VOMSES_DIR, vomsFile);
+				File target = new File(USER_VOMSES_DIR, vomsFile);
+				if ( target.exists() || "ARCS".equals(source.getName()) ) {
 					copyFile(source, target);
 				} else {
 					myLogger.error("Could not activate VO: "+vomsFile+": Vomses file not available.");

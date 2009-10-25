@@ -96,7 +96,7 @@ public class CertificateFiles {
 						dest.close();
 					}
 					} catch (Exception e) {
-						e.printStackTrace();
+						myLogger.error("Could not write certificate: "+cert.getName());
 					}
 
 				}
