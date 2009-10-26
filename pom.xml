@@ -6,9 +6,7 @@
 		<version>0.4-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>au.org.arcs.auth</groupId>
 	<artifactId>simpleProxyLib</artifactId>
-	<version>0.4-SNAPSHOT</version>
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
@@ -25,6 +23,7 @@
 			</url>
 		</repository>
 	</repositories>
+
 
 	<dependencies>
 

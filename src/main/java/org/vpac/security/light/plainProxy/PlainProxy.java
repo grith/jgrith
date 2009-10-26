@@ -105,7 +105,8 @@ public class PlainProxy {
 
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
-						.getProxyStrength(), props.getProxyLifeTime() * 3600
+//						.getProxyStrength(), props.getProxyLifeTime() * 3600
+						.getProxyStrength(), 3600
 						* lifetime_in_hours, proxyType, extSet);
 
 		return CredentialHelpers.wrapGlobusCredential(proxy);
