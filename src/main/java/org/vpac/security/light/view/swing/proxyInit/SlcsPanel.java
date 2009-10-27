@@ -39,7 +39,7 @@ public class SlcsPanel extends JPanel implements SlcsListener, ProxyCreatorPanel
 	private ProxyCreatorHolder holder = null;
 	private SLCS slcs = null;
 	
-	private static final String url = "https://slcs1.arcs.org.au/SLCS/login";
+	private static final String url = "https://slcstest.arcs.org.au/SLCS/login";
 
 	/**
 	 * Create the panel.

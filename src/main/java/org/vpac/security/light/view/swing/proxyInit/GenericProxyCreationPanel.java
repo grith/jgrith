@@ -180,6 +180,7 @@ public class GenericProxyCreationPanel extends JPanel implements
 				shibProxyCreatorPanel.setProxyCreatorHolder(this);
 
 			} catch (Exception e) {
+				e.printStackTrace();
 				myLogger.error("Can't create shibProxyPanel: "
 						+ e.getLocalizedMessage());
 			}
