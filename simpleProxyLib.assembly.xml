@@ -27,6 +27,11 @@
 					<exclude>**/MANIFEST.MF</exclude>
 					<exclude>**/LICENSE.txt</exclude>
 					<exclude>**/NOTICE.txt</exclude>
+					<exclude>**/LICENSE</exclude>
+					<exclude>**/NOTICE</exclude>
+					<exclude>log4j.properties</exclude>
+					<exclude>certificates.zip</exclude>
+					<exclude>vomses.zip</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>
