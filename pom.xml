@@ -83,6 +83,7 @@
 			<groupId>bouncycastle</groupId>
 			<artifactId>bcprov-jdk15</artifactId>
 			<version>143</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -136,6 +137,7 @@
 			<groupId>com.jgoodies</groupId>
 			<artifactId>forms</artifactId>
 			<version>1.2.1</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -143,7 +145,7 @@
 			<artifactId>arcs-jcommons</artifactId>
 			<version>1.0</version>
 			<type>jar</type>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>au.org.arcs.auth</groupId>
@@ -192,6 +194,26 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<id>sign</id>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<alias>arcs</alias>
+					<storepass>FxAKs3p6</storepass>
+					<keypass>FxAKs3p6</keypass>
+				</configuration>
+			</plugin>
+			
 		</plugins>
 	</build>
 
