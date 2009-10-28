@@ -50,19 +50,25 @@ public class LocalX509CertProxyCreatorPanel extends JPanel {
 		super();
 		setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("43dlu:grow(1.0)"),
-				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("10dlu"), FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("11dlu"), FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC }));
+				ColumnSpec.decode("43dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("10dlu"),
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("11dlu"),
+				RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,}));
 		//
 		enablePanel(false);
 		add(getPleaseProvideYourLabel(), new CellConstraints(2, 2, 3, 1));
 		add(getPasswordField(), new CellConstraints(2, 4, 3, 1));
-		add(getAuthenticateButton(), new CellConstraints(4, 8));
+		add(getAuthenticateButton(), "4, 8, default, bottom");
 		add(getLifetimeInDaysLabel(), new CellConstraints(2, 6));
 		add(getComboBox(), new CellConstraints(4, 6));
 	}

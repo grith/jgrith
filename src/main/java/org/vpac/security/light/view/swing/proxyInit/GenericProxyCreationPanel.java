@@ -77,15 +77,20 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private void initialize() {
 		setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("23dlu:grow(1.0)"),
+				ColumnSpec.decode("23dlu:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("35dlu:grow(1.0)"),
-				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("144dlu"),
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC }));
+				ColumnSpec.decode("35dlu:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("167dlu"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,}));
 		add(getVomsProxyInfoPanel(), new CellConstraints(2, 6, 3, 1,
 				CellConstraints.FILL, CellConstraints.DEFAULT));
 		add(getCreateVomsProxyPanel(), new CellConstraints(2, 4, 3, 1));
@@ -302,10 +307,11 @@ public class GenericProxyCreationPanel extends JPanel implements
 			panel.setBorder(new TitledBorder(null, "Create/retrieve proxy",
 					TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, null, null));
-			panel.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec
-					.decode("334px:grow(1.0)") }, new RowSpec[] {
-					RowSpec.decode("187px:grow(1.0)"),
-					FormFactory.RELATED_GAP_ROWSPEC }));
+			panel.setLayout(new FormLayout(new ColumnSpec[] {
+					ColumnSpec.decode("334px:grow"),},
+				new RowSpec[] {
+					RowSpec.decode("154px:grow"),
+					FormFactory.RELATED_GAP_ROWSPEC,}));
 			panel.add(getTabbedPane(), new CellConstraints(
 					"1, 1, 1, 1, fill, fill"));
 		}

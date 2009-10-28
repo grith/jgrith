@@ -58,35 +58,34 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 	 */
 	public MyProxyProxyCreatorPanel() {
 		super();
-		setLayout(new FormLayout(
-			new ColumnSpec[] {
+		setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("42dlu:grow(1.0)"),
+				ColumnSpec.decode("42dlu:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("17dlu"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("39dlu"),
-				FormFactory.RELATED_GAP_COLSPEC},
+				FormFactory.RELATED_GAP_COLSPEC,},
 			new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("9dlu"),
+				FormFactory.PARAGRAPH_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("9dlu"),
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC}));
+				FormFactory.PARAGRAPH_GAP_ROWSPEC,
+				RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,}));
 		add(getUsernameLabel(), new CellConstraints(2, 4));
 		add(getPasswordLabel(), new CellConstraints(2, 6));
 		add(getUsernameTextField(), new CellConstraints(4, 4, 5, 1));
 		add(getPasswordField(), new CellConstraints(4, 6, 5, 1));
 		add(getTitleLabel(), new CellConstraints(2, 2, 7, 1));
-		add(getButton(), new CellConstraints(6, 10, 3, 1));
+		add(getButton(), "6, 10, 3, 1, default, bottom");
 		add(getComboBox(), new CellConstraints(8, 8));
 		add(getLifetimeinDaysLabel(), new CellConstraints(2, 8, 3, 1));
 
