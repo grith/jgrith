@@ -188,6 +188,7 @@ public class GenericProxyCreationPanel extends JPanel implements
 				e.printStackTrace();
 				myLogger.error("Can't create shibProxyPanel: "
 						+ e.getLocalizedMessage());
+				throw new RuntimeException("Can't create shibboleth authentication panel.", e);
 			}
 
 		}
