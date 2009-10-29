@@ -96,14 +96,14 @@ public class CertificateFiles {
 						dest.close();
 					}
 					} catch (Exception e) {
-						myLogger.error("Could not write certificate: "+cert.getName());
+						myLogger.debug("Could not write certificate: "+cert.getName());
 					}
 
 				}
 			}
 
 		} catch (IOException e) {
-			myLogger.warn(e.getLocalizedMessage());
+			myLogger.debug(e.getLocalizedMessage());
 			throw new Exception("Could not write certificate: "+e.getLocalizedMessage(), e);
 		}
 	}
