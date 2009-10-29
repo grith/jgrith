@@ -4,18 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Enumeration;
-import java.util.Vector;
 
 import javax.swing.JDialog;
 
-import org.apache.log4j.Logger;
-import org.globus.gsi.GlobusCredential;
-import org.vpac.security.light.view.swing.ProxyInitListener;
+import org.globus.common.CoGProperties;
 
 import au.org.arcs.auth.shibboleth.Shibboleth;
-import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
-import au.org.arcs.jcommons.utils.ArcsSecurityProvider;
 
 public class GenericProxyInitDialog extends JDialog {
 	
@@ -28,6 +22,8 @@ public class GenericProxyInitDialog extends JDialog {
 	 */
 	public static void main(String args[]) {
 		
+		
+		CoGProperties.getDefault().setProperty(CoGProperties.ENFORCE_SIGNING_POLICY, "false");
 		try {
 			Shibboleth.initDefaultSecurityProvider();
 		} catch (Exception e) {
