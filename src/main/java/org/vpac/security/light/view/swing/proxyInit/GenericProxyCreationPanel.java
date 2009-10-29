@@ -43,6 +43,8 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private static final String MYPROXY_TAB_NAME = "MyProxy";
 	private static final String LOCAL_CERT_TAB_NAME = "Local x509 cert";
 	private static final String SHIB_TAB_NAME = "Shibboleth";
+	
+	private String shibUrl = null;
 
 	private GlobusCredential currentProxy = null;
 
@@ -52,13 +54,14 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private boolean useShib, useX509, useMyProxy, displayOtherAction = true;
 
 	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
-			boolean useMyProxy, boolean displayOtherAction) {
+			boolean useMyProxy, boolean displayOtherAction, String shibUrl) {
 
 		super();
 		this.useShib = useShib;
 		this.useX509 = useX509;
 		this.useMyProxy = useMyProxy;
 		this.displayOtherAction = displayOtherAction;
+		this.shibUrl = shibUrl;
 		initialize();
 	}
 
@@ -66,12 +69,12 @@ public class GenericProxyCreationPanel extends JPanel implements
 	 * Create the default version of the panel
 	 */
 	public GenericProxyCreationPanel() {
-		super();
-		this.useShib = true;
-		this.useX509 = true;
-		this.useMyProxy = true;
-		this.displayOtherAction = true;
-		initialize();
+		this(true, true, true, true, null);
+	}
+	
+	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
+			boolean useMyProxy, boolean displayOtherAction) {
+		this(useShib, useX509, useMyProxy, displayOtherAction, null);
 	}
 
 	private void initialize() {
@@ -181,7 +184,7 @@ public class GenericProxyCreationPanel extends JPanel implements
 //				shibProxyCreatorPanel = (ProxyCreatorPanel) shibPanelClass
 //						.newInstance();
 				
-				shibProxyCreatorPanel = new SlcsPanel();
+				shibProxyCreatorPanel = new SlcsPanel(shibUrl);
 				shibProxyCreatorPanel.setProxyCreatorHolder(this);
 
 			} catch (Exception e) {

@@ -13,7 +13,9 @@ import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.vpac.security.light.view.swing.ProxyInitListener;
 
+import au.org.arcs.auth.shibboleth.Shibboleth;
 import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
+import au.org.arcs.jcommons.utils.ArcsSecurityProvider;
 
 public class GenericProxyInitDialog extends JDialog {
 	
@@ -25,6 +27,13 @@ public class GenericProxyInitDialog extends JDialog {
 	 * @param args
 	 */
 	public static void main(String args[]) {
+		
+		try {
+			Shibboleth.initDefaultSecurityProvider();
+		} catch (Exception e) {
+			System.err.println("Shib classes not found..");
+		}
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -47,7 +56,7 @@ public class GenericProxyInitDialog extends JDialog {
 	 */
 	public GenericProxyInitDialog() {
 		super();
-		setBounds(100, 100, 495, 575);
+		setBounds(100, 100, 563, 650);
 		getContentPane().add(getGenericProxyCreationPanel(), BorderLayout.CENTER);
 		//
 	}

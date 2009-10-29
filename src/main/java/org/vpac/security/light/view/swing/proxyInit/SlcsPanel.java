@@ -39,12 +39,20 @@ public class SlcsPanel extends JPanel implements SlcsListener, ProxyCreatorPanel
 	private ProxyCreatorHolder holder = null;
 	private SLCS slcs = null;
 	
-	private static final String url = "https://slcstest.arcs.org.au/SLCS/login";
+	private String url;
+	
+	private static final String DEFAULT_URL = "https://slcs1.arcs.org.au/SLCS/login";
 
 	/**
 	 * Create the panel.
 	 */
-	public SlcsPanel() {
+	public SlcsPanel(String url) {
+		
+		if ( url == null || "".equals(url) ) {
+			this.url = DEFAULT_URL;
+		} else { 
+			this.url = url;
+		}
 		setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
