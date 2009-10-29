@@ -18,14 +18,14 @@ import org.python.core.PyInstance;
 import org.vpac.security.light.CredentialHelpers;
 import org.vpac.security.light.plainProxy.PlainProxy;
 
-import au.org.arcs.auth.shibboleth.IdpListener;
 import au.org.arcs.auth.shibboleth.ShibListener;
 import au.org.arcs.auth.shibboleth.ShibLoginPanel;
 import au.org.arcs.auth.slcs.SLCS;
-import au.org.arcs.auth.slcs.SlcsListener;
 import au.org.arcs.commonInterfaces.HttpProxyInfoHolder;
 import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
 import au.org.arcs.commonInterfaces.ProxyCreatorPanel;
+import au.org.arcs.jcommons.interfaces.IdpListener;
+import au.org.arcs.jcommons.interfaces.SlcsListener;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
