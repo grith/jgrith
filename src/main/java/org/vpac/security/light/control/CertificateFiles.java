@@ -9,6 +9,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.log4j.Logger;
+import org.globus.common.CoGProperties;
 import org.vpac.security.light.Init;
 import org.vpac.security.light.certificate.CertificateHelper;
 
@@ -55,6 +56,10 @@ public class CertificateFiles {
 	 * 
 	 */
 	public static void copyCACerts() throws Exception {
+		
+		// needed for APAC signing policy file...
+		// there's a bug in jglobus that doesn't work with it...
+		CoGProperties.getDefault().setProperty(CoGProperties.ENFORCE_SIGNING_POLICY, "false");
 
 		createGlobusDirectory();
 
