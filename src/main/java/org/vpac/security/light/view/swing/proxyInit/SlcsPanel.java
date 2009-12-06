@@ -158,6 +158,10 @@ public class SlcsPanel extends JPanel implements SlcsListener, ProxyCreatorPanel
 		
 		optionalException.printStackTrace();
 		enablePanel(true);
+		
+		if ( holder != null ) {
+			holder.proxyCreationFailed(message);
+		}
 	}
 
 	public void idpListLoaded(SortedSet<String> idpList) {
