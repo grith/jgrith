@@ -105,6 +105,33 @@ public class LocalProxy {
 	}
 	
 	/**
+	 * Checks whether there is a local grid proxy on the default location
+	 * 
+	 * @param minTimeInMinutes minimum time the credential should be valid for
+	 * 
+	 * @return true - if there is and it's lifetime >= the specified min time, false - if there is not a valid proxy or the lifetime is shorter
+	 */
+	public static boolean validGridProxyExists(int minTimeInMinutes) {
+		
+		GlobusCredential globusCredential = null;
+		try {
+			globusCredential = new GlobusCredential(CoGProperties.getDefault().getProxyFile());
+			globusCredential.verify();
+			
+			if ( globusCredential.getTimeLeft()/60 < minTimeInMinutes ) {
+				return false;
+			} else {
+				return true;
+			}
+			
+		} catch (GlobusCredentialException e) {
+			// no. not valid.
+			myLogger.info("Checked Local grid proxy - Not valid: "+e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
 	 * Loads the local proxy into a {@link GSSCredential}.
 	 * 
 	 * @return the credential
