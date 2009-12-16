@@ -26,8 +26,6 @@ import java.security.InvalidKeyException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-import javax.security.cert.Certificate;
-
 import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.CertUtil;
@@ -44,21 +42,6 @@ public class CertificateHelper {
 
 	static final Logger myLogger = Logger.getLogger(CertificateHelper.class
 			.getName());
-
-	/**
-	 * Tries to establish where the globus directory is located.
-	 * 
-	 * @return the default globus directory or $HOME/.globus if it can't be
-	 *         determined.
-	 */
-	public static File getGlobusDir() {
-		try {
-			File globusDir = getUserCert().getParentFile();
-			return globusDir;
-		} catch (Exception e) {
-			return new File(System.getProperty("user.home"), ".globus");
-		}
-	}
 
 	/**
 	 * Tries to establish where the certificates directory is located.
@@ -78,6 +61,42 @@ public class CertificateHelper {
 			return certDir;
 		}
 
+	}
+
+	/**
+	 * Returns the users key, decrypted with the password provided.
+	 * 
+	 * @param password
+	 *            the password
+	 * @return the decrypted key
+	 * @throws InvalidKeyException
+	 *             if the password was wrong
+	 * @throws GeneralSecurityException
+	 *             if something is not right with the key
+	 */
+	public static OpenSSLKey getDecryptedUsersPrivateKey(byte[] password)
+			throws InvalidKeyException, GeneralSecurityException {
+		OpenSSLKey key = getUsersPrivateKey();
+		if (key == null)
+			return null;
+		key.decrypt(password);
+		Arrays.fill(password, Byte.MAX_VALUE);
+		return key;
+	}
+
+	/**
+	 * Tries to establish where the globus directory is located.
+	 * 
+	 * @return the default globus directory or $HOME/.globus if it can't be
+	 *         determined.
+	 */
+	public static File getGlobusDir() {
+		try {
+			File globusDir = getUserCert().getParentFile();
+			return globusDir;
+		} catch (Exception e) {
+			return new File(System.getProperty("user.home"), ".globus");
+		}
 	}
 
 	/**
@@ -103,18 +122,23 @@ public class CertificateHelper {
 	}
 
 	/**
-	 * Checks whether all the required globus credentials (e.g. to create a
-	 * proxy) exist.
+	 * Returns the user certificate from the default location (using the cog
+	 * defaults).
 	 * 
-	 * @return true - if they do, false - if they do not
+	 * @return the private key of the user.
+	 * @throws GeneralSecurityException
 	 */
-	public static boolean globusCredentialsReady() {
-
-		if (getUserKey().exists() && getUserKey().canRead()
-				&& getUserCert().exists() && getUserCert().canRead())
-			return true;
-		else
-			return false;
+	public static OpenSSLKey getUsersPrivateKey()
+			throws GeneralSecurityException {
+		BouncyCastleOpenSSLKey key;
+		try {
+			key = new BouncyCastleOpenSSLKey(getUserKey().toString());
+		} catch (IOException e) {
+			myLogger.error("Could not load private key file: "
+					+ e.getLocalizedMessage());
+			return null;
+		}
+		return key;
 	}
 
 	/**
@@ -141,55 +165,33 @@ public class CertificateHelper {
 	}
 
 	/**
-	 * Returns the user certificate from the default location (using the cog
-	 * defaults).
+	 * Checks whether all the required globus credentials (e.g. to create a
+	 * proxy) exist.
 	 * 
-	 * @return the private key of the user.
-	 * @throws GeneralSecurityException
+	 * @return true - if they do, false - if they do not
 	 */
-	public static OpenSSLKey getUsersPrivateKey()
-			throws GeneralSecurityException {
-		BouncyCastleOpenSSLKey key;
-		try {
-			key = new BouncyCastleOpenSSLKey(getUserKey().toString());
-		} catch (IOException e) {
-			myLogger.error("Could not load private key file: "
-					+ e.getLocalizedMessage());
-			return null;
-		}
-		return key;
+	public static boolean globusCredentialsReady() {
+
+		if (getUserKey().exists() && getUserKey().canRead()
+				&& getUserCert().exists() && getUserCert().canRead())
+			return true;
+		else
+			return false;
 	}
 
 	/**
-	 * Returns the users key, decrypted with the password provided.
-	 * 
-	 * @param password
-	 *            the password
-	 * @return the decrypted key
-	 * @throws InvalidKeyException
-	 *             if the password was wrong
-	 * @throws GeneralSecurityException
-	 *             if something is not right with the key
-	 */
-	public static OpenSSLKey getDecryptedUsersPrivateKey(byte[] password)
-			throws InvalidKeyException, GeneralSecurityException {
-		OpenSSLKey key = getUsersPrivateKey();
-		if (key == null)
-			return null;
-		key.decrypt(password);
-		Arrays.fill(password, Byte.MAX_VALUE);
-		return key;
-	}
-	
-	/**
 	 * Reads a pem string and converts it to a X509Certificate object.
 	 * 
-	 * @param pemCert the pem string 
+	 * @param pemCert
+	 *            the pem string
 	 * @return the X509Certivicate
-	 * @throws GeneralSecurityException the the pem string can't be parsed/read
+	 * @throws GeneralSecurityException
+	 *             the the pem string can't be parsed/read
 	 */
-	public X509Certificate readCertificate(String pemCert) throws GeneralSecurityException {
-		return CertUtil.loadCertificate( new ByteArrayInputStream( pemCert.getBytes() ) );
+	public X509Certificate readCertificate(String pemCert)
+			throws GeneralSecurityException {
+		return CertUtil.loadCertificate(new ByteArrayInputStream(pemCert
+				.getBytes()));
 	}
 
 }

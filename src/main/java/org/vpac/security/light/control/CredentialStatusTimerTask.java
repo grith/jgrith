@@ -10,26 +10,22 @@ import org.globus.gsi.GlobusCredentialException;
 public class CredentialStatusTimerTask extends TimerTask {
 
 	private GlobusCredential proxy = null;
-	
-	public CredentialStatusTimerTask(GlobusCredential proxy) {
-		this.proxy = proxy;
-	}
-	
-	@Override
-	public void run() {
-		try {
-			proxy.verify();
-		} catch (GlobusCredentialException e) {
-			fireCredentialStatusEvent(proxy, CredentialStatusEvent.CREDENTIAL_EXPIRED);
-			mountPointsListeners.removeAllElements();
-			this.cancel();
-		}
-		fireCredentialStatusEvent(proxy, CredentialStatusEvent.CREDENTIAL_TIME_REMAINING_CHANGED);
-	}
-	
+
 	// ---------------------------------------------------------------------------------------
 	// Event stuff (MountPoints)
 	private Vector<CredentialStatusListener> mountPointsListeners;
+
+	public CredentialStatusTimerTask(GlobusCredential proxy) {
+		this.proxy = proxy;
+	}
+
+	// register a listener
+	synchronized public void addCredentialStatusListener(
+			CredentialStatusListener l) {
+		if (mountPointsListeners == null)
+			mountPointsListeners = new Vector<CredentialStatusListener>();
+		mountPointsListeners.addElement(l);
+	}
 
 	private void fireCredentialStatusEvent(GlobusCredential credential, int type) {
 		// if we have no credentialListeners, do nothing...
@@ -40,9 +36,9 @@ public class CredentialStatusTimerTask extends TimerTask {
 
 			Vector<CredentialStatusListener> targets;
 			synchronized (this) {
-				targets = (Vector<CredentialStatusListener>) mountPointsListeners.clone();
+				targets = (Vector<CredentialStatusListener>) mountPointsListeners
+						.clone();
 			}
-
 
 			Enumeration<CredentialStatusListener> e = targets.elements();
 			while (e.hasMoreElements()) {
@@ -57,19 +53,27 @@ public class CredentialStatusTimerTask extends TimerTask {
 		}
 	}
 
-	// register a listener
-	synchronized public void addCredentialStatusListener(CredentialStatusListener l) {
-		if (mountPointsListeners == null)
-			mountPointsListeners = new Vector<CredentialStatusListener>();
-		mountPointsListeners.addElement(l);
-	}
-
 	// remove a listener
-	synchronized public void removeCredentialStatusListener(CredentialStatusListener l) {
+	synchronized public void removeCredentialStatusListener(
+			CredentialStatusListener l) {
 		if (mountPointsListeners == null) {
 			mountPointsListeners = new Vector<CredentialStatusListener>();
 		}
 		mountPointsListeners.removeElement(l);
+	}
+
+	@Override
+	public void run() {
+		try {
+			proxy.verify();
+		} catch (GlobusCredentialException e) {
+			fireCredentialStatusEvent(proxy,
+					CredentialStatusEvent.CREDENTIAL_EXPIRED);
+			mountPointsListeners.removeAllElements();
+			this.cancel();
+		}
+		fireCredentialStatusEvent(proxy,
+				CredentialStatusEvent.CREDENTIAL_TIME_REMAINING_CHANGED);
 	}
 
 }

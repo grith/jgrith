@@ -56,43 +56,50 @@ public class VOManagement {
 
 	/**
 	 * Returns the first part of the fqan (without the role/capability part)
-	 * @param cred the credential
+	 * 
+	 * @param cred
+	 *            the credential
 	 * @return the (short) fqan
 	 */
 	public static Map<String, String> getAllFqans(GSSCredential cred) {
 		return getAllFqans(cred, false);
 	}
 
-
 	/**
-	 * Queries all VO servers for all of the users fqans.
-	 * Returns either the full fqan or just the VO/Group part of it
-	 * @param cred the credential
-	 * @param returnWholeFqan whether to return the full fqan (true) or not (false)
+	 * Queries all VO servers for all of the users fqans. Returns either the
+	 * full fqan or just the VO/Group part of it
+	 * 
+	 * @param cred
+	 *            the credential
+	 * @param returnWholeFqan
+	 *            whether to return the full fqan (true) or not (false)
 	 * @return the fqan
 	 */
-	public static Map<String, String> getAllFqans(GSSCredential cred, boolean returnWholeFqan) {
-		
+	public static Map<String, String> getAllFqans(GSSCredential cred,
+			boolean returnWholeFqan) {
+
 		Map<String, String> allFqans = new TreeMap<String, String>();
-		for ( VO vo : getAllVOs() ) {
-			String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo, cred);
+		for (VO vo : getAllVOs()) {
+			String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo,
+					cred);
 			// check whether user is in a vo at all
-			if ( allFqansFromThisVO != null ) {
-			for ( String fqan : allFqansFromThisVO ) {
-				if ( ! returnWholeFqan ) {
-//				if ( "NULL".equals(GroupManagement.getRolePart(fqan)) ) {
-					if ( fqan.indexOf("/Role=") >= 0 ) {
-						fqan = fqan.substring(0, fqan.indexOf("/Role="));
-					} 
-//				}
+			if (allFqansFromThisVO != null) {
+				for (String fqan : allFqansFromThisVO) {
+					if (!returnWholeFqan) {
+						// if ( "NULL".equals(GroupManagement.getRolePart(fqan))
+						// ) {
+						if (fqan.indexOf("/Role=") >= 0) {
+							fqan = fqan.substring(0, fqan.indexOf("/Role="));
+						}
+						// }
+					}
+					allFqans.put(fqan, vo.getVoName());
 				}
-				allFqans.put(fqan, vo.getVoName());
 			}
-			} 
 		}
 		return allFqans;
 	}
-	
+
 	/**
 	 * Checks every active VO for information about the user (using the provided
 	 * credential) and fills in all fqans
@@ -101,33 +108,35 @@ public class VOManagement {
 	 *            the users' credential
 	 * @return a Map with all information about this user
 	 */
-	public static Map<VO, Map<String, Set<String>>> getAllInformationAboutUser(GSSCredential gssCred) {
+	public static Map<VO, Map<String, Set<String>>> getAllInformationAboutUser(
+			GSSCredential gssCred) {
 
 		Map<VO, String[]> allInfoNotProcessed = new HashMap<VO, String[]>();
 
 		for (VO vo : getAllVOs()) {
 			String[] allFqans = GroupManagement.getAllFqansForVO(vo, gssCred);
-			if ( allFqans != null )
+			if (allFqans != null)
 				allInfoNotProcessed.put(vo, allFqans);
 		}
-		
+
 		Map<VO, Map<String, Set<String>>> allInfo = new HashMap<VO, Map<String, Set<String>>>();
-		for ( VO vo : allInfoNotProcessed.keySet() ) {
+		for (VO vo : allInfoNotProcessed.keySet()) {
 			// get all groups
 			Set<String> allGroupsOfVo = new TreeSet<String>();
-			for ( String fqan : allInfoNotProcessed.get(vo) ) {
+			for (String fqan : allInfoNotProcessed.get(vo)) {
 				allGroupsOfVo.add(GroupManagement.getGroupPart(fqan));
 			}
 
 			Map<String, Set<String>> voAllInfo = new HashMap<String, Set<String>>();
 			// check all fqans again and this time sort the roles in
-			for ( String fqan : allInfoNotProcessed.get(vo) ) {
-				for ( String group : allGroupsOfVo ) {
-					if ( fqan.startsWith(group+"/Role=") ) {
-						if ( voAllInfo.get(group) == null ) {
+			for (String fqan : allInfoNotProcessed.get(vo)) {
+				for (String group : allGroupsOfVo) {
+					if (fqan.startsWith(group + "/Role=")) {
+						if (voAllInfo.get(group) == null) {
 							voAllInfo.put(group, new TreeSet<String>());
 						}
-						voAllInfo.get(group).add(GroupManagement.getRolePart(fqan));
+						voAllInfo.get(group).add(
+								GroupManagement.getRolePart(fqan));
 						break;
 					}
 				}
@@ -136,15 +145,6 @@ public class VOManagement {
 		}
 
 		return allInfo;
-	}
-	
-	public static VO getVO(String vo_name) {
-		
-		for ( VO vo : getAllVOs() ) {
-			if ( vo_name.equals(vo.getVoName()) ) 
-				return vo;
-		}
-		return null;
 	}
 
 	/**
@@ -191,15 +191,40 @@ public class VOManagement {
 		return allVOs;
 	}
 
-	/**
-	 * Reads the vomses directories again to check whether something has
-	 * changed.
-	 * 
-	 * @return all available VOs
-	 */
-	public static Vector<VO> refreshAllVOs() {
-		allVOs = null;
-		return getAllVOs();
+	public static VO getVO(String vo_name) {
+
+		for (VO vo : getAllVOs()) {
+			if (vo_name.equals(vo.getVoName()))
+				return vo;
+		}
+		return null;
+	}
+
+	public static void main(String[] args) {
+
+		GSSCredential cred = null;
+		try {
+			cred = CredentialHelpers.wrapGlobusCredential(LocalProxy
+					.loadGlobusCredential());
+		} catch (GlobusCredentialException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);
+
+		for (VO vo : allInfo.keySet()) {
+			System.out.println("VO: " + vo.getVoName());
+			System.out.println("================================");
+			for (String group : allInfo.get(vo).keySet()) {
+				System.out.println("\n\n\tGroup: " + group);
+				System.out.println("\t------------------------------");
+				for (String role : allInfo.get(vo).get(group)) {
+					System.out.println("\t\tRole: " + role);
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -248,54 +273,40 @@ public class VOManagement {
 
 		if (start < 0 || end < 0)
 			return null;
-		
+
 		String hostDN = line.substring(start, end);
-		
+
 		start = line.indexOf("\"", end + 1) + 1;
 		end = line.indexOf("\"", start + 1);
-		
+
 		// no use for that
-		String stupidName = line.substring(start, end); 
-		
+		String stupidName = line.substring(start, end);
+
 		start = line.indexOf("\"", end + 1) + 1;
 		end = line.indexOf("\"", start + 1);
-		
-		if ( start < 1 ) {
+
+		if (start < 1) {
 			myLogger.debug(name + " " + host + " " + port + " " + hostDN);
 
 			return new VO(name, host, port, hostDN);
 		}
-		
-		String vomrsUrl = line.substring(start, end); 
-		
-		myLogger.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
+
+		String vomrsUrl = line.substring(start, end);
+
+		myLogger
+				.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
 
 		return new VO(name, host, port, hostDN, vomrsUrl);
 	}
-	
-	public static void main (String[] args) {
-		
-		GSSCredential cred = null;
-		try {
-			cred = CredentialHelpers.wrapGlobusCredential(LocalProxy.loadGlobusCredential());
-		} catch (GlobusCredentialException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);
-		
-		for ( VO vo : allInfo.keySet() ) {
-			System.out.println("VO: "+vo.getVoName());
-			System.out.println("================================");
-			for ( String group : allInfo.get(vo).keySet() ) {
-				System.out.println("\n\n\tGroup: "+group);
-				System.out.println("\t------------------------------");
-				for ( String role : allInfo.get(vo).get(group) ) {
-					System.out.println("\t\tRole: "+role);
-				}
-			}
-		}
-		
+
+	/**
+	 * Reads the vomses directories again to check whether something has
+	 * changed.
+	 * 
+	 * @return all available VOs
+	 */
+	public static Vector<VO> refreshAllVOs() {
+		allVOs = null;
+		return getAllVOs();
 	}
 }

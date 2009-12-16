@@ -10,9 +10,6 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import org.globus.gsi.GlobusCredential;
-import org.globus.gsi.GlobusCredentialException;
-import org.ietf.jgss.GSSCredential;
-import org.vpac.security.light.CredentialHelpers;
 import org.vpac.security.light.control.CredentialStatusEvent;
 import org.vpac.security.light.control.CredentialStatusListener;
 import org.vpac.security.light.control.CredentialStatusTimerTask;
@@ -24,22 +21,31 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-public class VomsProxyInfoPanel extends JPanel implements CredentialStatusListener, ProxyInitListener {
-	
+public class VomsProxyInfoPanel extends JPanel implements
+		CredentialStatusListener, ProxyInitListener {
+
 	private static final String BORDER_DEFAULT_TITLE = "Status of current proxy";
-	
+
 	public static final String NO_VALID_PROXY_MESSAGE = "No valid proxy";
 	public static final String NO_VO_PROXY = "None";
 	public static final String NO_TIME_REMAINING = "None";
 	public static final String ERROR_GETTING_VO_INFO = "Error retrieving VO info";
-	
-	
+
+	private static String calculateIdentity(String dn) {
+
+		int start = dn.toLowerCase().indexOf("cn=") + 3;
+		int end = dn.toLowerCase().indexOf(",cn=proxy");
+		if (end == -1 || end <= start) {
+			end = dn.length() - 1;
+		}
+		return dn.substring(start, end);
+	}
 	private GlobusCredential proxy = null;
+
 	private VomsProxy vomsProxy = null;
-	
 	private Timer timer = null;
+
 	private CredentialStatusTimerTask timerTask = null;
-	
 	private JButton detailsButton;
 	private JTextField voTextField;
 	private JTextField remainingTextField;
@@ -48,32 +54,26 @@ public class VomsProxyInfoPanel extends JPanel implements CredentialStatusListen
 	private JLabel label_3;
 	private JLabel label_2;
 	private JLabel label_1;
+
 	private JLabel label;
+
 	/**
 	 * Create the panel
 	 */
 	public VomsProxyInfoPanel() {
 		super();
 		setBorder(BORDER_DEFAULT_TITLE);
-		setLayout(new FormLayout(
-			new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
-				new ColumnSpec("65dlu"),
+		setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.RELATED_GAP_COLSPEC, new ColumnSpec("65dlu"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				new ColumnSpec("default:grow(1.0)"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC},
-			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC}));
+				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC }));
 		add(getLabel(), new CellConstraints(2, 2));
 		add(getLabel_1(), new CellConstraints(2, 4));
 		add(getLabel_2(), new CellConstraints(2, 6));
@@ -87,21 +87,160 @@ public class VomsProxyInfoPanel extends JPanel implements CredentialStatusListen
 		updateStatus();
 	}
 
-	public void setBorder(String title) {
-		setBorder(new TitledBorder(null, title, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+	public void credentialStatusChanged(CredentialStatusEvent event) {
+
+		if (event.getType() == CredentialStatusEvent.CREDENTIAL_EXPIRED) {
+			timer.cancel();
+			timer = null;
+		}
+
+		getRemainingTextField().setText(event.getStatus());
 	}
-	
+
+	/**
+	 * @return
+	 */
+	protected JTextField getAuthenticatedTextField() {
+		if (authenticatedTextField == null) {
+			authenticatedTextField = new JTextField();
+			authenticatedTextField.setEditable(false);
+		}
+		return authenticatedTextField;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JButton getDetailsButton() {
+		if (detailsButton == null) {
+			detailsButton = new JButton();
+			detailsButton.setText("Details");
+		}
+		return detailsButton;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JTextField getIdentityTextField() {
+		if (identityTextField == null) {
+			identityTextField = new JTextField();
+			identityTextField.setEditable(false);
+		}
+		return identityTextField;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel() {
+		if (label == null) {
+			label = new JLabel();
+			label.setText("Identity");
+		}
+		return label;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel_1() {
+		if (label_1 == null) {
+			label_1 = new JLabel();
+			label_1.setText("Authenticated");
+		}
+		return label_1;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel_2() {
+		if (label_2 == null) {
+			label_2 = new JLabel();
+			label_2.setText("Time remaining");
+		}
+		return label_2;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel_3() {
+		if (label_3 == null) {
+			label_3 = new JLabel();
+			label_3.setText("VO membership");
+		}
+		return label_3;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JTextField getRemainingTextField() {
+		if (remainingTextField == null) {
+			remainingTextField = new JTextField();
+			remainingTextField.setEditable(false);
+		}
+		return remainingTextField;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JTextField getVoTextField() {
+		if (voTextField == null) {
+			voTextField = new JTextField();
+			voTextField.setEditable(false);
+		}
+		return voTextField;
+	}
+
 	public void proxyCreated(GlobusCredential newProxy) {
-		if ( timer != null ) {
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
 		this.proxy = newProxy;
 		updateStatus();
 	}
-	
+
+	public void proxyDestroyed() {
+		updateStatus();
+	}
+
+	public void setBorder(String title) {
+		setBorder(new TitledBorder(null, title,
+				TitledBorder.DEFAULT_JUSTIFICATION,
+				TitledBorder.DEFAULT_POSITION, null, null));
+	}
+
+	private void setPlainProxyDetails() {
+		getIdentityTextField().setToolTipText(proxy.getSubject());
+		getIdentityTextField().setText(calculateIdentity(proxy.getSubject()));
+		getAuthenticatedTextField().setText("Yes");
+
+		if (timer == null) {
+			timer = new Timer();
+			timerTask = new CredentialStatusTimerTask(proxy);
+			timerTask.addCredentialStatusListener(this);
+			timer.schedule(timerTask, new Date(), 1000);
+		}
+	}
+
+	private void setVomsProxyDetails() {
+
+		String defaultFqan = vomsProxy.getDefaultFqan(false);
+		if (defaultFqan == null || "".equals(defaultFqan)) {
+			getVoTextField().setText(ERROR_GETTING_VO_INFO);
+			getDetailsButton().setEnabled(false);
+		}
+		getVoTextField().setText(defaultFqan);
+		getDetailsButton().setEnabled(false);
+	}
+
 	private void updateStatus() {
-		
+
 		try {
 			proxy.verify();
 		} catch (Exception e) {
@@ -114,9 +253,9 @@ public class VomsProxyInfoPanel extends JPanel implements CredentialStatusListen
 			getDetailsButton().setEnabled(false);
 			return;
 		}
-		
+
 		setPlainProxyDetails();
-		
+
 		// now we try to make a voms proxy out of our credential
 		try {
 			vomsProxy = new VomsProxy(proxy);
@@ -125,150 +264,9 @@ public class VomsProxyInfoPanel extends JPanel implements CredentialStatusListen
 			getDetailsButton().setEnabled(false);
 			return;
 		}
-		
+
 		// nice, it's really a voms proxy
 		setVomsProxyDetails();
 	}
-	
-	private void setPlainProxyDetails() {
-		getIdentityTextField().setToolTipText(proxy.getSubject());
-		getIdentityTextField().setText(calculateIdentity(proxy.getSubject()));
-		getAuthenticatedTextField().setText("Yes");
-		
-		if ( timer == null ) {
-			timer = new Timer();
-			timerTask = new CredentialStatusTimerTask(proxy);
-			timerTask.addCredentialStatusListener(this);
-			timer.schedule(timerTask, new Date(), 1000);
-		}
-	}
-	
-	private void setVomsProxyDetails() {
-		
-		String defaultFqan = vomsProxy.getDefaultFqan(false);
-		if ( defaultFqan == null || "".equals(defaultFqan) ) {
-			getVoTextField().setText(ERROR_GETTING_VO_INFO);
-			getDetailsButton().setEnabled(false);
-		}
-		getVoTextField().setText(defaultFqan);
-		getDetailsButton().setEnabled(false);
-	}
-	
-	public void credentialStatusChanged(CredentialStatusEvent event) {
-		
-		if ( event.getType() == CredentialStatusEvent.CREDENTIAL_EXPIRED ) {
-			timer.cancel();
-			timer = null;
-		}
-		
-		getRemainingTextField().setText(event.getStatus());
-	}
-	
-	
-	private static String calculateIdentity(String dn) {
-		
-		int start = dn.toLowerCase().indexOf("cn=")+3;
-		int end = dn.toLowerCase().indexOf(",cn=proxy");
-		if ( end == -1 || end <= start ) {
-			end = dn.length()-1;
-		}
-		return dn.substring(start, end);
-	}
-	
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel() {
-		if (label == null) {
-			label = new JLabel();
-			label.setText("Identity");
-		}
-		return label;
-	}
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel_1() {
-		if (label_1 == null) {
-			label_1 = new JLabel();
-			label_1.setText("Authenticated");
-		}
-		return label_1;
-	}
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel_2() {
-		if (label_2 == null) {
-			label_2 = new JLabel();
-			label_2.setText("Time remaining");
-		}
-		return label_2;
-	}
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel_3() {
-		if (label_3 == null) {
-			label_3 = new JLabel();
-			label_3.setText("VO membership");
-		}
-		return label_3;
-	}
-	/**
-	 * @return
-	 */
-	protected JTextField getIdentityTextField() {
-		if (identityTextField == null) {
-			identityTextField = new JTextField();
-			identityTextField.setEditable(false);
-		}
-		return identityTextField;
-	}
-	/**
-	 * @return
-	 */
-	protected JTextField getAuthenticatedTextField() {
-		if (authenticatedTextField == null) {
-			authenticatedTextField = new JTextField();
-			authenticatedTextField.setEditable(false);
-		}
-		return authenticatedTextField;
-	}
-	/**
-	 * @return
-	 */
-	protected JTextField getRemainingTextField() {
-		if (remainingTextField == null) {
-			remainingTextField = new JTextField();
-			remainingTextField.setEditable(false);
-		}
-		return remainingTextField;
-	}
-	/**
-	 * @return
-	 */
-	protected JTextField getVoTextField() {
-		if (voTextField == null) {
-			voTextField = new JTextField();
-			voTextField.setEditable(false);
-		}
-		return voTextField;
-	}
-	/**
-	 * @return
-	 */
-	protected JButton getDetailsButton() {
-		if (detailsButton == null) {
-			detailsButton = new JButton();
-			detailsButton.setText("Details");
-		}
-		return detailsButton;
-	}
-
-	public void proxyDestroyed() {
-		updateStatus();
-	}
-
 
 }

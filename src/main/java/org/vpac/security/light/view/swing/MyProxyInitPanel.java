@@ -4,8 +4,6 @@ import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -58,8 +56,8 @@ public class MyProxyInitPanel extends JPanel {
 	 * @param myproxyPort
 	 *            the port of the myproxy server
 	 * @param lifetime_in_seconds
-	 *            the lifetime of the proxy in seconds. If you specify a value <=
-	 *            0 a combobox is rendered for the user.
+	 *            the lifetime of the proxy in seconds. If you specify a value
+	 *            <= 0 a combobox is rendered for the user.
 	 * @param allowed_retrievers
 	 *            the allowed retrievers
 	 * @param allowed_renewers
@@ -69,20 +67,20 @@ public class MyProxyInitPanel extends JPanel {
 			String myproxyServer, int myproxyPort, int lifetime_in_seconds,
 			String allowed_retrievers, String allowed_renewers) {
 		super();
-		
 
-//		     StringBuffer classpath = new StringBuffer();
-//		     ClassLoader applicationClassLoader = this.getClass().getClassLoader();
-//		     if (applicationClassLoader == null) {
-//		         applicationClassLoader = ClassLoader.getSystemClassLoader();
-//		     }
-//		     URL[] urls = ((URLClassLoader)applicationClassLoader).getURLs();
-//		      for(int i=0; i < urls.length; i++) {
-//		          classpath.append(urls[i].getFile()).append("\r\n");
-//		      }    
-//		     
-//		      System.out.println("Classpath: "+classpath.toString());
-		
+		// StringBuffer classpath = new StringBuffer();
+		// ClassLoader applicationClassLoader =
+		// this.getClass().getClassLoader();
+		// if (applicationClassLoader == null) {
+		// applicationClassLoader = ClassLoader.getSystemClassLoader();
+		// }
+		// URL[] urls = ((URLClassLoader)applicationClassLoader).getURLs();
+		// for(int i=0; i < urls.length; i++) {
+		// classpath.append(urls[i].getFile()).append("\r\n");
+		// }
+		//		     
+		// System.out.println("Classpath: "+classpath.toString());
+
 		Init.initBouncyCastle();
 		if (!CertificateHelper.globusCredentialsReady())
 			throw new RuntimeException(
@@ -94,6 +92,139 @@ public class MyProxyInitPanel extends JPanel {
 		this.allowed_retrievers = allowed_retrievers;
 		this.allowed_renewers = allowed_renewers;
 		initialize();
+	}
+
+	/**
+	 * This method initializes initButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getInitButton() {
+		if (initButton == null) {
+			initButton = new JButton();
+			initButton.setText("Init");
+			initButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+
+					MyProxyInitPanel.this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					getInitButton().setEnabled(false);
+
+					int seconds = -1;
+					if (lifetime_in_seconds <= 0) {
+						try {
+							seconds = new Integer(
+									(String) getLifetimeComboBox()
+											.getSelectedItem()) * 3600 * 24;
+						} catch (NumberFormatException e1) {
+							MyProxyInitPanel.this
+									.setCursor(Cursor
+											.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							getInitButton().setEnabled(true);
+							Utils.showErrorMessage(MyProxyInitPanel.this,
+									"notANumber", e1);
+							return;
+						}
+					} else {
+						seconds = lifetime_in_seconds;
+					}
+					GSSCredential baseProxy = null;
+					// create credential from certificate
+					try {
+						baseProxy = PlainProxy.init(
+								getPrivateKeyPassphraseField().getPassword(),
+								seconds / 3600);
+					} catch (Exception e1) {
+						MyProxyInitPanel.this.setCursor(Cursor
+								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						getInitButton().setEnabled(true);
+						Utils.showErrorMessage(MyProxyInitPanel.this,
+								"couldNotCreatePlainProxy", e1);
+						return;
+					}
+					try {
+						// prepare myproxy parameters
+						InitParams params = MyProxy_light
+								.prepareProxyParameters(
+										getUsernameTextField().getText(),
+										null,
+										MyProxyInitPanel.this.allowed_renewers,
+										MyProxyInitPanel.this.allowed_retrievers,
+										null, seconds);
+						// delegate proxy
+						MyProxy_light.init(new MyProxy(
+								MyProxyInitPanel.this.myproxyServer,
+								MyProxyInitPanel.this.myproxyPort), baseProxy,
+								params, getPasswordField().getPassword());
+						listener.success(SUCCESS_ACTION_NAME, true,
+								new Object[] {
+										getUsernameTextField().getText(),
+										getPasswordField().getPassword() });
+					} catch (Exception e1) {
+						MyProxyInitPanel.this.setCursor(Cursor
+								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						getInitButton().setEnabled(true);
+						Utils.showErrorMessage(MyProxyInitPanel.this,
+								"couldNotUploadProxy", e1);
+						return;
+					}
+					MyProxyInitPanel.this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					getInitButton().setEnabled(true);
+
+				}
+			});
+		}
+		return initButton;
+	}
+
+	/**
+	 * This method initializes lifetimeComboBox
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getLifetimeComboBox() {
+		if (lifetimeComboBox == null) {
+			lifetimeComboBox = new JComboBox(defaultLifeTimes.split(","));
+			lifetimeComboBox.setEditable(true);
+		}
+		return lifetimeComboBox;
+	}
+
+	/**
+	 * This method initializes passwordField
+	 * 
+	 * @return javax.swing.JPasswordField
+	 */
+	private JPasswordField getPasswordField() {
+		if (passwordField == null) {
+			passwordField = new JPasswordField();
+		}
+		return passwordField;
+	}
+
+	/**
+	 * This method initializes privateKeyPassphraseField
+	 * 
+	 * @return javax.swing.JPasswordField
+	 */
+	private JPasswordField getPrivateKeyPassphraseField() {
+		if (privateKeyPassphraseField == null) {
+			privateKeyPassphraseField = new JPasswordField();
+		}
+		return privateKeyPassphraseField;
+	}
+
+	/**
+	 * This method initializes usernameTextField
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getUsernameTextField() {
+		if (usernameTextField == null) {
+			usernameTextField = new JTextField();
+		}
+		return usernameTextField;
 	}
 
 	/**
@@ -181,138 +312,6 @@ public class MyProxyInitPanel extends JPanel {
 			this.add(jLabel3, gridBagConstraints5);
 			this.add(getLifetimeComboBox(), gridBagConstraints6);
 		}
-	}
-
-	/**
-	 * This method initializes usernameTextField
-	 * 
-	 * @return javax.swing.JTextField
-	 */
-	private JTextField getUsernameTextField() {
-		if (usernameTextField == null) {
-			usernameTextField = new JTextField();
-		}
-		return usernameTextField;
-	}
-
-	/**
-	 * This method initializes passwordField
-	 * 
-	 * @return javax.swing.JPasswordField
-	 */
-	private JPasswordField getPasswordField() {
-		if (passwordField == null) {
-			passwordField = new JPasswordField();
-		}
-		return passwordField;
-	}
-
-	/**
-	 * This method initializes lifetimeComboBox
-	 * 
-	 * @return javax.swing.JComboBox
-	 */
-	private JComboBox getLifetimeComboBox() {
-		if (lifetimeComboBox == null) {
-			lifetimeComboBox = new JComboBox(defaultLifeTimes.split(","));
-			lifetimeComboBox.setEditable(true);
-		}
-		return lifetimeComboBox;
-	}
-
-	/**
-	 * This method initializes initButton
-	 * 
-	 * @return javax.swing.JButton
-	 */
-	private JButton getInitButton() {
-		if (initButton == null) {
-			initButton = new JButton();
-			initButton.setText("Init");
-			initButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-
-					MyProxyInitPanel.this.setCursor(Cursor
-							.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					getInitButton().setEnabled(false);
-
-					int seconds = -1;
-					if (lifetime_in_seconds <= 0) {
-						try {
-							seconds = new Integer(
-									(String) getLifetimeComboBox()
-											.getSelectedItem()) * 3600 * 24;
-						} catch (NumberFormatException e1) {
-							MyProxyInitPanel.this
-									.setCursor(Cursor
-											.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-							getInitButton().setEnabled(true);
-							Utils.showErrorMessage(MyProxyInitPanel.this,
-									"notANumber", e1);
-							return;
-						}
-					} else {
-						seconds = lifetime_in_seconds;
-					}
-					GSSCredential baseProxy = null;
-					// create credential from certificate
-					try {
-						baseProxy = PlainProxy.init(
-								getPrivateKeyPassphraseField().getPassword(),
-								seconds / 3600);
-					} catch (Exception e1) {
-						MyProxyInitPanel.this.setCursor(Cursor
-								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						getInitButton().setEnabled(true);
-						Utils.showErrorMessage(MyProxyInitPanel.this,
-								"couldNotCreatePlainProxy", e1);
-						return;
-					}
-					try {
-						// prepare myproxy parameters
-						InitParams params = MyProxy_light
-								.prepareProxyParameters(
-										getUsernameTextField().getText(),
-										null,
-										MyProxyInitPanel.this.allowed_renewers,
-										MyProxyInitPanel.this.allowed_retrievers,
-										null, seconds);
-						// delegate proxy
-						MyProxy_light.init(new MyProxy(
-								MyProxyInitPanel.this.myproxyServer,
-								MyProxyInitPanel.this.myproxyPort), baseProxy,
-								params, getPasswordField().getPassword());
-						listener.success(SUCCESS_ACTION_NAME, true, new Object[] {
-								getUsernameTextField().getText(),
-								getPasswordField().getPassword() });
-					} catch (Exception e1) {
-						MyProxyInitPanel.this.setCursor(Cursor
-								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						getInitButton().setEnabled(true);
-						Utils.showErrorMessage(MyProxyInitPanel.this,
-								"couldNotUploadProxy", e1);
-						return;
-					}
-					MyProxyInitPanel.this.setCursor(Cursor
-							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					getInitButton().setEnabled(true);
-
-				}
-			});
-		}
-		return initButton;
-	}
-
-	/**
-	 * This method initializes privateKeyPassphraseField
-	 * 
-	 * @return javax.swing.JPasswordField
-	 */
-	private JPasswordField getPrivateKeyPassphraseField() {
-		if (privateKeyPassphraseField == null) {
-			privateKeyPassphraseField = new JPasswordField();
-		}
-		return privateKeyPassphraseField;
 	}
 
 } // @jve:decl-index=0:visual-constraint="10,10"

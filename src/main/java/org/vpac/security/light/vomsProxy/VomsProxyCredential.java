@@ -52,95 +52,132 @@ import org.ietf.jgss.GSSManager;
 import org.vpac.security.light.voms.VO;
 
 /**
- * The actual credential that is build of a GlobusCredential and an AttributeCertificate.
- * The AttributeCertificate is sent by the VOMS server after sending one of this commands:
- *
- * <br>A       - this means get everything the server knows about you
- * <br>G/group - This means get group informations.  /group should be /vo-name.
- *          <br>This is the default request used by voms-proxy-init
- * <br>Rrole   - This means grant me the specified role, in all groups in which
- *          <br>you can grant it.
- * <br>Bgroup:role - This means grant me the specified role in the specified group.
+ * The actual credential that is build of a GlobusCredential and an
+ * AttributeCertificate. The AttributeCertificate is sent by the VOMS server
+ * after sending one of this commands:
  * 
- * Most of the code that does the voms magic is written by Gidon Moont from Imperial College London,
- * http://gridportal.hep.ph.ic.ac.uk/
- *
+ * <br>
+ * A - this means get everything the server knows about you <br>
+ * G/group - This means get group informations. /group should be /vo-name. <br>
+ * This is the default request used by voms-proxy-init <br>
+ * Rrole - This means grant me the specified role, in all groups in which <br>
+ * you can grant it. <br>
+ * Bgroup:role - This means grant me the specified role in the specified group.
+ * 
+ * Most of the code that does the voms magic is written by Gidon Moont from
+ * Imperial College London, http://gridportal.hep.ph.ic.ac.uk/
+ * 
  */
 public class VomsProxyCredential {
 
 	static final Logger myLogger = Logger.getLogger(VomsProxyCredential.class
 			.getName());
 
+	/**
+	 * Static method that returns all included AttributesCertificates of a
+	 * GlobusCredential. In general we are only interested in the first one.
+	 * 
+	 * @param vomsProxy
+	 *            the voms enabled proxy credential
+	 * @return all AttributeCertificates
+	 */
+	public static ArrayList<AttributeCertificate> extractVOMSACs(
+			GlobusCredential vomsProxy) {
+
+		// the aim of this is to retrieve all VOMS ACs
+		ArrayList<AttributeCertificate> acArrayList = new ArrayList<AttributeCertificate>();
+
+		try {
+
+			X509Certificate[] x509s = vomsProxy.getCertificateChain();
+
+			for (int x = 0; x < x509s.length; x++) {
+
+				try {
+
+					byte[] payload = x509s[x]
+							.getExtensionValue("1.3.6.1.4.1.8005.100.100.5");
+
+					// Octet String encapsulation - see RFC 3280 section 4.1
+					payload = ((ASN1OctetString) new ASN1InputStream(
+							new ByteArrayInputStream(payload)).readObject())
+							.getOctets();
+
+					ASN1Sequence acSequence = (ASN1Sequence) new ASN1InputStream(
+							new ByteArrayInputStream(payload)).readObject();
+
+					for (Enumeration e1 = acSequence.getObjects(); e1
+							.hasMoreElements();) {
+
+						ASN1Sequence seq2 = (ASN1Sequence) e1.nextElement();
+
+						for (Enumeration e2 = seq2.getObjects(); e2
+								.hasMoreElements();) {
+
+							AttributeCertificate ac = new AttributeCertificate(
+									(ASN1Sequence) e2.nextElement());
+
+							acArrayList.add(ac);
+
+						}
+					}
+
+				} catch (Exception pe) {
+					// System.out.println( "This part of the chain has no AC" )
+					// ;
+				}
+
+			}
+
+		} catch (Exception e) {
+			// e.printStackTrace();
+			myLogger.error(e);
+		}
+
+		return acArrayList;
+	}
+
 	private GlobusCredential plainProxy = null;
 
 	private GlobusCredential vomsProxy = null;
-
 	private AttributeCertificate ac = null;
-	private VOMSAttributeCertificate vomsac = null;
 
+	private VOMSAttributeCertificate vomsac = null;
 	private String command = null;
 	private String order = null;
+
 	private long lifetime = -1;
 
 	private VO vo = null;
 
 	/**
 	 * Don't use this.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 * 
 	 * @throws Exception
 	 */
-//	public VomsProxyCredential() throws Exception {
-//		this(LocalProxy.getDefaultProxy().getGlobusCredential(), VO
-//				.getDefaultVO(), "G/" + VO.getDefaultVO().getVoName(), 10000);
-//	}
-	
+	// public VomsProxyCredential() throws Exception {
+	// this(LocalProxy.getDefaultProxy().getGlobusCredential(), VO
+	// .getDefaultVO(), "G/" + VO.getDefaultVO().getVoName(), 10000);
+	// }
+
 	public VomsProxyCredential(GlobusCredential vomsProxy) throws Exception {
-		
+
 		this.vomsProxy = vomsProxy;
-		// try to extract the first attribute credential (hopefully this is the voms one
+		// try to extract the first attribute credential (hopefully this is the
+		// voms one
 		ac = VomsProxyCredential.extractVOMSACs(vomsProxy).get(0);
-		if ( ac == null ) throw new Exception("Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
-		
+		if (ac == null)
+			throw new Exception(
+					"Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
+
 		vomsac = new VOMSAttributeCertificate(ac);
-	}
-	
-	public void destroy() {
-		plainProxy = null;
-		vomsProxy = null;
-		ac = null;
 	}
 
-	/**
-	 * The default constructor. Assembles a VomsProxyCredential.
-	 * @deprecated Don't use this constructor anymore. Use the one that needs seconds for lifetime...
-	 * 
-	 * @param gridProxy a X509 proxy (can be the local proxy or a myproxy proxy credential.
-	 * @param vo the VO
-	 * @param command the command to send to the VOMS server
-	 * @param lifetime_in_hours the lifetime of the proxy in hours
-	 * @param order the order
-	 * @throws Exception if something fails, obviously
-	 */
-	public VomsProxyCredential(GlobusCredential gridProxy, VO vo, String command, String order, int lifetime_in_hours)
+	public VomsProxyCredential(GlobusCredential gridProxy,
+			long lifetime_in_seconds, VO vo, String command, String order)
 			throws Exception {
-		this.plainProxy = gridProxy;
-		this.vo = vo;
-		this.command = command;
-		this.order = order;
-		this.lifetime = lifetime_in_hours*3600;
-		getAC();
-		generateProxy();
-		vomsac = new VOMSAttributeCertificate(ac);
-	}
-	
-	public VomsProxyCredential(GlobusCredential gridProxy, VO vo, String command, String order) throws Exception {
-		
-		this(gridProxy, gridProxy.getTimeLeft(), vo, command, order);
-		
-	}
-	
-	public VomsProxyCredential(GlobusCredential gridProxy, long lifetime_in_seconds, VO vo, String command, String order) throws Exception {
 		this.plainProxy = gridProxy;
 		this.vo = vo;
 		this.command = command;
@@ -151,8 +188,79 @@ public class VomsProxyCredential {
 		vomsac = new VOMSAttributeCertificate(ac);
 	}
 
-	public AttributeCertificate getAttributeCertificate() {
-		return ac;
+	public VomsProxyCredential(GlobusCredential gridProxy, VO vo,
+			String command, String order) throws Exception {
+
+		this(gridProxy, gridProxy.getTimeLeft(), vo, command, order);
+
+	}
+
+	/**
+	 * The default constructor. Assembles a VomsProxyCredential.
+	 * 
+	 * @deprecated Don't use this constructor anymore. Use the one that needs
+	 *             seconds for lifetime...
+	 * 
+	 * @param gridProxy
+	 *            a X509 proxy (can be the local proxy or a myproxy proxy
+	 *            credential.
+	 * @param vo
+	 *            the VO
+	 * @param command
+	 *            the command to send to the VOMS server
+	 * @param lifetime_in_hours
+	 *            the lifetime of the proxy in hours
+	 * @param order
+	 *            the order
+	 * @throws Exception
+	 *             if something fails, obviously
+	 */
+	public VomsProxyCredential(GlobusCredential gridProxy, VO vo,
+			String command, String order, int lifetime_in_hours)
+			throws Exception {
+		this.plainProxy = gridProxy;
+		this.vo = vo;
+		this.command = command;
+		this.order = order;
+		this.lifetime = lifetime_in_hours * 3600;
+		getAC();
+		generateProxy();
+		vomsac = new VOMSAttributeCertificate(ac);
+	}
+
+	public void destroy() {
+		plainProxy = null;
+		vomsProxy = null;
+		ac = null;
+	}
+
+	private void generateProxy() throws GeneralSecurityException {
+
+		// Extension 1
+		DERSequence seqac = new DERSequence(this.ac);
+		DERSequence seqacwrap = new DERSequence(seqac);
+		BouncyCastleX509Extension ace = new BouncyCastleX509Extension(
+				"1.3.6.1.4.1.8005.100.100.5", seqacwrap);
+
+		// Extension 2
+		// KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature
+		// | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment);
+		// BouncyCastleX509Extension kue = new BouncyCastleX509Extension(
+		// "2.5.29.15", keyUsage.getDERObject());
+
+		// Extension Set
+		X509ExtensionSet globusExtensionSet = new X509ExtensionSet();
+		globusExtensionSet.add(ace);
+		// globusExtensionSet.add(kue);
+
+		// generate new VOMS proxy
+		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
+				.getDefault();
+		vomsProxy = factory.createCredential(plainProxy.getCertificateChain(),
+				plainProxy.getPrivateKey(), plainProxy.getStrength(),
+				(int) plainProxy.getTimeLeft(), GSIConstants.DELEGATION_FULL,
+				globusExtensionSet);
+
 	}
 
 	/**
@@ -167,7 +275,8 @@ public class VomsProxyCredential {
 		boolean success = false;
 		int server = 0;
 
-		myLogger.debug("Contacting VOMS server [" + vo.getHost() + "] with command: "+command);
+		myLogger.debug("Contacting VOMS server [" + vo.getHost()
+				+ "] with command: " + command);
 
 		GSSManager manager = new GlobusGSSManagerImpl();
 
@@ -200,17 +309,18 @@ public class VomsProxyCredential {
 		InputStream in = ((Socket) socket).getInputStream();
 
 		String msg = null;
-		
-		if ( order == null || "".equals(order) ) {
+
+		if (order == null || "".equals(order)) {
 			msg = new String(
-				"<?xml version=\"1.0\" encoding = \"US-ASCII\"?><voms><command>"
-						+ command + "</command><lifetime>"
-						+ lifetime + "</lifetime></voms>");
+					"<?xml version=\"1.0\" encoding = \"US-ASCII\"?><voms><command>"
+							+ command + "</command><lifetime>" + lifetime
+							+ "</lifetime></voms>");
 		} else {
 			msg = new String(
 					"<?xml version=\"1.0\" encoding = \"US-ASCII\"?><voms><command>"
-					+ command + "</command><order>"+order+"</order><lifetime>"
-					+ lifetime + "</lifetime></voms>");
+							+ command + "</command><order>" + order
+							+ "</order><lifetime>" + lifetime
+							+ "</lifetime></voms>");
 		}
 
 		byte[] outToken = msg.getBytes();
@@ -269,140 +379,8 @@ public class VomsProxyCredential {
 		return success;
 	}
 
-	/**
-	 * Static method that returns all included AttributesCertificates of a GlobusCredential. In general we are only interested in the first one.
-	 * 
-	 * @param vomsProxy the voms enabled proxy credential
-	 * @return all AttributeCertificates
-	 */
-	public static ArrayList<AttributeCertificate> extractVOMSACs(
-			GlobusCredential vomsProxy) {
-
-		// the aim of this is to retrieve all VOMS ACs
-		ArrayList<AttributeCertificate> acArrayList = new ArrayList<AttributeCertificate>();
-
-		try {
-
-			X509Certificate[] x509s = vomsProxy.getCertificateChain();
-
-			for (int x = 0; x < x509s.length; x++) {
-
-				try {
-
-					byte[] payload = x509s[x]
-							.getExtensionValue("1.3.6.1.4.1.8005.100.100.5");
-
-					// Octet String encapsulation - see RFC 3280 section 4.1
-					payload = ((ASN1OctetString) new ASN1InputStream(
-							new ByteArrayInputStream(payload)).readObject())
-							.getOctets();
-
-					ASN1Sequence acSequence = (ASN1Sequence) new ASN1InputStream(
-							new ByteArrayInputStream(payload)).readObject();
-
-					for (Enumeration e1 = acSequence.getObjects(); e1
-							.hasMoreElements();) {
-
-						ASN1Sequence seq2 = (ASN1Sequence) e1.nextElement();
-
-						for (Enumeration e2 = seq2.getObjects(); e2
-								.hasMoreElements();) {
-
-							AttributeCertificate ac = new AttributeCertificate(
-									(ASN1Sequence) e2.nextElement());
-
-							acArrayList.add(ac);
-
-						}
-					}
-
-				} catch (Exception pe) {
-					// System.out.println( "This part of the chain has no AC" )
-					// ;
-				}
-
-			}
-
-		} catch (Exception e) {
-			//e.printStackTrace();
-			myLogger.error(e);
-		}
-
-		return acArrayList;
-	}
-	
-	/**
-	 * Gathers information in the attribute certificate into an ArrayList
-	 * 
-	 * @return the equivalent of a commandline voms-proxy-info --all / null if something's not right
-	 */
-	public ArrayList<String> vomsInfo() {
-		ArrayList<String> info = new ArrayList<String>();
-		info.add("=== VO extension information ===");
-		try {
-		 info.add("issuer\t\t: " + vomsac.getIssuer() );
-	       boolean checked = vomsac.verify() ;
-	       if( checked )
-	       {
-	          info.add( "validity\t: ... signature is valid" ) ;
-	       } else {
-	          info.add( "validity\t: WARNING - Unable to validate the signature of this AC - DO NOT TRUST!" ) ;
-	       }
-	       long milliseconds = vomsac.getTime() ;
-	        if( milliseconds > 0 )
-	        {
-	          int hours = new Long(milliseconds/(1000*3600)).intValue();
-	          int minutes = new Long((milliseconds - hours*1000*3600)/(1000*60)).intValue();
-	          int seconds = new Long( (milliseconds - (hours*1000*3600+minutes*1000*60))/1000 ).intValue();
-	          info.add( "time left\t: " + hours  +":" + minutes + ":" + seconds ) ;
-	        } else {
-	          info.add( "WARNING - this AC is not within its valid time - DO NOT TRUST!" ) ;
-	        }
-	        info.add( "holder\t\t: " + vomsac.getHolder() ) ;
-	        info.add( "version\t\t: " + vomsac.getVersion() ) ;
-	        info.add( "algorithm\t: " + vomsac.getAlgorithmIdentifier() ) ;
-	        info.add( "serialNumber\t: " + vomsac.getSerialNumberIntValue() ) ;
-	        for ( String line : vomsac.getVOMSFQANs() ){
-	        	info.add( "attribute\t: "+line);
-	        }
-//	        info.addAll(vomsac.getVOMSFQANs());
-		 
-		} catch (Exception e){
-			myLogger.error(e);
-			return null;
-		}
-		return info;
-	}
-
-	private void generateProxy() throws GeneralSecurityException {
-
-		// Extension 1
-		DERSequence seqac = new DERSequence(this.ac);
-		DERSequence seqacwrap = new DERSequence(seqac);
-		BouncyCastleX509Extension ace = new BouncyCastleX509Extension(
-				"1.3.6.1.4.1.8005.100.100.5", seqacwrap);
-
-
-		
-		// Extension 2
-//		KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature
-//				| KeyUsage.keyEncipherment | KeyUsage.dataEncipherment);
-//		BouncyCastleX509Extension kue = new BouncyCastleX509Extension(
-//				"2.5.29.15", keyUsage.getDERObject());
-
-		// Extension Set
-		X509ExtensionSet globusExtensionSet = new X509ExtensionSet();
-		globusExtensionSet.add(ace);
-//		globusExtensionSet.add(kue);
-
-		// generate new VOMS proxy
-		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
-				.getDefault();
-		vomsProxy = factory.createCredential(plainProxy.getCertificateChain(),
-				plainProxy.getPrivateKey(), plainProxy.getStrength(),
-				(int) plainProxy.getTimeLeft(), GSIConstants.DELEGATION_FULL,
-				globusExtensionSet);
-
+	public AttributeCertificate getAttributeCertificate() {
+		return ac;
 	}
 
 	/**
@@ -410,6 +388,54 @@ public class VomsProxyCredential {
 	 */
 	public GlobusCredential getVomsProxy() {
 		return vomsProxy;
+	}
+
+	/**
+	 * Gathers information in the attribute certificate into an ArrayList
+	 * 
+	 * @return the equivalent of a commandline voms-proxy-info --all / null if
+	 *         something's not right
+	 */
+	public ArrayList<String> vomsInfo() {
+		ArrayList<String> info = new ArrayList<String>();
+		info.add("=== VO extension information ===");
+		try {
+			info.add("issuer\t\t: " + vomsac.getIssuer());
+			boolean checked = vomsac.verify();
+			if (checked) {
+				info.add("validity\t: ... signature is valid");
+			} else {
+				info
+						.add("validity\t: WARNING - Unable to validate the signature of this AC - DO NOT TRUST!");
+			}
+			long milliseconds = vomsac.getTime();
+			if (milliseconds > 0) {
+				int hours = new Long(milliseconds / (1000 * 3600)).intValue();
+				int minutes = new Long((milliseconds - hours * 1000 * 3600)
+						/ (1000 * 60)).intValue();
+				int seconds = new Long(
+						(milliseconds - (hours * 1000 * 3600 + minutes * 1000 * 60)) / 1000)
+						.intValue();
+				info.add("time left\t: " + hours + ":" + minutes + ":"
+						+ seconds);
+			} else {
+				info
+						.add("WARNING - this AC is not within its valid time - DO NOT TRUST!");
+			}
+			info.add("holder\t\t: " + vomsac.getHolder());
+			info.add("version\t\t: " + vomsac.getVersion());
+			info.add("algorithm\t: " + vomsac.getAlgorithmIdentifier());
+			info.add("serialNumber\t: " + vomsac.getSerialNumberIntValue());
+			for (String line : vomsac.getVOMSFQANs()) {
+				info.add("attribute\t: " + line);
+			}
+			// info.addAll(vomsac.getVOMSFQANs());
+
+		} catch (Exception e) {
+			myLogger.error(e);
+			return null;
+		}
+		return info;
 	}
 
 }

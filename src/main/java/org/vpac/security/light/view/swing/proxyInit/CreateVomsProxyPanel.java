@@ -29,22 +29,23 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class CreateVomsProxyPanel extends JPanel {
-	
-	private static final Logger myLogger = Logger.getLogger(CreateVomsProxyPanel.class.getName());
+
+	private static final Logger myLogger = Logger
+			.getLogger(CreateVomsProxyPanel.class.getName());
 
 	private JButton joinVoButton;
 	private JComboBox comboBox;
 	private JLabel label;
-	
+
 	private DefaultComboBoxModel voModel = new DefaultComboBoxModel();
-	
+
 	Map<String, String> allFqans = null;
-	
+
 	Thread fillThread = null;
 
 	private GlobusCredential proxy = null;
 	private ProxyCreatorHolder proxyCreatorHolder = null;
-	
+
 	private boolean denyComboboxUpdate = false;
 
 	/**
@@ -67,24 +68,115 @@ public class CreateVomsProxyPanel extends JPanel {
 		enablePanel(false);
 	}
 
-	public void setProxyCreatorHolder(ProxyCreatorHolder holder) {
-		this.proxyCreatorHolder = holder;
+	private void clearVoModel() {
+		voModel.removeAllElements();
+		voModel.addElement("n/a");
 	}
-	
-	private Map<String, String> getAllFqans() {
-		
-		try {
-			proxy.verify();
-		} catch (Exception e) {
-			myLogger.warn("No Proxy. Can't get fqans.");
-			allFqans = null;
-			return allFqans;
+
+	private void createVomsProxy() {
+
+		new Thread() {
+			public void run() {
+				try {
+
+					enablePanel(false);
+					CreateVomsProxyPanel.this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					String fqan = (String) voModel.getSelectedItem();
+
+					VO vo = VOManagement.getVO(getAllFqans().get(fqan));
+					long lifetime;
+					lifetime = CredentialHelpers.wrapGlobusCredential(proxy)
+							.getRemainingLifetime() * 1000;
+					VomsProxy newVomsProxy = new VomsProxy(vo, fqan, proxy,
+							lifetime);
+
+					denyComboboxUpdate = true;
+					proxyCreatorHolder.proxyCreated(newVomsProxy
+							.getVomsProxyCredential());
+					denyComboboxUpdate = false;
+
+				} catch (Exception e) {
+					e.printStackTrace();
+					CreateVomsProxyPanel.this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					JOptionPane
+							.showMessageDialog(
+									CreateVomsProxyPanel.this,
+									"<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
+									"Voms error", JOptionPane.ERROR_MESSAGE);
+					enablePanel(true);
+					return;
+				} finally {
+					CreateVomsProxyPanel.this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+				}
+			}
+
+		}.start();
+
+	}
+
+	private void enablePanel(final boolean enable) {
+
+		if (proxyCreatorHolder == null) {
+			getComboBox().setEnabled(false);
+			getJoinVoButton().setEnabled(false);
+		} else if (enable == false) {
+			getComboBox().setEnabled(false);
+			getJoinVoButton().setEnabled(false);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		} else {
+
+			if (fillThread != null && fillThread.isAlive()) {
+				// I know, I know, shouldn't do that...
+				fillThread.stop();
+			}
+			fillThread = new Thread() {
+				public void run() {
+
+					getComboBox().setEnabled(false);
+
+					getJoinVoButton().setEnabled(false);
+
+					voModel.removeAllElements();
+
+					boolean proxyAllRight = true;
+					try {
+						proxy.verify();
+					} catch (Exception e) {
+						proxyAllRight = false;
+					}
+
+					if (proxyAllRight && enable) {
+						try {
+							setCursor(Cursor
+									.getPredefinedCursor(Cursor.WAIT_CURSOR));
+							voModel.addElement("Loading VOs...");
+							fillVOs();
+							getComboBox().setEnabled(true);
+							getJoinVoButton().setEnabled(true);
+							setCursor(Cursor
+									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						} catch (VomsException e) {
+							voModel.removeAllElements();
+							voModel.addElement("Error: "
+									+ e.getLocalizedMessage());
+							setCursor(Cursor
+									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							getComboBox().setEnabled(false);
+							getJoinVoButton().setEnabled(false);
+						}
+					} else {
+						voModel.addElement("n/a");
+						getComboBox().setEnabled(false);
+						getJoinVoButton().setEnabled(false);
+					}
+				}
+			};
+			fillThread.start();
 		}
-		
-		if ( allFqans == null ) {
-			allFqans = VOManagement.getAllFqans(CredentialHelpers.wrapGlobusCredential(proxy));
-		}
-		return allFqans;
 	}
 
 	private void fillVOs() throws VomsException {
@@ -94,8 +186,8 @@ public class CreateVomsProxyPanel extends JPanel {
 		//
 		// voModel.addElement(NON_VOMS_PROXY_NAME);
 		Map<String, String> tempAllFqans = getAllFqans();
-		
-		if ( tempAllFqans == null ) {
+
+		if (tempAllFqans == null) {
 			throw new VomsException("Can't get list of fqans...");
 		}
 		voModel.removeAllElements();
@@ -108,67 +200,51 @@ public class CreateVomsProxyPanel extends JPanel {
 			voModel.setSelectedItem(oldFqan);
 		}
 	}
-	
-	private void clearVoModel() {
-		voModel.removeAllElements();
-		voModel.addElement("n/a");
+
+	private Map<String, String> getAllFqans() {
+
+		try {
+			proxy.verify();
+		} catch (Exception e) {
+			myLogger.warn("No Proxy. Can't get fqans.");
+			allFqans = null;
+			return allFqans;
+		}
+
+		if (allFqans == null) {
+			allFqans = VOManagement.getAllFqans(CredentialHelpers
+					.wrapGlobusCredential(proxy));
+		}
+		return allFqans;
 	}
 
-	private void enablePanel(final boolean enable) {
-
-		if (proxyCreatorHolder == null) {
-			getComboBox().setEnabled(false);
-			getJoinVoButton().setEnabled(false);
-		} else if ( enable == false ) {
-			getComboBox().setEnabled(false);
-			getJoinVoButton().setEnabled(false);
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		} else {
-
-			if ( fillThread != null && fillThread.isAlive() ) {
-				// I know, I know, shouldn't do that...
-				fillThread.stop();
-			}
-			fillThread = new Thread() {
-				public void run() {
-			
-						getComboBox().setEnabled(false);
-
-						getJoinVoButton().setEnabled(false);
-
-			voModel.removeAllElements();
-
-			boolean proxyAllRight = true;
-			try {
-				proxy.verify();
-			} catch (Exception e) {
-				proxyAllRight = false;
-			}
-
-			if (proxyAllRight && enable) {
-				try {
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					voModel.addElement("Loading VOs...");
-					fillVOs();
-					getComboBox().setEnabled(true);
-					getJoinVoButton().setEnabled(true);
-					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				} catch (VomsException e) {
-					voModel.removeAllElements();
-					voModel.addElement("Error: " + e.getLocalizedMessage());
-					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					getComboBox().setEnabled(false);
-					getJoinVoButton().setEnabled(false);
-				}
-			} else {
-				voModel.addElement("n/a");
-				getComboBox().setEnabled(false);
-				getJoinVoButton().setEnabled(false);
-			}
-				}
-			};
-			fillThread.start();
+	/**
+	 * @return
+	 */
+	protected JComboBox getComboBox() {
+		if (comboBox == null) {
+			comboBox = new JComboBox(voModel);
+			voModel.addElement("n/a");
 		}
+		return comboBox;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JButton getJoinVoButton() {
+		if (joinVoButton == null) {
+			joinVoButton = new JButton();
+			joinVoButton.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+
+					createVomsProxy();
+
+				}
+			});
+			joinVoButton.setText("Join VO");
+		}
+		return joinVoButton;
 	}
 
 	/**
@@ -182,92 +258,15 @@ public class CreateVomsProxyPanel extends JPanel {
 		return label;
 	}
 
-	/**
-	 * @return
-	 */
-	protected JComboBox getComboBox() {
-		if (comboBox == null) {
-			comboBox = new JComboBox(voModel);
-			voModel.addElement("n/a");
-		}
-		return comboBox;
-	}
-	
-	private void createVomsProxy() {
-		
-		new Thread() {
-			public void run() {
-				try {
-
-					enablePanel(false);
-					CreateVomsProxyPanel.this
-					.setCursor(Cursor
-							.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					String fqan = (String) voModel.getSelectedItem();
-
-					VO vo = VOManagement.getVO(getAllFqans().get(fqan));
-					long lifetime;
-					lifetime = CredentialHelpers
-							.wrapGlobusCredential(proxy)
-							.getRemainingLifetime() * 1000;
-					VomsProxy newVomsProxy = new VomsProxy(vo, fqan,
-							proxy, lifetime);
-
-					denyComboboxUpdate = true;
-					proxyCreatorHolder.proxyCreated(newVomsProxy.getVomsProxyCredential());
-					denyComboboxUpdate = false;
-											
-				} catch (Exception e) {
-					e.printStackTrace();
-					CreateVomsProxyPanel.this
-							.setCursor(Cursor
-									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					JOptionPane
-							.showMessageDialog(
-									CreateVomsProxyPanel.this, "<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
-									"Voms error",
-									JOptionPane.ERROR_MESSAGE);
-					enablePanel(true);
-					return;
-				} finally {
-					CreateVomsProxyPanel.this
-							.setCursor(Cursor
-									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-				}
-			}
-
-		}.start();
-		
-	}
-
-	/**
-	 * @return
-	 */
-	protected JButton getJoinVoButton() {
-		if (joinVoButton == null) {
-			joinVoButton = new JButton();
-			joinVoButton.addActionListener(new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					
-					createVomsProxy();
-					
-				}
-			});
-			joinVoButton.setText("Join VO");
-		}
-		return joinVoButton;
-	}
-
 	public void setProxy(GlobusCredential proxy) {
 
 		this.proxy = proxy;
 		allFqans = null;
-		if ( proxy != null ) {
+		if (proxy != null) {
 			enablePanel(true);
 		} else {
-			if ( fillThread != null && fillThread.isAlive() ) {
-				//I'm being a bad boy again...
+			if (fillThread != null && fillThread.isAlive()) {
+				// I'm being a bad boy again...
 				fillThread.stop();
 			}
 			enablePanel(false);
@@ -275,11 +274,15 @@ public class CreateVomsProxyPanel extends JPanel {
 		}
 	}
 
-//	public void proxyDestroyed() {
-//
-//		this.proxy = null;
-//		enablePanel(false);
-//		clearVoModel();
-//	}
+	public void setProxyCreatorHolder(ProxyCreatorHolder holder) {
+		this.proxyCreatorHolder = holder;
+	}
+
+	// public void proxyDestroyed() {
+	//
+	// this.proxy = null;
+	// enablePanel(false);
+	// clearVoModel();
+	// }
 
 }

@@ -19,7 +19,6 @@ import javax.swing.border.TitledBorder;
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.vpac.security.light.CredentialHelpers;
-import org.vpac.security.light.plainProxy.LocalProxy;
 import org.vpac.security.light.plainProxy.PlainProxy;
 import org.vpac.security.light.voms.VO;
 import org.vpac.security.light.voms.VOManagement.VOManagement;
@@ -64,6 +63,10 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
 	boolean ignoreErrors = true;
 
+	// -------------------------------------------------------------------
+	// EventStuff
+	private Vector<ProxyInitListener> proxyListeners;
+
 	/**
 	 * Create the panel
 	 */
@@ -92,80 +95,54 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
 	}
 
-	public void setBorder(String title) {
-		setBorder(new TitledBorder(null, title,
-				TitledBorder.DEFAULT_JUSTIFICATION,
-				TitledBorder.DEFAULT_POSITION, null, null));
+	// register a listener
+	synchronized public void addProxyListener(ProxyInitListener l) {
+		if (proxyListeners == null)
+			proxyListeners = new Vector();
+		proxyListeners.addElement(l);
 	}
 
-	public void setLifetimes(Integer[] values) {
-		lifetimeModel.removeAllElements();
-		for (Integer value : values)
-			lifetimeModel.addElement(value);
+	private void fillVOs() throws VomsException {
 
-	}
+		String oldFqan = (String) getVoComboBox().getSelectedItem();
 
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel() {
-		if (label == null) {
-			label = new JLabel();
-			label.setText("Enter passphrase");
+		voModel.removeAllElements();
+		//
+		// voModel.addElement(NON_VOMS_PROXY_NAME);
+
+		allFqans = VOManagement.getAllFqans(CredentialHelpers
+				.wrapGlobusCredential(credential));
+
+		for (String fqan : allFqans.keySet()) {
+			voModel.addElement(fqan);
 		}
-		return label;
+
+		if (voModel.getIndexOf(oldFqan) >= 0) {
+			voModel.setSelectedItem(oldFqan);
+		}
 	}
 
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel_1() {
-		if (label_1 == null) {
-			label_1 = new JLabel();
-			label_1.setText("Lifetime (days)");
-		}
-		return label_1;
-	}
+	private void fireNewProxyCreated(GlobusCredential proxy) {
 
-	/**
-	 * @return
-	 */
-	protected JLabel getLabel_2() {
-		if (label_2 == null) {
-			label_2 = new JLabel();
-			label_2.setText("Available VOs");
-		}
-		return label_2;
-	}
+		// if we have no mountPointsListeners, do nothing...
+		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+			// create the event object to send
 
-	/**
-	 * @return
-	 */
-	protected JPasswordField getPasswordField() {
-		if (passwordField == null) {
-			passwordField = new JPasswordField();
-		}
-		return passwordField;
-	}
+			// make a copy of the listener list in case
+			// anyone adds/removes mountPointsListeners
+			Vector targets;
+			synchronized (this) {
+				targets = (Vector) proxyListeners.clone();
+			}
 
-	/**
-	 * @return
-	 */
-	protected JComboBox getLifetimeComboBox() {
-		if (lifetimeComboBox == null) {
-			lifetimeComboBox = new JComboBox(lifetimeModel);
+			// walk through the listener list and
+			// call the gridproxychanged method in each
+			Enumeration e = targets.elements();
+			while (e.hasMoreElements()) {
+				ProxyInitListener l = (ProxyInitListener) e.nextElement();
+				l.proxyCreated(proxy);
+			}
 		}
-		return lifetimeComboBox;
-	}
-
-	/**
-	 * @return
-	 */
-	protected JComboBox getVoComboBox() {
-		if (voComboBox == null) {
-			voComboBox = new JComboBox(voModel);
-		}
-		return voComboBox;
 	}
 
 	/**
@@ -217,58 +194,57 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		return initButton;
 	}
 
-	private void fillVOs() throws VomsException {
-
-		String oldFqan = (String) getVoComboBox().getSelectedItem();
-
-		voModel.removeAllElements();
-//
-//		voModel.addElement(NON_VOMS_PROXY_NAME);
-
-		allFqans = VOManagement.getAllFqans(CredentialHelpers
-				.wrapGlobusCredential(credential));
-
-		for (String fqan : allFqans.keySet()) {
-			voModel.addElement(fqan);
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel() {
+		if (label == null) {
+			label = new JLabel();
+			label.setText("Enter passphrase");
 		}
-
-		if (voModel.getIndexOf(oldFqan) >= 0) {
-			voModel.setSelectedItem(oldFqan);
-		}
+		return label;
 	}
 
-	public void proxyCreated(GlobusCredential proxy) {
-
-		this.credential = proxy;
-
-		try {
-			credential.verify();
-			getVoButton().setEnabled(true);
-			getVoComboBox().setEnabled(true);
-			fillVOs();
-		} catch (Exception e) {
-			myLogger.debug("No valid proxy here. Disabling voms panel.");
-			getVoButton().setEnabled(false);
-			getVoComboBox().setEnabled(false);
-			voModel.removeAllElements();
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel_1() {
+		if (label_1 == null) {
+			label_1 = new JLabel();
+			label_1.setText("Lifetime (days)");
 		}
+		return label_1;
 	}
 
-	private void initProxy() throws Exception {
-
-		char[] passphrase = getPasswordField().getPassword();
-		int lifetime_in_hours = ((Integer) getLifetimeComboBox()
-				.getSelectedItem()) * 24;
-
-		try {
-			credential = CredentialHelpers.unwrapGlobusCredential(PlainProxy
-					.init(passphrase, lifetime_in_hours));
-		} catch (Exception e) {
-			throw e;
+	/**
+	 * @return
+	 */
+	protected JLabel getLabel_2() {
+		if (label_2 == null) {
+			label_2 = new JLabel();
+			label_2.setText("Available VOs");
 		}
+		return label_2;
+	}
 
-		fireNewProxyCreated(credential);
+	/**
+	 * @return
+	 */
+	protected JComboBox getLifetimeComboBox() {
+		if (lifetimeComboBox == null) {
+			lifetimeComboBox = new JComboBox(lifetimeModel);
+		}
+		return lifetimeComboBox;
+	}
 
+	/**
+	 * @return
+	 */
+	protected JPasswordField getPasswordField() {
+		if (passwordField == null) {
+			passwordField = new JPasswordField();
+		}
+		return passwordField;
 	}
 
 	/**
@@ -292,25 +268,24 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 								String fqan = (String) getVoComboBox()
 										.getSelectedItem();
 
-//								if (NON_VOMS_PROXY_NAME.equals(fqan)) {
-//									
-//									VomsProxy temp = new VomsProxy(credential);
-//
-//								} else {
+								// if (NON_VOMS_PROXY_NAME.equals(fqan)) {
+								//									
+								// VomsProxy temp = new VomsProxy(credential);
+								//
+								// } else {
 
-									VO vo = VOManagement.getVO(allFqans
-											.get(fqan));
-									long lifetime;
+								VO vo = VOManagement.getVO(allFqans.get(fqan));
+								long lifetime;
 
-									lifetime = CredentialHelpers
-											.wrapGlobusCredential(credential)
-											.getRemainingLifetime() * 1000;
-									currentVomsProxy = new VomsProxy(vo, fqan,
-											credential, lifetime);
+								lifetime = CredentialHelpers
+										.wrapGlobusCredential(credential)
+										.getRemainingLifetime() * 1000;
+								currentVomsProxy = new VomsProxy(vo, fqan,
+										credential, lifetime);
 
-									fireNewProxyCreated(currentVomsProxy
-											.getVomsProxyCredential());
-//								}
+								fireNewProxyCreated(currentVomsProxy
+										.getVomsProxyCredential());
+								// }
 
 							} catch (Exception e) {
 								VomsProxyInitPanel.this
@@ -342,38 +317,54 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		return voButton;
 	}
 
-	// -------------------------------------------------------------------
-	// EventStuff
-	private Vector<ProxyInitListener> proxyListeners;
+	/**
+	 * @return
+	 */
+	protected JComboBox getVoComboBox() {
+		if (voComboBox == null) {
+			voComboBox = new JComboBox(voModel);
+		}
+		return voComboBox;
+	}
 
-	private void fireNewProxyCreated(GlobusCredential proxy) {
+	private void initProxy() throws Exception {
 
-		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
-			// create the event object to send
+		char[] passphrase = getPasswordField().getPassword();
+		int lifetime_in_hours = ((Integer) getLifetimeComboBox()
+				.getSelectedItem()) * 24;
 
-			// make a copy of the listener list in case
-			// anyone adds/removes mountPointsListeners
-			Vector targets;
-			synchronized (this) {
-				targets = (Vector) proxyListeners.clone();
-			}
+		try {
+			credential = CredentialHelpers.unwrapGlobusCredential(PlainProxy
+					.init(passphrase, lifetime_in_hours));
+		} catch (Exception e) {
+			throw e;
+		}
 
-			// walk through the listener list and
-			// call the gridproxychanged method in each
-			Enumeration e = targets.elements();
-			while (e.hasMoreElements()) {
-				ProxyInitListener l = (ProxyInitListener) e.nextElement();
-				l.proxyCreated(proxy);
-			}
+		fireNewProxyCreated(credential);
+
+	}
+
+	public void proxyCreated(GlobusCredential proxy) {
+
+		this.credential = proxy;
+
+		try {
+			credential.verify();
+			getVoButton().setEnabled(true);
+			getVoComboBox().setEnabled(true);
+			fillVOs();
+		} catch (Exception e) {
+			myLogger.debug("No valid proxy here. Disabling voms panel.");
+			getVoButton().setEnabled(false);
+			getVoComboBox().setEnabled(false);
+			voModel.removeAllElements();
 		}
 	}
 
-	// register a listener
-	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
-			proxyListeners = new Vector();
-		proxyListeners.addElement(l);
+	public void proxyDestroyed() {
+
+		proxyCreated(null);
+
 	}
 
 	// remove a listener
@@ -384,9 +375,16 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		proxyListeners.removeElement(l);
 	}
 
-	public void proxyDestroyed() {
+	public void setBorder(String title) {
+		setBorder(new TitledBorder(null, title,
+				TitledBorder.DEFAULT_JUSTIFICATION,
+				TitledBorder.DEFAULT_POSITION, null, null));
+	}
 
-		proxyCreated(null);
+	public void setLifetimes(Integer[] values) {
+		lifetimeModel.removeAllElements();
+		for (Integer value : values)
+			lifetimeModel.addElement(value);
 
 	}
 

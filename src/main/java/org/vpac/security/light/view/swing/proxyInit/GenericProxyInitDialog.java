@@ -12,24 +12,22 @@ import org.globus.common.CoGProperties;
 import au.org.arcs.auth.shibboleth.Shibboleth;
 
 public class GenericProxyInitDialog extends JDialog {
-	
 
-	private GenericProxyCreationPanel genericProxyInitPanel;
-	
 	/**
 	 * Launch the application
+	 * 
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		
-		
-		CoGProperties.getDefault().setProperty(CoGProperties.ENFORCE_SIGNING_POLICY, "false");
+
+		CoGProperties.getDefault().setProperty(
+				CoGProperties.ENFORCE_SIGNING_POLICY, "false");
 		try {
 			Shibboleth.initDefaultSecurityProvider();
 		} catch (Exception e) {
 			System.err.println("Shib classes not found..");
 		}
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -47,15 +45,19 @@ public class GenericProxyInitDialog extends JDialog {
 		});
 	}
 
+	private GenericProxyCreationPanel genericProxyInitPanel;
+
 	/**
 	 * Create the dialog
 	 */
 	public GenericProxyInitDialog() {
 		super();
 		setBounds(100, 100, 563, 650);
-		getContentPane().add(getGenericProxyCreationPanel(), BorderLayout.CENTER);
+		getContentPane().add(getGenericProxyCreationPanel(),
+				BorderLayout.CENTER);
 		//
 	}
+
 	/**
 	 * @return
 	 */
@@ -65,9 +67,5 @@ public class GenericProxyInitDialog extends JDialog {
 		}
 		return genericProxyInitPanel;
 	}
-	
-	
-	
-
 
 }

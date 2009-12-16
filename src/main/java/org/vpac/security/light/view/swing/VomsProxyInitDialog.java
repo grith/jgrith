@@ -10,8 +10,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import org.globus.gsi.GlobusCredential;
-
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -20,20 +18,18 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInitDialog extends JDialog {
 
-	private JButton closeButton;
-	private JPanel panel;
-	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
 	/**
 	 * Launch the application
+	 * 
 	 * @param args
 	 */
 	public static void main(String args[]) {
 		try {
 			VomsProxyInitDialog dialog = new VomsProxyInitDialog();
 			dialog.setModal(true);
-			dialog.setLifetimeDefaults(new Integer[]{1,2,7});
+			dialog.setLifetimeDefaults(new Integer[] { 1, 2, 7 });
 			dialog.enableWriteToDisk(true);
-//			dialog.addProxyListener(proxyListener);
+			// dialog.addProxyListener(proxyListener);
 			dialog.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
@@ -44,6 +40,10 @@ public class VomsProxyInitDialog extends JDialog {
 			e.printStackTrace();
 		}
 	}
+	private JButton closeButton;
+	private JPanel panel;
+
+	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
 
 	/**
 	 * Create the dialog
@@ -55,37 +55,33 @@ public class VomsProxyInitDialog extends JDialog {
 		//
 		getVomsProxyInfoAndInitPanel().loadPossibleLocalProxy();
 	}
+
 	/**
-	 * @return
+	 * Adds a proxy listener. A proxy listener gets notified whenever the user
+	 * creates a new plain/voms proxy.
+	 * 
+	 * @param l
+	 *            the listener
 	 */
-	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
-		if (vomsProxyInfoAndInitPanel == null) {
-			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
-		}
-		return vomsProxyInfoAndInitPanel;
+	public void addProxyListener(ProxyInitListener l) {
+		getVomsProxyInfoAndInitPanel().addProxyListener(l);
 	}
+
 	/**
-	 * @return
+	 * If you call this method with true, every proxy that is created with the
+	 * panel is stored to the default globus location.
+	 * 
+	 * It probably makes sense to leave that (false) and manage the writing of
+	 * the proxy on your own.
+	 * 
+	 * @param write
+	 *            whether to write a created proxy to disk (true) or not (false
+	 *            -- default)
 	 */
-	protected JPanel getPanel() {
-		if (panel == null) {
-			panel = new JPanel();
-			panel.setLayout(new FormLayout(
-				new ColumnSpec[] {
-					FormFactory.RELATED_GAP_COLSPEC,
-					new ColumnSpec("default:grow(1.0)"),
-					FormFactory.RELATED_GAP_COLSPEC},
-				new RowSpec[] {
-					FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC,
-					FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC}));
-			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(2, 1));
-			panel.add(getCloseButton(), new CellConstraints(2, 3, CellConstraints.RIGHT, CellConstraints.BOTTOM));
-			getVomsProxyInfoAndInitPanel();
-		}
-		return panel;
+	public void enableWriteToDisk(boolean write) {
+		getVomsProxyInfoAndInitPanel().enableWriteToDisk(write);
 	}
+
 	/**
 	 * @return
 	 */
@@ -101,41 +97,54 @@ public class VomsProxyInitDialog extends JDialog {
 		}
 		return closeButton;
 	}
-	
+
 	/**
-	 * If you call this method with true, every proxy that is created 
-	 * with the panel is stored to the default globus location.
-	 * 
-	 * It probably makes sense to leave that (false) and manage the 
-	 * writing of the proxy on your own.
-	 * @param write whether to write a created proxy to disk (true) or not (false -- default)
+	 * @return
 	 */
-	public void enableWriteToDisk(boolean write) {
-		getVomsProxyInfoAndInitPanel().enableWriteToDisk(write);
+	protected JPanel getPanel() {
+		if (panel == null) {
+			panel = new JPanel();
+			panel.setLayout(new FormLayout(new ColumnSpec[] {
+					FormFactory.RELATED_GAP_COLSPEC,
+					new ColumnSpec("default:grow(1.0)"),
+					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
+					FormFactory.DEFAULT_ROWSPEC,
+					FormFactory.RELATED_GAP_ROWSPEC,
+					FormFactory.DEFAULT_ROWSPEC,
+					FormFactory.RELATED_GAP_ROWSPEC }));
+			panel
+					.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(2,
+							1));
+			panel.add(getCloseButton(), new CellConstraints(2, 3,
+					CellConstraints.RIGHT, CellConstraints.BOTTOM));
+			getVomsProxyInfoAndInitPanel();
+		}
+		return panel;
 	}
-	
+
 	/**
-	 * Adds a proxy listener. A proxy listener gets notified whenever the user creates
-	 * a new plain/voms proxy.
-	 * @param l the listener
+	 * @return
 	 */
-	public void addProxyListener(ProxyInitListener l) {
-		getVomsProxyInfoAndInitPanel().addProxyListener(l);
+	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
+		if (vomsProxyInfoAndInitPanel == null) {
+			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
+		}
+		return vomsProxyInfoAndInitPanel;
 	}
-	
-	/**
-	 * Sets the combobox that displays lifetimes
-	 * @param lifetimes a preselection of lifetimes
-	 */
-	public void setLifetimeDefaults(Integer[] lifetimes) {
-		getVomsProxyInfoAndInitPanel().setLifetimeDefaults(lifetimes);
-	}
-	
 
 	// remove a listener
 	public void removeProxyListener(ProxyInitListener l) {
 		getVomsProxyInfoAndInitPanel().removeProxyListener(l);
 	}
 
+	/**
+	 * Sets the combobox that displays lifetimes
+	 * 
+	 * @param lifetimes
+	 *            a preselection of lifetimes
+	 */
+	public void setLifetimeDefaults(Integer[] lifetimes) {
+		getVomsProxyInfoAndInitPanel().setLifetimeDefaults(lifetimes);
+	}
 
 }

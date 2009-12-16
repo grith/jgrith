@@ -51,19 +51,13 @@ public class LocalX509CertProxyCreatorPanel extends JPanel {
 		setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("43dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,},
-			new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("10dlu"),
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				FormFactory.DEFAULT_ROWSPEC,
-				RowSpec.decode("11dlu"),
-				RowSpec.decode("default:grow"),
-				FormFactory.RELATED_GAP_ROWSPEC,}));
+				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("10dlu"), FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("11dlu"), RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC, }));
 		//
 		enablePanel(false);
 		add(getPleaseProvideYourLabel(), new CellConstraints(2, 2, 3, 1));
@@ -79,25 +73,50 @@ public class LocalX509CertProxyCreatorPanel extends JPanel {
 		getComboBox().setEnabled(enable);
 	}
 
-	public void setProxyCreatorHolder(ProxyCreatorHolder holder) {
-		this.holder = holder;
-		if (this.holder == null) {
-			enablePanel(false);
-		} else {
-			enablePanel(true);
+	/**
+	 * @return
+	 */
+	protected JButton getAuthenticateButton() {
+		if (authenticateButton == null) {
+			authenticateButton = new JButton();
+			authenticateButton.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+
+					if (holder != null) {
+						new Thread() {
+							public void run() {
+								gridProxyInit();
+							}
+						}.start();
+					}
+
+				}
+			});
+			authenticateButton.setText("Authenticate");
 		}
+		return authenticateButton;
 	}
 
 	/**
 	 * @return
 	 */
-	protected JLabel getPleaseProvideYourLabel() {
-		if (pleaseProvideYourLabel == null) {
-			pleaseProvideYourLabel = new JLabel();
-			pleaseProvideYourLabel
-					.setText("Please provide your private key passphrase:");
+	protected JComboBox getComboBox() {
+		if (comboBox == null) {
+			comboBox = new JComboBox(lifetimeModel);
+			comboBox.setEditable(true);
 		}
-		return pleaseProvideYourLabel;
+		return comboBox;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getLifetimeInDaysLabel() {
+		if (lifetimeInDaysLabel == null) {
+			lifetimeInDaysLabel = new JLabel();
+			lifetimeInDaysLabel.setText("Lifetime in days:");
+		}
+		return lifetimeInDaysLabel;
 	}
 
 	/**
@@ -126,25 +145,13 @@ public class LocalX509CertProxyCreatorPanel extends JPanel {
 	/**
 	 * @return
 	 */
-	protected JButton getAuthenticateButton() {
-		if (authenticateButton == null) {
-			authenticateButton = new JButton();
-			authenticateButton.addActionListener(new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-
-					if (holder != null) {
-						new Thread() {
-							public void run() {
-								gridProxyInit();
-							}
-						}.start();
-					}
-
-				}
-			});
-			authenticateButton.setText("Authenticate");
+	protected JLabel getPleaseProvideYourLabel() {
+		if (pleaseProvideYourLabel == null) {
+			pleaseProvideYourLabel = new JLabel();
+			pleaseProvideYourLabel
+					.setText("Please provide your private key passphrase:");
 		}
-		return authenticateButton;
+		return pleaseProvideYourLabel;
 	}
 
 	private void gridProxyInit() {
@@ -186,26 +193,13 @@ public class LocalX509CertProxyCreatorPanel extends JPanel {
 
 	}
 
-	/**
-	 * @return
-	 */
-	protected JLabel getLifetimeInDaysLabel() {
-		if (lifetimeInDaysLabel == null) {
-			lifetimeInDaysLabel = new JLabel();
-			lifetimeInDaysLabel.setText("Lifetime in days:");
+	public void setProxyCreatorHolder(ProxyCreatorHolder holder) {
+		this.holder = holder;
+		if (this.holder == null) {
+			enablePanel(false);
+		} else {
+			enablePanel(true);
 		}
-		return lifetimeInDaysLabel;
-	}
-
-	/**
-	 * @return
-	 */
-	protected JComboBox getComboBox() {
-		if (comboBox == null) {
-			comboBox = new JComboBox(lifetimeModel);
-			comboBox.setEditable(true);
-		}
-		return comboBox;
 	}
 
 }

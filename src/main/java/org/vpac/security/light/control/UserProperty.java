@@ -38,37 +38,19 @@ import org.vpac.security.light.certificate.CertificateHelper;
  * 
  */
 public class UserProperty {
-	
+
 	public static final String LAST_MYPROXY_USERNAME_KEY = "MYPROXY_USERNAME_TEXTFIELD";
 
-	
 	// let's use the same properties file as grix
 	public static final String PROPERTIES_FILE_NAME = "grix.properties";
 
 	static final Logger myLogger = Logger.getLogger(UserProperty.class
 			.getName());
 
-	private static final File prop_file = new File(CertificateHelper.getGlobusDir(), PROPERTIES_FILE_NAME);
+	private static final File prop_file = new File(CertificateHelper
+			.getGlobusDir(), PROPERTIES_FILE_NAME);
 
 	private static Properties proxyLightProperties = getProxyLightProperties();
-
-	private static Properties getProxyLightProperties() {
-
-		Properties properties = null;
-
-		properties = new Properties();
-		try {
-			properties.load(new FileInputStream(prop_file));
-		} catch (FileNotFoundException fnfe) {
-			myLogger
-					.debug("Property file not found. Does not matter, it will be created later on.");
-		} catch (IOException ioe) {
-			myLogger
-					.debug("Could not read property file. Most likely due to permission issues. Hmm.");
-		}
-
-		return properties;
-	}
 
 	/**
 	 * Appends a value to the end of the list of values for that key (separated
@@ -85,8 +67,8 @@ public class UserProperty {
 		// TODO test for ","
 		StringTokenizer oldvalues = null;
 		try {
-			oldvalues = new StringTokenizer(proxyLightProperties.getProperty(key),
-					",");
+			oldvalues = new StringTokenizer(proxyLightProperties
+					.getProperty(key), ",");
 		} catch (NullPointerException npe) {
 			try {
 				setProperty(key, value);
@@ -111,69 +93,6 @@ public class UserProperty {
 			return false;
 		}
 		return true;
-	}
-
-	public static boolean removeFromList(String key, String value) {
-		StringTokenizer oldvalues = null;
-		try {
-			oldvalues = new StringTokenizer(proxyLightProperties.getProperty(key),
-					",");
-		} catch (NullPointerException npe) {
-			myLogger.debug("Cannot remove element from empty list.");
-			return false;
-		}
-
-		boolean omitted = false;
-		boolean frontposition = true;
-		StringBuffer newvalues = new StringBuffer();
-		while (oldvalues.hasMoreTokens()) {
-			String oldvalue = oldvalues.nextToken();
-			if (!oldvalue.equals(value)) {
-				if (frontposition) {
-					newvalues.append(oldvalue);
-					frontposition = false;
-				} else
-					newvalues.append("," + oldvalue);
-			} else
-				omitted = true;
-		}
-
-		if (omitted) {
-			try {
-				setProperty(key, newvalues.toString());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				return false;
-			}
-			return true;
-		} else
-			return false;
-
-	}
-
-	/**
-	 * Checks whether an element is in the according list of the key or not
-	 * 
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the element
-	 * @return true if element is in list, false if not
-	 */
-	public static boolean isInList(String key, String value) {
-		StringTokenizer values = null;
-		try {
-			values = new StringTokenizer(proxyLightProperties.getProperty(key), ",");
-		} catch (NullPointerException npe) {
-			myLogger.debug("Cannot check element in empty list.");
-			return false;
-		}
-		while (values.hasMoreTokens()) {
-			if (values.nextToken().equals(value))
-				return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -210,28 +129,6 @@ public class UserProperty {
 	}
 
 	/**
-	 * Sets the property for the specified key
-	 * 
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value (use lowercase if possible)
-	 * @throws Exception  if the property couldn't be stored
-	 */
-	public static void setProperty(String key, String value) throws Exception {
-
-		proxyLightProperties.setProperty(key, value);
-
-		if ( ! getPropFile().getParentFile().exists() ) {
-			if ( ! getPropFile().getParentFile().mkdirs() ) {
-				throw new Exception("Could not create parent directory for properties file.");
-			}
-		}
-		proxyLightProperties.store(new FileOutputStream(prop_file), null);
-
-	}
-
-	/**
 	 * Returns the file in which the properties are stored.
 	 * 
 	 * @return the prop_file
@@ -239,6 +136,112 @@ public class UserProperty {
 	public static File getPropFile() {
 
 		return prop_file;
+	}
+
+	private static Properties getProxyLightProperties() {
+
+		Properties properties = null;
+
+		properties = new Properties();
+		try {
+			properties.load(new FileInputStream(prop_file));
+		} catch (FileNotFoundException fnfe) {
+			myLogger
+					.debug("Property file not found. Does not matter, it will be created later on.");
+		} catch (IOException ioe) {
+			myLogger
+					.debug("Could not read property file. Most likely due to permission issues. Hmm.");
+		}
+
+		return properties;
+	}
+
+	/**
+	 * Checks whether an element is in the according list of the key or not
+	 * 
+	 * @param key
+	 *            the key
+	 * @param value
+	 *            the element
+	 * @return true if element is in list, false if not
+	 */
+	public static boolean isInList(String key, String value) {
+		StringTokenizer values = null;
+		try {
+			values = new StringTokenizer(proxyLightProperties.getProperty(key),
+					",");
+		} catch (NullPointerException npe) {
+			myLogger.debug("Cannot check element in empty list.");
+			return false;
+		}
+		while (values.hasMoreTokens()) {
+			if (values.nextToken().equals(value))
+				return true;
+		}
+
+		return false;
+	}
+
+	public static boolean removeFromList(String key, String value) {
+		StringTokenizer oldvalues = null;
+		try {
+			oldvalues = new StringTokenizer(proxyLightProperties
+					.getProperty(key), ",");
+		} catch (NullPointerException npe) {
+			myLogger.debug("Cannot remove element from empty list.");
+			return false;
+		}
+
+		boolean omitted = false;
+		boolean frontposition = true;
+		StringBuffer newvalues = new StringBuffer();
+		while (oldvalues.hasMoreTokens()) {
+			String oldvalue = oldvalues.nextToken();
+			if (!oldvalue.equals(value)) {
+				if (frontposition) {
+					newvalues.append(oldvalue);
+					frontposition = false;
+				} else
+					newvalues.append("," + oldvalue);
+			} else
+				omitted = true;
+		}
+
+		if (omitted) {
+			try {
+				setProperty(key, newvalues.toString());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				return false;
+			}
+			return true;
+		} else
+			return false;
+
+	}
+
+	/**
+	 * Sets the property for the specified key
+	 * 
+	 * @param key
+	 *            the key
+	 * @param value
+	 *            the value (use lowercase if possible)
+	 * @throws Exception
+	 *             if the property couldn't be stored
+	 */
+	public static void setProperty(String key, String value) throws Exception {
+
+		proxyLightProperties.setProperty(key, value);
+
+		if (!getPropFile().getParentFile().exists()) {
+			if (!getPropFile().getParentFile().mkdirs()) {
+				throw new Exception(
+						"Could not create parent directory for properties file.");
+			}
+		}
+		proxyLightProperties.store(new FileOutputStream(prop_file), null);
+
 	}
 
 }

@@ -20,112 +20,65 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-public class VomsProxyInfoAndInitPanel extends JPanel implements ProxyInitListener {
-	
-	static final Logger myLogger = Logger.getLogger(VomsProxyInfoAndInitPanel.class
-			.getName());
+public class VomsProxyInfoAndInitPanel extends JPanel implements
+		ProxyInitListener {
+
+	static final Logger myLogger = Logger
+			.getLogger(VomsProxyInfoAndInitPanel.class.getName());
 
 	private VomsProxyInitPanel vomsProxyInitPanel;
 	private VomsProxyInfoPanel vomsProxyInfoPanel;
-	
+
 	private boolean storeProxy = false;
+
+	// -------------------------------------------------------------------
+	// EventStuff
+	private Vector<ProxyInitListener> proxyListeners;
+
 	/**
 	 * Create the panel
 	 */
 	public VomsProxyInfoAndInitPanel() {
 		super();
-		setLayout(new FormLayout(
-			new ColumnSpec[] {
-				new ColumnSpec("default:grow(1.0)")},
-			new RowSpec[] {
-				FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				new RowSpec("default:grow(1.0)")}));
-		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1, CellConstraints.FILL, CellConstraints.FILL));
-		add(getVomsProxyInitPanel(), new CellConstraints(1, 3, CellConstraints.FILL, CellConstraints.FILL));
-		
-//		getVomsProxyInitPanel().addProxyListener(getVomsProxyInfoPanel());
-//		getVomsProxyInitPanel().loadPossibleLocalProxy();
+		setLayout(new FormLayout(new ColumnSpec[] { new ColumnSpec(
+				"default:grow(1.0)") }, new RowSpec[] {
+				FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
+				new RowSpec("default:grow(1.0)") }));
+		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1,
+				CellConstraints.FILL, CellConstraints.FILL));
+		add(getVomsProxyInitPanel(), new CellConstraints(1, 3,
+				CellConstraints.FILL, CellConstraints.FILL));
+
+		// getVomsProxyInitPanel().addProxyListener(getVomsProxyInfoPanel());
+		// getVomsProxyInitPanel().loadPossibleLocalProxy();
 		//
 		getVomsProxyInitPanel().addProxyListener(this);
-		
+
 		addProxyListener(getVomsProxyInfoPanel());
 		addProxyListener(getVomsProxyInitPanel());
 	}
-	
-	public void loadPossibleLocalProxy() {
 
-		GlobusCredential credential = null;
-		try {
-			credential = LocalProxy.loadGlobusCredential();
-			credential.verify();
-		} catch (Exception e) {
-			myLogger.debug("No valid local proxy found.");
-			return;
-		}
-		fireNewProxyCreated(credential);
+	// register a listener
+	synchronized public void addProxyListener(ProxyInitListener l) {
+		if (proxyListeners == null)
+			proxyListeners = new Vector();
+		proxyListeners.addElement(l);
 	}
-	
+
 	/**
-	 * @return
-	 */
-	protected VomsProxyInfoPanel getVomsProxyInfoPanel() {
-		if (vomsProxyInfoPanel == null) {
-			vomsProxyInfoPanel = new VomsProxyInfoPanel();
-		}
-		return vomsProxyInfoPanel;
-	}
-	/**
-	 * @return
-	 */
-	protected VomsProxyInitPanel getVomsProxyInitPanel() {
-		if (vomsProxyInitPanel == null) {
-			vomsProxyInitPanel = new VomsProxyInitPanel();
-		}
-		return vomsProxyInitPanel;
-	}
-	
-	/**
-	 * If you call this method with true, every proxy that is created 
-	 * with the panel is stored to the default globus location.
+	 * If you call this method with true, every proxy that is created with the
+	 * panel is stored to the default globus location.
 	 * 
-	 * It probably makes sense to leave that (false) and manage the 
-	 * writing of the proxy on your own.
-	 * @param write whether to write a created proxy to disk (true) or not (false -- default)
+	 * It probably makes sense to leave that (false) and manage the writing of
+	 * the proxy on your own.
+	 * 
+	 * @param write
+	 *            whether to write a created proxy to disk (true) or not (false
+	 *            -- default)
 	 */
 	public void enableWriteToDisk(boolean write) {
 		storeProxy = write;
 	}
-	
-	/**
-	 * Sets the combobox that displays lifetimes
-	 * @param lifetimes a preselection of lifetimes
-	 */
-	public void setLifetimeDefaults(Integer[] lifetimes) {
-		getVomsProxyInitPanel().setLifetimes(lifetimes);
-	}
-	
-	public void proxyCreated(GlobusCredential newProxy) {
-
-		fireNewProxyCreated(newProxy);
-
-		if ( storeProxy ) {
-			try {
-				CredentialHelpers.writeToDisk(newProxy, new File(CoGProperties.getDefault().getProxyFile()));
-			} catch (IOException e) {
-				JOptionPane.showMessageDialog(VomsProxyInfoAndInitPanel.this,
-					    e.getLocalizedMessage(),
-					    "Write error",
-					    JOptionPane.ERROR_MESSAGE);
-			}
-		}
-		
-	}
-
-
-	// -------------------------------------------------------------------
-	// EventStuff
-	private Vector<ProxyInitListener> proxyListeners;
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
@@ -149,11 +102,59 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements ProxyInitListen
 		}
 	}
 
-	// register a listener
-	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
-			proxyListeners = new Vector();
-		proxyListeners.addElement(l);
+	/**
+	 * @return
+	 */
+	protected VomsProxyInfoPanel getVomsProxyInfoPanel() {
+		if (vomsProxyInfoPanel == null) {
+			vomsProxyInfoPanel = new VomsProxyInfoPanel();
+		}
+		return vomsProxyInfoPanel;
+	}
+
+	/**
+	 * @return
+	 */
+	protected VomsProxyInitPanel getVomsProxyInitPanel() {
+		if (vomsProxyInitPanel == null) {
+			vomsProxyInitPanel = new VomsProxyInitPanel();
+		}
+		return vomsProxyInitPanel;
+	}
+
+	public void loadPossibleLocalProxy() {
+
+		GlobusCredential credential = null;
+		try {
+			credential = LocalProxy.loadGlobusCredential();
+			credential.verify();
+		} catch (Exception e) {
+			myLogger.debug("No valid local proxy found.");
+			return;
+		}
+		fireNewProxyCreated(credential);
+	}
+
+	public void proxyCreated(GlobusCredential newProxy) {
+
+		fireNewProxyCreated(newProxy);
+
+		if (storeProxy) {
+			try {
+				CredentialHelpers.writeToDisk(newProxy, new File(CoGProperties
+						.getDefault().getProxyFile()));
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(VomsProxyInfoAndInitPanel.this, e
+						.getLocalizedMessage(), "Write error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+
+	}
+
+	public void proxyDestroyed() {
+		// TODO Auto-generated method stub
+
 	}
 
 	// remove a listener
@@ -163,12 +164,15 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements ProxyInitListen
 		}
 		proxyListeners.removeElement(l);
 	}
-	
-	public void proxyDestroyed() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 
+	/**
+	 * Sets the combobox that displays lifetimes
+	 * 
+	 * @param lifetimes
+	 *            a preselection of lifetimes
+	 */
+	public void setLifetimeDefaults(Integer[] lifetimes) {
+		getVomsProxyInitPanel().setLifetimes(lifetimes);
+	}
 
 }

@@ -1,23 +1,21 @@
 package org.vpac.security.light.view.swing;
 
 import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 
 import org.vpac.security.light.utils.ActionPerformedListener;
 import org.vpac.security.light.utils.MyProxyLoginInformationHolder;
-import org.vpac.security.light.view.swing.MyProxyInitPanel;
 
-public class MyProxyInitDialog extends JDialog implements ActionPerformedListener, MyProxyLoginInformationHolder{
+public class MyProxyInitDialog extends JDialog implements
+		ActionPerformedListener, MyProxyLoginInformationHolder {
 
 	private MyProxyInitPanel myProxyInitPanel;
-	
+
 	private boolean success = false;
 	private String username = null;
 	private char[] password = null;
-	
+
 	private String myproxyServer = null;
 	private int myproxyPort = -1;
 	private int lifetime_in_seconds = -1;
@@ -27,7 +25,9 @@ public class MyProxyInitDialog extends JDialog implements ActionPerformedListene
 	/**
 	 * Create the dialog
 	 */
-	public MyProxyInitDialog(String myproxyServer,int  myproxyPort, int lifetime_in_seconds, String allowed_retrievers, String allowed_renewers) {
+	public MyProxyInitDialog(String myproxyServer, int myproxyPort,
+			int lifetime_in_seconds, String allowed_retrievers,
+			String allowed_renewers) {
 		super();
 		this.setModal(true);
 		this.myproxyServer = myproxyServer;
@@ -40,22 +40,13 @@ public class MyProxyInitDialog extends JDialog implements ActionPerformedListene
 		this.setVisible(true);
 	}
 
-	public void success(String actionName, boolean success, Object[] params) {
-		this.success = success;
-		this.username = (String)params[0];
-		this.password = (char[])params[1];
-		this.setVisible(false);
-		
-	}
 	protected MyProxyInitPanel getMyProxyInitPanel() {
 		if (myProxyInitPanel == null) {
-			myProxyInitPanel = new MyProxyInitPanel(this, myproxyServer, myproxyPort, lifetime_in_seconds, allowed_retrievers, allowed_renewers);
+			myProxyInitPanel = new MyProxyInitPanel(this, myproxyServer,
+					myproxyPort, lifetime_in_seconds, allowed_retrievers,
+					allowed_renewers);
 		}
 		return myProxyInitPanel;
-	}
-
-	public boolean wasSuccess() {
-		return success;
 	}
 
 	public char[] getPassword() {
@@ -67,6 +58,18 @@ public class MyProxyInitDialog extends JDialog implements ActionPerformedListene
 	}
 
 	public boolean proxyCreated() {
+		return success;
+	}
+
+	public void success(String actionName, boolean success, Object[] params) {
+		this.success = success;
+		this.username = (String) params[0];
+		this.password = (char[]) params[1];
+		this.setVisible(false);
+
+	}
+
+	public boolean wasSuccess() {
 		return success;
 	}
 

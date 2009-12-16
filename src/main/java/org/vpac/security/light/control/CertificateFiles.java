@@ -14,59 +14,29 @@ import org.vpac.security.light.Init;
 import org.vpac.security.light.certificate.CertificateHelper;
 
 public class CertificateFiles {
-	
+
 	static final Logger myLogger = Logger.getLogger(Init.class.getName());
 
 	/**
-	 * Creates the globus directory if it doesn't exist yet.
-	 * @throws Exception if something goes wrong
-	 */
-	public static void createGlobusDirectory() throws Exception {
-		
-		File globusDir = CertificateHelper.getGlobusDir();
-		
-		if ( ! globusDir.exists() ) {
-			if ( ! globusDir.mkdirs() ) {
-				myLogger.error("Could not create globus directory.");
-				throw new Exception("Could not create globus directory. Please set permissions for "+globusDir.toString()+" to be created.");
-			}
-		}
-	}
-	
-	/**
-	 * Creates the certificates directory if it doesn't exist yet
-	 * @throws Exception if something goes wrong
-	 */
-	public static void createCertificatesDirectory() throws Exception {
-		
-		File certDir = CertificateHelper.getCertificatesDir();
-		if ( ! certDir.exists() ) {
-			if ( ! certDir.mkdirs() ) {
-				myLogger.error("Could not create certificates directory");
-				throw new Exception("Could not create certificates directory. Please set permissions for "+certDir.toString()+" to be created");
-			}
-		}
-		
-	}
-	
-	/**
-	 * This one copies the CA certificates (in the certificates.zip file) into the .globus/certificates
-	 * directory if they are not already there...
-	 * @throws Exception 
+	 * This one copies the CA certificates (in the certificates.zip file) into
+	 * the .globus/certificates directory if they are not already there...
+	 * 
+	 * @throws Exception
 	 * 
 	 */
 	public static void copyCACerts() throws Exception {
-		
+
 		// needed for APAC signing policy file...
 		// there's a bug in jglobus that doesn't work with it...
-		CoGProperties.getDefault().setProperty(CoGProperties.ENFORCE_SIGNING_POLICY, "false");
+		CoGProperties.getDefault().setProperty(
+				CoGProperties.ENFORCE_SIGNING_POLICY, "false");
 
 		createGlobusDirectory();
 
 		createCertificatesDirectory();
-		
+
 		File certDir = CertificateHelper.getCertificatesDir();
-		
+
 		int BUFFER_SIZE = 8192;
 		int count;
 		byte data[] = new byte[BUFFER_SIZE];
@@ -83,25 +53,30 @@ public class CertificateFiles {
 			while ((cert = certStream.getNextEntry()) != null) {
 
 				if (!cert.isDirectory()) {
-					
+
 					try {
-					myLogger.debug("Certificate name: " + cert.getName());
-					File cert_file = new File(certDir, cert.getName());
+						myLogger.debug("Certificate name: " + cert.getName());
+						File cert_file = new File(certDir, cert.getName());
 
-					// exception for the apacgrid cert
-					if (!cert_file.exists() || cert_file.getName().startsWith("1e12d831") || cert_file.getName().startsWith("1ed4795f") ) {
+						// exception for the apacgrid cert
+						if (!cert_file.exists()
+								|| cert_file.getName().startsWith("1e12d831")
+								|| cert_file.getName().startsWith("1ed4795f")) {
 
-						// Write the file to the file system
-						FileOutputStream fos = new FileOutputStream(cert_file);
-						dest = new BufferedOutputStream(fos, BUFFER_SIZE);
-						while ((count = certStream.read(data, 0, BUFFER_SIZE)) != -1) {
-							dest.write(data, 0, count);
+							// Write the file to the file system
+							FileOutputStream fos = new FileOutputStream(
+									cert_file);
+							dest = new BufferedOutputStream(fos, BUFFER_SIZE);
+							while ((count = certStream.read(data, 0,
+									BUFFER_SIZE)) != -1) {
+								dest.write(data, 0, count);
+							}
+							dest.flush();
+							dest.close();
 						}
-						dest.flush();
-						dest.close();
-					}
 					} catch (Exception e) {
-						myLogger.debug("Could not write certificate: "+cert.getName());
+						myLogger.debug("Could not write certificate: "
+								+ cert.getName());
 					}
 
 				}
@@ -109,8 +84,49 @@ public class CertificateFiles {
 
 		} catch (IOException e) {
 			myLogger.debug(e.getLocalizedMessage());
-			throw new Exception("Could not write certificate: "+e.getLocalizedMessage(), e);
+			throw new Exception("Could not write certificate: "
+					+ e.getLocalizedMessage(), e);
 		}
 	}
-	
+
+	/**
+	 * Creates the certificates directory if it doesn't exist yet
+	 * 
+	 * @throws Exception
+	 *             if something goes wrong
+	 */
+	public static void createCertificatesDirectory() throws Exception {
+
+		File certDir = CertificateHelper.getCertificatesDir();
+		if (!certDir.exists()) {
+			if (!certDir.mkdirs()) {
+				myLogger.error("Could not create certificates directory");
+				throw new Exception(
+						"Could not create certificates directory. Please set permissions for "
+								+ certDir.toString() + " to be created");
+			}
+		}
+
+	}
+
+	/**
+	 * Creates the globus directory if it doesn't exist yet.
+	 * 
+	 * @throws Exception
+	 *             if something goes wrong
+	 */
+	public static void createGlobusDirectory() throws Exception {
+
+		File globusDir = CertificateHelper.getGlobusDir();
+
+		if (!globusDir.exists()) {
+			if (!globusDir.mkdirs()) {
+				myLogger.error("Could not create globus directory.");
+				throw new Exception(
+						"Could not create globus directory. Please set permissions for "
+								+ globusDir.toString() + " to be created.");
+			}
+		}
+	}
+
 }

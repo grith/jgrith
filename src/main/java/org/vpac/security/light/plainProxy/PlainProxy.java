@@ -73,13 +73,14 @@ public class PlainProxy {
 		}
 
 		PrivateKey userKey = key.getPrivateKey();
-		
+
 		return init(userCert, userKey, lifetime_in_hours);
 
 	}
 
-	public static GSSCredential init(X509Certificate userCert, PrivateKey userKey,
-			int lifetime_in_hours) throws GeneralSecurityException {
+	public static GSSCredential init(X509Certificate userCert,
+			PrivateKey userKey, int lifetime_in_hours)
+			throws GeneralSecurityException {
 
 		CoGProperties props = CoGProperties.getDefault();
 
@@ -105,9 +106,9 @@ public class PlainProxy {
 
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
-//						.getProxyStrength(), props.getProxyLifeTime() * 3600
-						.getProxyStrength(), 3600
-						* lifetime_in_hours, proxyType, extSet);
+				// .getProxyStrength(), props.getProxyLifeTime() * 3600
+						.getProxyStrength(), 3600 * lifetime_in_hours,
+				proxyType, extSet);
 
 		return CredentialHelpers.wrapGlobusCredential(proxy);
 

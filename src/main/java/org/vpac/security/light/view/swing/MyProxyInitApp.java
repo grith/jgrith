@@ -6,13 +6,11 @@ import javax.swing.JFrame;
 
 import org.vpac.security.light.utils.ActionPerformedListener;
 
-public class MyProxyInitApp implements ActionPerformedListener{
-
-	private MyProxyInitPanel myProxyInitPanel;
-	private JFrame frame;
+public class MyProxyInitApp implements ActionPerformedListener {
 
 	/**
 	 * Launch the application
+	 * 
 	 * @param args
 	 */
 	public static void main(String args[]) {
@@ -23,12 +21,26 @@ public class MyProxyInitApp implements ActionPerformedListener{
 			e.printStackTrace();
 		}
 	}
+	private MyProxyInitPanel myProxyInitPanel;
+
+	private JFrame frame;
 
 	/**
 	 * Create the application
 	 */
 	public MyProxyInitApp() {
 		initialize();
+	}
+
+	/**
+	 * @return
+	 */
+	protected MyProxyInitPanel getMyProxyInitPanel() {
+		if (myProxyInitPanel == null) {
+			myProxyInitPanel = new MyProxyInitPanel(this,
+					"myproxy.arcs.org.au", 443, -1, null, null);
+		}
+		return myProxyInitPanel;
 	}
 
 	/**
@@ -40,23 +52,14 @@ public class MyProxyInitApp implements ActionPerformedListener{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(getMyProxyInitPanel(), BorderLayout.CENTER);
 	}
-	/**
-	 * @return
-	 */
-	protected MyProxyInitPanel getMyProxyInitPanel() {
-		if (myProxyInitPanel == null) {
-			myProxyInitPanel = new MyProxyInitPanel(this, "myproxy.arcs.org.au", 443, -1, null, null);
-		}
-		return myProxyInitPanel;
-	}
 
 	public void success(String actionName, boolean success, Object[] params) {
 
-		if ( MyProxyInitPanel.SUCCESS_ACTION_NAME.equals(actionName) ) {
+		if (MyProxyInitPanel.SUCCESS_ACTION_NAME.equals(actionName)) {
 			Utils.showDialog(this.frame, "myProxyUploadedSuccessful");
-			//System.exit(0);
-		} 
-		
+			// System.exit(0);
+		}
+
 	}
 
 }

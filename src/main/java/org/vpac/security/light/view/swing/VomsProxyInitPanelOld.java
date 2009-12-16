@@ -17,38 +17,43 @@ import javax.swing.JPasswordField;
 
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
-import org.globus.gsi.GlobusCredentialException;
-import org.globus.tools.proxy.ProxyListener;
 import org.ietf.jgss.GSSCredential;
 import org.vpac.security.light.plainProxy.LocalProxy;
 
 public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
-	
-	static final Logger myLogger = Logger.getLogger(VomsProxyInitPanelOld.class.getName());
+
+	static final Logger myLogger = Logger.getLogger(VomsProxyInitPanelOld.class
+			.getName());
 
 	private JLabel createAVomsLabel;
 	private JLabel createAPlainLabel;
-	private static final Integer[] PREFILLS = new Integer[]{1,2,3,7,14,21};
-	
+	private static final Integer[] PREFILLS = new Integer[] { 1, 2, 3, 7, 14,
+			21 };
+
 	private VomsInfoPanel vomsInfoPanel;
 	private JButton initButton;
 	private JComboBox validCombobox;
 	private JPasswordField passwordField;
 	private JLabel validdaysLabel;
 	private JLabel privateKeyPassphraseLabel;
-	
+
 	private DefaultComboBoxModel validModel = new DefaultComboBoxModel(PREFILLS);
-	
+
 	private GSSCredential credential = null;
-	
+
+	// -------------------------------------------------------------------
+	// EventStuff
+	private Vector<ProxyInitListener> proxyListeners;
+
 	/**
 	 * Create the panel
 	 */
 	public VomsProxyInitPanelOld() {
 		super();
 		final GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] {7,0,7,7,7};
-		gridBagLayout.rowHeights = new int[] {7,7,7,7,0,7,7,7,7,7,7,7,7,7,7,7,7,7};
+		gridBagLayout.columnWidths = new int[] { 7, 0, 7, 7, 7 };
+		gridBagLayout.rowHeights = new int[] { 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7,
+				7, 7, 7, 7, 7, 7, 7 };
 		setLayout(gridBagLayout);
 		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
 		gridBagConstraints.anchor = GridBagConstraints.WEST;
@@ -96,73 +101,7 @@ public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 		//
 		activateOrNotVomsPanel();
 	}
-	/**
-	 * @return
-	 */
-	protected JLabel getPrivateKeyPassphraseLabel() {
-		if (privateKeyPassphraseLabel == null) {
-			privateKeyPassphraseLabel = new JLabel();
-			privateKeyPassphraseLabel.setText("Private key passphrase");
-		}
-		return privateKeyPassphraseLabel;
-	}
-	/**
-	 * @return
-	 */
-	protected JLabel getValiddaysLabel() {
-		if (validdaysLabel == null) {
-			validdaysLabel = new JLabel();
-			validdaysLabel.setText("Valid (days)");
-		}
-		return validdaysLabel;
-	}
-	/**
-	 * @return
-	 */
-	protected JPasswordField getPasswordField() {
-		if (passwordField == null) {
-			passwordField = new JPasswordField();
-		}
-		return passwordField;
-	}
-	/**
-	 * @return
-	 */
-	protected JComboBox getValidCombobox() {
-		if (validCombobox == null) {
-			validCombobox = new JComboBox(validModel);
-		}
-		return validCombobox;
-	}
-	/**
-	 * @return
-	 */
-	protected JButton getInitButton() {
-		if (initButton == null) {
-			initButton = new JButton();
-			initButton.addActionListener(new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					
-					try {
-						initProxy();
-						getPasswordField().setText("");
-						activateOrNotVomsPanel();
-					} catch (Exception e1) {
-						myLogger.error("Proxy init error: "+e1.getLocalizedMessage());						
-						getPasswordField().setText("");
-						JOptionPane.showMessageDialog(VomsProxyInitPanelOld.this,
-							    e1.getLocalizedMessage(),
-							    "Proxy init error",
-							    JOptionPane.ERROR_MESSAGE);
-					}
-					
-				}
-			});
-			initButton.setText("Init");
-		}
-		return initButton;
-	}
-	
+
 	private void activateOrNotVomsPanel() {
 		try {
 			LocalProxy.loadGlobusCredential().verify();
@@ -173,45 +112,15 @@ public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 			myLogger.debug("No valid proxy here. Disabling voms panel.");
 			getVomsInfoPanel().disablePanel(true);
 			getCreateAVomsLabel().setEnabled(false);
-		} 
-	}
-	
-	private void initProxy() throws Exception {
-		
-		char[] passphrase = getPasswordField().getPassword();
-		int lifetime_in_hours = ((Integer)getValidCombobox().getSelectedItem())*24;
-		
-		try {
-			LocalProxy.gridProxyInit(passphrase, lifetime_in_hours);
-		} catch (Exception e) {
-			throw e;
 		}
-		
-		fireNewProxyCreated(LocalProxy.loadGlobusCredential());
-		
-	}
-	
-	
-	/**
-	 * @return
-	 */
-	protected VomsInfoPanel getVomsInfoPanel() {
-		if (vomsInfoPanel == null) {
-			vomsInfoPanel = new VomsInfoPanel();
-			vomsInfoPanel.initialize("VomsInit", true);
-			vomsInfoPanel.addVomsPanelListener(this);
-		}
-		return vomsInfoPanel;
 	}
 
-	// this one listens to the VomsInfoPanel
-	public void proxyCreated(GlobusCredential arg0) {
-		fireNewProxyCreated(arg0);
+	// register a listener
+	synchronized public void addProxyListener(ProxyInitListener l) {
+		if (proxyListeners == null)
+			proxyListeners = new Vector();
+		proxyListeners.addElement(l);
 	}
-	
-	// -------------------------------------------------------------------
-	// EventStuff
-	private Vector<ProxyInitListener> proxyListeners;
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
@@ -232,24 +141,9 @@ public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 				ProxyInitListener l = (ProxyInitListener) e.nextElement();
 				l.proxyCreated(proxy);
 			}
-			}
 		}
-	
-
-	// register a listener
-	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
-			proxyListeners = new Vector();
-		proxyListeners.addElement(l);
 	}
 
-	// remove a listener
-	synchronized public void removeProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null) {
-			proxyListeners = new Vector<ProxyInitListener>();
-		}
-		proxyListeners.removeElement(l);
-	}
 	/**
 	 * @return
 	 */
@@ -260,6 +154,7 @@ public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 		}
 		return createAPlainLabel;
 	}
+
 	/**
 	 * @return
 	 */
@@ -270,9 +165,122 @@ public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 		}
 		return createAVomsLabel;
 	}
+
+	/**
+	 * @return
+	 */
+	protected JButton getInitButton() {
+		if (initButton == null) {
+			initButton = new JButton();
+			initButton.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+
+					try {
+						initProxy();
+						getPasswordField().setText("");
+						activateOrNotVomsPanel();
+					} catch (Exception e1) {
+						myLogger.error("Proxy init error: "
+								+ e1.getLocalizedMessage());
+						getPasswordField().setText("");
+						JOptionPane.showMessageDialog(
+								VomsProxyInitPanelOld.this, e1
+										.getLocalizedMessage(),
+								"Proxy init error", JOptionPane.ERROR_MESSAGE);
+					}
+
+				}
+			});
+			initButton.setText("Init");
+		}
+		return initButton;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JPasswordField getPasswordField() {
+		if (passwordField == null) {
+			passwordField = new JPasswordField();
+		}
+		return passwordField;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getPrivateKeyPassphraseLabel() {
+		if (privateKeyPassphraseLabel == null) {
+			privateKeyPassphraseLabel = new JLabel();
+			privateKeyPassphraseLabel.setText("Private key passphrase");
+		}
+		return privateKeyPassphraseLabel;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JComboBox getValidCombobox() {
+		if (validCombobox == null) {
+			validCombobox = new JComboBox(validModel);
+		}
+		return validCombobox;
+	}
+
+	/**
+	 * @return
+	 */
+	protected JLabel getValiddaysLabel() {
+		if (validdaysLabel == null) {
+			validdaysLabel = new JLabel();
+			validdaysLabel.setText("Valid (days)");
+		}
+		return validdaysLabel;
+	}
+
+	/**
+	 * @return
+	 */
+	protected VomsInfoPanel getVomsInfoPanel() {
+		if (vomsInfoPanel == null) {
+			vomsInfoPanel = new VomsInfoPanel();
+			vomsInfoPanel.initialize("VomsInit", true);
+			vomsInfoPanel.addVomsPanelListener(this);
+		}
+		return vomsInfoPanel;
+	}
+
+	private void initProxy() throws Exception {
+
+		char[] passphrase = getPasswordField().getPassword();
+		int lifetime_in_hours = ((Integer) getValidCombobox().getSelectedItem()) * 24;
+
+		try {
+			LocalProxy.gridProxyInit(passphrase, lifetime_in_hours);
+		} catch (Exception e) {
+			throw e;
+		}
+
+		fireNewProxyCreated(LocalProxy.loadGlobusCredential());
+
+	}
+
+	// this one listens to the VomsInfoPanel
+	public void proxyCreated(GlobusCredential arg0) {
+		fireNewProxyCreated(arg0);
+	}
+
 	public void proxyDestroyed() {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	// remove a listener
+	synchronized public void removeProxyListener(ProxyInitListener l) {
+		if (proxyListeners == null) {
+			proxyListeners = new Vector<ProxyInitListener>();
+		}
+		proxyListeners.removeElement(l);
 	}
 
 }

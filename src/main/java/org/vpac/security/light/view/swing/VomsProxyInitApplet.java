@@ -1,20 +1,23 @@
 package org.vpac.security.light.view.swing;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JApplet;
-import org.vpac.security.light.view.swing.VomsProxyInfoAndInitPanel;
 
 public class VomsProxyInitApplet extends JApplet {
 
 	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
+
 	/**
 	 * Create the applet
 	 */
 	public VomsProxyInitApplet() {
 		super();
-		getContentPane().add(getVomsProxyInfoAndInitPanel(), BorderLayout.CENTER);
+		getContentPane().add(getVomsProxyInfoAndInitPanel(),
+				BorderLayout.CENTER);
 		//
 	}
+
 	/**
 	 * @return
 	 */

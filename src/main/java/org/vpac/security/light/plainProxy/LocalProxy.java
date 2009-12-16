@@ -31,25 +31,61 @@ import org.ietf.jgss.GSSException;
 import org.vpac.security.light.CredentialHelpers;
 
 public class LocalProxy {
-	
+
 	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
-	
-	public static final String PROXY_FILE = CoGProperties.getDefault().getProxyFile(); 
-	
+
+	public static final String PROXY_FILE = CoGProperties.getDefault()
+			.getProxyFile();
+
 	/**
-	 * A helper method to do the equivalent of grid-proxy-init in Java. It creates a proxy from the
-	 * local usercert/userkey and writes it to disk (e.g. /tmp/x509up_uXXX on linux).
-	 * 
-	 * @param passwd the passphrase of the private key in the .globus folder
-	 * @param lifetime_in_hours how long should the proxy be valid for
-	 * @throws Exception if some general error occured
-	 * @throws GSSException if something was wrong with the gsscredential
-	 * @throws IOException if the proxy could not be written to disk
+	 * Writes random data in the default local proxy file and then deletes it.
 	 */
-	public static void gridProxyInit(char[] passwd, int lifetime_in_hours) throws IOException, GSSException, Exception {
-		
+	public static void gridProxyDestroy() {
+
+		Util.destroy(CoGProperties.getDefault().getProxyFile());
+	}
+
+	/**
+	 * Calls gridProxyInit(char[] passwd, int lifetime_in_hours) with a default
+	 * lifetime of 12 hours
+	 * 
+	 * @param passwd
+	 *            the passphrase of the private key
+	 * @throws Exception
+	 *             if some general error occured
+	 * @throws GSSException
+	 *             if something was wrong with the gsscredential
+	 * @throws IOException
+	 *             if the proxy could not be written to disk
+	 */
+	public static void gridProxyInit(char[] passwd) throws IOException,
+			GSSException, Exception {
+
+		gridProxyInit(passwd, 12);
+
+	}
+
+	/**
+	 * A helper method to do the equivalent of grid-proxy-init in Java. It
+	 * creates a proxy from the local usercert/userkey and writes it to disk
+	 * (e.g. /tmp/x509up_uXXX on linux).
+	 * 
+	 * @param passwd
+	 *            the passphrase of the private key in the .globus folder
+	 * @param lifetime_in_hours
+	 *            how long should the proxy be valid for
+	 * @throws Exception
+	 *             if some general error occured
+	 * @throws GSSException
+	 *             if something was wrong with the gsscredential
+	 * @throws IOException
+	 *             if the proxy could not be written to disk
+	 */
+	public static void gridProxyInit(char[] passwd, int lifetime_in_hours)
+			throws IOException, GSSException, Exception {
+
 		GSSCredential credential = PlainProxy.init(passwd, lifetime_in_hours);
-		
+
 		// get the default location of the grid-proxy file
 		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
 		try {
@@ -63,97 +99,86 @@ public class LocalProxy {
 		}
 		// yeah. everything was all right
 	}
-	
+
 	/**
-	 * Calls gridProxyInit(char[] passwd, int lifetime_in_hours) with a default lifetime of 12 hours
-	 * @param passwd the passphrase of the private key
-	 * @throws Exception if some general error occured
-	 * @throws GSSException if something was wrong with the gsscredential
-	 * @throws IOException if the proxy could not be written to disk
+	 * Loads the local proxy into a {@link GlobusCredential}.
+	 * 
+	 * @return the credential
+	 * @throws GlobusCredentialException
 	 */
-	public static void gridProxyInit(char[] passwd) throws IOException, GSSException, Exception {
-		
-		gridProxyInit(passwd, 12);
-		
+	public static GlobusCredential loadGlobusCredential()
+			throws GlobusCredentialException {
+		GlobusCredential globusCredential = null;
+		globusCredential = new GlobusCredential(CoGProperties.getDefault()
+				.getProxyFile());
+
+		return globusCredential;
 	}
-	
+
 	/**
-	 * Writes random data in the default local proxy file and then deletes it.
+	 * Loads the local proxy into a {@link GSSCredential}.
+	 * 
+	 * @return the credential
+	 * @throws GlobusCredentialException
+	 *             if something goes wrong
 	 */
-	public static void gridProxyDestroy() {
-		
-		Util.destroy(CoGProperties.getDefault().getProxyFile());
+	public static GSSCredential loadGSSCredential()
+			throws GlobusCredentialException {
+
+		return CredentialHelpers.wrapGlobusCredential(loadGlobusCredential());
 	}
-	
+
 	/**
 	 * Checks whether there is a local grid proxy on the default location
+	 * 
 	 * @return true - if there is, false - if there is not a valid proxy
 	 */
 	public static boolean validGridProxyExists() {
-		
+
 		GlobusCredential globusCredential = null;
 		try {
-			globusCredential = new GlobusCredential(CoGProperties.getDefault().getProxyFile());
+			globusCredential = new GlobusCredential(CoGProperties.getDefault()
+					.getProxyFile());
 			globusCredential.verify();
 		} catch (GlobusCredentialException e) {
 			// no. not valid.
-			myLogger.info("Checked Local grid proxy - Not valid: "+e.getMessage());
+			myLogger.info("Checked Local grid proxy - Not valid: "
+					+ e.getMessage());
 			return false;
 		}
 		// ok. valid grid proxy.
 		return true;
 	}
-	
+
 	/**
 	 * Checks whether there is a local grid proxy on the default location
 	 * 
-	 * @param minTimeInMinutes minimum time the credential should be valid for
+	 * @param minTimeInMinutes
+	 *            minimum time the credential should be valid for
 	 * 
-	 * @return true - if there is and it's lifetime >= the specified min time, false - if there is not a valid proxy or the lifetime is shorter
+	 * @return true - if there is and it's lifetime >= the specified min time,
+	 *         false - if there is not a valid proxy or the lifetime is shorter
 	 */
 	public static boolean validGridProxyExists(int minTimeInMinutes) {
-		
+
 		GlobusCredential globusCredential = null;
 		try {
-			globusCredential = new GlobusCredential(CoGProperties.getDefault().getProxyFile());
+			globusCredential = new GlobusCredential(CoGProperties.getDefault()
+					.getProxyFile());
 			globusCredential.verify();
-			
-			if ( globusCredential.getTimeLeft()/60 < minTimeInMinutes ) {
+
+			if (globusCredential.getTimeLeft() / 60 < minTimeInMinutes) {
 				return false;
 			} else {
 				return true;
 			}
-			
+
 		} catch (GlobusCredentialException e) {
 			// no. not valid.
-			myLogger.info("Checked Local grid proxy - Not valid: "+e.getMessage());
+			myLogger.info("Checked Local grid proxy - Not valid: "
+					+ e.getMessage());
 			return false;
 		}
 	}
-	
-	/**
-	 * Loads the local proxy into a {@link GSSCredential}.
-	 * 
-	 * @return the credential
-	 * @throws GlobusCredentialException if something goes wrong
-	 */
-	public static GSSCredential loadGSSCredential() throws GlobusCredentialException {
 
-		return CredentialHelpers.wrapGlobusCredential(loadGlobusCredential());
-	}
-	
-	/**
-	 * Loads the local proxy into a {@link GlobusCredential}. 
-	 * @return the credential 
-	 * @throws GlobusCredentialException
-	 */
-	public static GlobusCredential loadGlobusCredential() throws GlobusCredentialException {
-		GlobusCredential globusCredential = null;
-		globusCredential = new GlobusCredential(CoGProperties.getDefault().getProxyFile());
-		
-		return globusCredential;
-	}
-	
-	
-	
 }

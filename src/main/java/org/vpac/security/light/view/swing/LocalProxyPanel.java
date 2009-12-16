@@ -16,10 +16,9 @@ import org.vpac.security.light.utils.ActionPerformedListener;
 
 public class LocalProxyPanel extends JPanel {
 
-	public static final String[] DEFAULT_LIFETIMES = new String[]{"1", "2", "7", "14", "21"};
-	
+	public static final String[] DEFAULT_LIFETIMES = new String[] { "1", "2",
+			"7", "14", "21" };
 
-	
 	private static final long serialVersionUID = 1L;
 	private JLabel TitleLabel = null;
 	private JLabel passphraseLabel = null;
@@ -28,7 +27,7 @@ public class LocalProxyPanel extends JPanel {
 	private JButton jButton1 = null;
 	private JLabel lifetimeLabel = null;
 	private JComboBox lifetimeComboBox = null;
-	
+
 	public static final String CREATED_NAME = "Local Proxy created.";
 	public static final String CANCEL_NAME = "Proxy creation aborted.";
 
@@ -45,12 +44,101 @@ public class LocalProxyPanel extends JPanel {
 		initialize();
 
 	}
-	
+
 	public LocalProxyPanel(ActionPerformedListener listener, String[] lifetimes) {
 		super();
 		this.listener = listener;
 		this.lifetimes = lifetimes;
 		initialize();
+	}
+
+	/**
+	 * This method initializes jButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton() {
+		if (jButton == null) {
+			jButton = new JButton();
+			jButton.setText("Init");
+			jButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+
+					int lifetime_in_hours = -1;
+					// LocalProxyPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					try {
+						lifetime_in_hours = new Integer(
+								(String) getLifetimeComboBox()
+										.getSelectedItem()) * 24;
+					} catch (NumberFormatException e1) {
+						LocalProxyPanel.this.setCursor(Cursor
+								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						Utils.showErrorMessage(LocalProxyPanel.this,
+								"notANumber", e1);
+					}
+
+					try {
+						LocalProxy.gridProxyInit(getPassphraseField()
+								.getPassword(), lifetime_in_hours);
+						LocalProxyPanel.this.setCursor(Cursor
+								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						listener.success(CREATED_NAME, true, null);
+					} catch (Exception e1) {
+						LocalProxyPanel.this.setCursor(Cursor
+								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						Utils.showErrorMessage(LocalProxyPanel.this,
+								"localProxyCreationError", e1);
+					}
+
+				}
+			});
+			jButton.setText("Init");
+		}
+		return jButton;
+	}
+
+	/**
+	 * This method initializes jButton1
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton1() {
+		if (jButton1 == null) {
+			jButton1 = new JButton();
+			jButton1.setText("Cancel");
+			jButton1.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					listener.success(CANCEL_NAME, true, null);
+				}
+			});
+			jButton1.setText("Cancel");
+		}
+		return jButton1;
+	}
+
+	/**
+	 * This method initializes lifetimeComboBox
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getLifetimeComboBox() {
+		if (lifetimeComboBox == null) {
+			lifetimeComboBox = new JComboBox(lifetimes);
+			lifetimeComboBox.setEditable(true);
+		}
+		return lifetimeComboBox;
+	}
+
+	/**
+	 * This method initializes passphraseField
+	 * 
+	 * @return javax.swing.JPasswordField
+	 */
+	private JPasswordField getPassphraseField() {
+		if (passphraseField == null) {
+			passphraseField = new JPasswordField();
+		}
+		return passphraseField;
 	}
 
 	/**
@@ -100,7 +188,8 @@ public class LocalProxyPanel extends JPanel {
 		passphraseLabelConstraints.gridwidth = 4;
 		passphraseLabelConstraints.gridy = 1;
 		passphraseLabel = new JLabel();
-		passphraseLabel.setText("Please enter the passphrase of your private key:");
+		passphraseLabel
+				.setText("Please enter the passphrase of your private key:");
 		GridBagConstraints titleConstraints = new GridBagConstraints();
 		titleConstraints.gridx = 0;
 		titleConstraints.anchor = GridBagConstraints.WEST;
@@ -120,87 +209,4 @@ public class LocalProxyPanel extends JPanel {
 		this.add(getLifetimeComboBox(), lifetimeComboBoxConstraints);
 	}
 
-	/**
-	 * This method initializes passphraseField	
-	 * 	
-	 * @return javax.swing.JPasswordField	
-	 */
-	private JPasswordField getPassphraseField() {
-		if (passphraseField == null) {
-			passphraseField = new JPasswordField();
-		}
-		return passphraseField;
-	}
-
-	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getJButton() {
-		if (jButton == null) {
-			jButton = new JButton();
-			jButton.setText("Init");
-			jButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					
-					int lifetime_in_hours = -1;
-					//LocalProxyPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					try {
-						lifetime_in_hours = new Integer((String)getLifetimeComboBox().getSelectedItem())*24;
-					} catch (NumberFormatException e1) {
-						LocalProxyPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						Utils.showErrorMessage(LocalProxyPanel.this, "notANumber", e1);
-					}
-					
-					try {
-						LocalProxy.gridProxyInit(getPassphraseField().getPassword(), lifetime_in_hours);
-						LocalProxyPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						listener.success(CREATED_NAME, true, null);
-					}  catch (Exception e1) {
-						LocalProxyPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-						Utils.showErrorMessage(LocalProxyPanel.this, "localProxyCreationError", e1);
-					}
-					
-				}
-			});
-			jButton.setText("Init");
-		}
-		return jButton;
-	}
-
-	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getJButton1() {
-		if (jButton1 == null) {
-			jButton1 = new JButton();
-			jButton1.setText("Cancel");
-			jButton1.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					listener.success(CANCEL_NAME, true, null);
-				}
-			});
-			jButton1.setText("Cancel");
-		}
-		return jButton1;
-	}
-
-	/**
-	 * This method initializes lifetimeComboBox	
-	 * 	
-	 * @return javax.swing.JComboBox	
-	 */
-	private JComboBox getLifetimeComboBox() {
-		if (lifetimeComboBox == null) {
-			lifetimeComboBox = new JComboBox(lifetimes);
-			lifetimeComboBox.setEditable(true);
-		}
-		return lifetimeComboBox;
-	}
-
-
-
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} // @jve:decl-index=0:visual-constraint="10,10"

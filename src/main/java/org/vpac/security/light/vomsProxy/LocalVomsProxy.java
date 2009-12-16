@@ -28,7 +28,6 @@ import org.vpac.security.light.CredentialHelpers;
 import org.vpac.security.light.plainProxy.LocalProxy;
 import org.vpac.security.light.voms.VO;
 
-
 public class LocalVomsProxy {
 
 	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
@@ -41,67 +40,14 @@ public class LocalVomsProxy {
 	// set this to whatever voms server you are using
 	public static final VO DEFAULT_VO = APACGRID_VO;
 
-	/**
- 	 * This one creates a voms proxy with the requested vo information in it and
-	 * saves it to the default globus location.
-	 * 
- 	 * @param vo the vo you want to have the proxy for
- 	 * @param group the group you want to have the proxy for (example:
-	 *            /APACGrid/NGAdmin)
- 	 * @param passphrase the passphrase of your local private key
- 	 * @param lifetime_in_hours how long the proxy should be valid
- 	 * @throws IOException if the proxy could not be saved to disk
- 	 * @throws Exception if another error occured
- 	 */
- 	public static void vomsProxyInit(VO vo, String group, char[] passphrase, int lifetime_in_hours) throws IOException, Exception {
-		
- 		GSSCredential credential = VomsProxy.init(vo, group, passphrase, lifetime_in_hours);
- 		// get the default location of the grid-proxy file
-		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
-		try {
-			// write the proxy to disk
-			CredentialHelpers.writeToDisk(credential, proxyFile);
-		} catch (IOException e) {
-			// could not write proxy to disk
-			myLogger.error("Could not write voms proxy to disk: " + e.getMessage());
-			throw e;
-		}
- 	}
-	
-	/**
-	 * Creates a voms proxy for the default VO specified above and writes it to disk.
-	 * 
-	 * @param group
-	 *            the group you want to have the proxy for (example:
-	 *            /APACGrid/NGAdmin)
-	 * @param passphrase
-	 *            the passphrase of your local private key
-	 * @param lifetime_in_hours
-	 *            how long the proxy should be valid
-	 * @throws Exception if another error occured
-	 * @throws IOException if the proxy could not be saved to disk
-	 */
-	public static void vomsProxyInit(String group, char[] passphrase,
-			int lifetime_in_hours) throws IOException, Exception {
-		vomsProxyInit(DEFAULT_VO, group, passphrase, lifetime_in_hours);
-	}
-
-	public static void vomsProxyDestroy() {
-		LocalProxy.gridProxyDestroy();
-	}
-	
-//	public static ArrayList<String> vomsProxyInfo(){
-//		
-//	}
-
 	public static void main(String[] args) {
-		
-    	char[] passphrase = "xxx".toCharArray();
+
+		char[] passphrase = "xxx".toCharArray();
 
 		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
 		proxyFile.delete();
 
-		//LocalProxy.gridProxyInit(passphrase);
+		// LocalProxy.gridProxyInit(passphrase);
 		try {
 			LocalVomsProxy.vomsProxyInit("/APACGrid/NGAdmin", passphrase, 12);
 		} catch (IOException e) {
@@ -111,9 +57,72 @@ public class LocalVomsProxy {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 
+	}
+
+	public static void vomsProxyDestroy() {
+		LocalProxy.gridProxyDestroy();
+	}
+
+	/**
+	 * Creates a voms proxy for the default VO specified above and writes it to
+	 * disk.
+	 * 
+	 * @param group
+	 *            the group you want to have the proxy for (example:
+	 *            /APACGrid/NGAdmin)
+	 * @param passphrase
+	 *            the passphrase of your local private key
+	 * @param lifetime_in_hours
+	 *            how long the proxy should be valid
+	 * @throws Exception
+	 *             if another error occured
+	 * @throws IOException
+	 *             if the proxy could not be saved to disk
+	 */
+	public static void vomsProxyInit(String group, char[] passphrase,
+			int lifetime_in_hours) throws IOException, Exception {
+		vomsProxyInit(DEFAULT_VO, group, passphrase, lifetime_in_hours);
+	}
+
+	// public static ArrayList<String> vomsProxyInfo(){
+	//		
+	// }
+
+	/**
+	 * This one creates a voms proxy with the requested vo information in it and
+	 * saves it to the default globus location.
+	 * 
+	 * @param vo
+	 *            the vo you want to have the proxy for
+	 * @param group
+	 *            the group you want to have the proxy for (example:
+	 *            /APACGrid/NGAdmin)
+	 * @param passphrase
+	 *            the passphrase of your local private key
+	 * @param lifetime_in_hours
+	 *            how long the proxy should be valid
+	 * @throws IOException
+	 *             if the proxy could not be saved to disk
+	 * @throws Exception
+	 *             if another error occured
+	 */
+	public static void vomsProxyInit(VO vo, String group, char[] passphrase,
+			int lifetime_in_hours) throws IOException, Exception {
+
+		GSSCredential credential = VomsProxy.init(vo, group, passphrase,
+				lifetime_in_hours);
+		// get the default location of the grid-proxy file
+		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
+		try {
+			// write the proxy to disk
+			CredentialHelpers.writeToDisk(credential, proxyFile);
+		} catch (IOException e) {
+			// could not write proxy to disk
+			myLogger.error("Could not write voms proxy to disk: "
+					+ e.getMessage());
+			throw e;
+		}
 	}
 
 }

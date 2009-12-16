@@ -28,32 +28,18 @@ public class VomsesFiles {
 	public static final File GLOBAL_VOMSES_DIR = new File(
 			"/etc/grid-security/vomses");
 
-	/**
-	 * Creates the globus directory if it doesn't exist yet.
-	 * 
-	 * @throws Exception
-	 *             if something goes wrong
-	 */
-	public static void createVomsesDirectories() throws Exception {
-
-		if (!USER_VOMSES_DIR.exists()) {
-			if (!USER_VOMSES_DIR.mkdirs()) {
-				myLogger.error("Could not create vomses directory.");
-				throw new Exception(
-						"Could not create vomses directory. Please set permissions for "
-								+ USER_VOMSES_DIR.toString()
-								+ " to be created.");
-			}
-		}
-
-		if (!AVAILABLE_VOMSES_DIR.exists()) {
-			if (!AVAILABLE_VOMSES_DIR.mkdirs()) {
-				myLogger.error("Could not create available_vomses directory.");
-				throw new Exception(
-						"Could not create vomses directory. Please set permissions for "
-								+ AVAILABLE_VOMSES_DIR.toString()
-								+ " to be created.");
-			}
+	public static void copyFile(File in, File out) throws IOException {
+		FileChannel inChannel = new FileInputStream(in).getChannel();
+		FileChannel outChannel = new FileOutputStream(out).getChannel();
+		try {
+			inChannel.transferTo(0, inChannel.size(), outChannel);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			if (inChannel != null)
+				inChannel.close();
+			if (outChannel != null)
+				outChannel.close();
 		}
 	}
 
@@ -91,8 +77,7 @@ public class VomsesFiles {
 					File vomses_file = new File(AVAILABLE_VOMSES_DIR, voms
 							.getName());
 
-					if (!vomses_file.exists()
-							|| "ARCS".equals(voms.getName())) {
+					if (!vomses_file.exists() || "ARCS".equals(voms.getName())) {
 
 						// Write the file to the file system
 						FileOutputStream fos = new FileOutputStream(vomses_file);
@@ -110,10 +95,11 @@ public class VomsesFiles {
 			for (String vomsFile : VOMSES_TO_ACTIVATE) {
 				File source = new File(AVAILABLE_VOMSES_DIR, vomsFile);
 				File target = new File(USER_VOMSES_DIR, vomsFile);
-				if ( target.exists() || "ARCS".equals(source.getName()) ) {
+				if (target.exists() || "ARCS".equals(source.getName())) {
 					copyFile(source, target);
 				} else {
-					myLogger.error("Could not activate VO: "+vomsFile+": Vomses file not available.");
+					myLogger.error("Could not activate VO: " + vomsFile
+							+ ": Vomses file not available.");
 				}
 			}
 
@@ -124,18 +110,32 @@ public class VomsesFiles {
 		}
 	}
 
-	public static void copyFile(File in, File out) throws IOException {
-		FileChannel inChannel = new FileInputStream(in).getChannel();
-		FileChannel outChannel = new FileOutputStream(out).getChannel();
-		try {
-			inChannel.transferTo(0, inChannel.size(), outChannel);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (inChannel != null)
-				inChannel.close();
-			if (outChannel != null)
-				outChannel.close();
+	/**
+	 * Creates the globus directory if it doesn't exist yet.
+	 * 
+	 * @throws Exception
+	 *             if something goes wrong
+	 */
+	public static void createVomsesDirectories() throws Exception {
+
+		if (!USER_VOMSES_DIR.exists()) {
+			if (!USER_VOMSES_DIR.mkdirs()) {
+				myLogger.error("Could not create vomses directory.");
+				throw new Exception(
+						"Could not create vomses directory. Please set permissions for "
+								+ USER_VOMSES_DIR.toString()
+								+ " to be created.");
+			}
+		}
+
+		if (!AVAILABLE_VOMSES_DIR.exists()) {
+			if (!AVAILABLE_VOMSES_DIR.mkdirs()) {
+				myLogger.error("Could not create available_vomses directory.");
+				throw new Exception(
+						"Could not create vomses directory. Please set permissions for "
+								+ AVAILABLE_VOMSES_DIR.toString()
+								+ " to be created.");
+			}
 		}
 	}
 

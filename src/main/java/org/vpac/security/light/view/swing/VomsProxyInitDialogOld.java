@@ -8,15 +8,15 @@ import javax.swing.JDialog;
 
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
-import org.vpac.security.light.CredentialHelpers;
 import org.vpac.security.light.plainProxy.LocalProxy;
 import org.vpac.security.light.vomsProxy.VomsProxy;
 
-public class VomsProxyInitDialogOld extends JDialog implements ProxyInitListener {
+public class VomsProxyInitDialogOld extends JDialog implements
+		ProxyInitListener {
 
-	private VomsProxyInitPanelOld vomsProxyInitPanel;
 	/**
 	 * Launch the application
+	 * 
 	 * @param args
 	 */
 	public static void main(String args[]) {
@@ -34,6 +34,8 @@ public class VomsProxyInitDialogOld extends JDialog implements ProxyInitListener
 		}
 	}
 
+	private VomsProxyInitPanelOld vomsProxyInitPanel;
+
 	/**
 	 * Create the dialog
 	 */
@@ -43,6 +45,11 @@ public class VomsProxyInitDialogOld extends JDialog implements ProxyInitListener
 		getContentPane().add(getVomsProxyInitPanel(), BorderLayout.CENTER);
 		//
 	}
+
+	public void addProxyInitListener(ProxyInitListener listener) {
+		getVomsProxyInitPanel().addProxyListener(listener);
+	}
+
 	/**
 	 * @return
 	 */
@@ -54,45 +61,44 @@ public class VomsProxyInitDialogOld extends JDialog implements ProxyInitListener
 	}
 
 	public void proxyCreated(GlobusCredential newProxy) {
-		
+
 		int type = 0;
-		//TODO fix that
-		
-		if ( type == ProxyInitListener.PLAIN_PROXY_CREATED ) {
+		// TODO fix that
+
+		if (type == ProxyInitListener.PLAIN_PROXY_CREATED) {
 			try {
 				// you could also use the "newProxy" from the method signature
-				System.out.println("Plain proxy created. Valid until: "+LocalProxy.loadGlobusCredential().getTimeLeft()+" seconds.");
+				System.out.println("Plain proxy created. Valid until: "
+						+ LocalProxy.loadGlobusCredential().getTimeLeft()
+						+ " seconds.");
 			} catch (GlobusCredentialException e) {
 				e.printStackTrace();
 			}
-		} else if ( type == ProxyInitListener.VOMS_PROXY_CREATED ) {
-			System.out.println("Voms proxy created. Valid until: "+newProxy.getTimeLeft()+" seconds.");
+		} else if (type == ProxyInitListener.VOMS_PROXY_CREATED) {
+			System.out.println("Voms proxy created. Valid until: "
+					+ newProxy.getTimeLeft() + " seconds.");
 
 			try {
 				VomsProxy vomsProxy = new VomsProxy(newProxy);
-				
+
 				for (String info : vomsProxy.getVomsInfo()) {
 					System.out.println(info);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 	}
-	
-	public void addProxyInitListener(ProxyInitListener listener) {
-		getVomsProxyInitPanel().addProxyListener(listener);
+
+	public void proxyDestroyed() {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void removeProxyInitListener(ProxyInitListener listener) {
 		getVomsProxyInitPanel().removeProxyListener(listener);
 	}
 
-	public void proxyDestroyed() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }
