@@ -46,6 +46,7 @@ public class VomsProxyInit {
 			e.printStackTrace();
 		}
 	}
+
 	private MyProxyUpAndDownloadPanel myProxyUpAndDownloadPanel;
 
 	static final Logger myLogger = Logger.getLogger(VomsProxyInit.class

@@ -40,6 +40,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 		}
 		return dn.substring(start, end);
 	}
+
 	private GlobusCredential proxy = null;
 
 	private VomsProxy vomsProxy = null;

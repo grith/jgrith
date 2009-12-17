@@ -906,6 +906,7 @@ public class StringHelper {
 		sb.append("\\z");
 		return Pattern.compile(sb.toString());
 	}
+
 	/**
 	 * Compile a pattern that can will match a string if the string ends with
 	 * any of the given terms.

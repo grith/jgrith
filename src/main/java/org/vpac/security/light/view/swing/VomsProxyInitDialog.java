@@ -40,6 +40,7 @@ public class VomsProxyInitDialog extends JDialog {
 			e.printStackTrace();
 		}
 	}
+
 	private JButton closeButton;
 	private JPanel panel;
 

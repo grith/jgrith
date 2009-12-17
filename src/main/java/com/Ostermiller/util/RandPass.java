@@ -52,6 +52,7 @@ public class RandPass {
 		public char[] alphabet;
 
 		public int num;
+
 		public Requirement(char[] alphabet, int num) {
 			this.alphabet = alphabet;
 			this.num = num;
@@ -663,6 +664,7 @@ public class RandPass {
 			}
 		}
 	}
+
 	/**
 	 * Generate a random password of the default length (8).
 	 * <p>

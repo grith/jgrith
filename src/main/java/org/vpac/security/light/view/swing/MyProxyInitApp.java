@@ -21,6 +21,7 @@ public class MyProxyInitApp implements ActionPerformedListener {
 			e.printStackTrace();
 		}
 	}
+
 	private MyProxyInitPanel myProxyInitPanel;
 
 	private JFrame frame;

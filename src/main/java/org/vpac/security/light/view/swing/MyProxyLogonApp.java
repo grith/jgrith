@@ -31,6 +31,7 @@ public class MyProxyLogonApp implements ActionPerformedListener {
 			e.printStackTrace();
 		}
 	}
+
 	private MyProxyGetPanel myProxyGetPanel;
 
 	private JFrame frame;

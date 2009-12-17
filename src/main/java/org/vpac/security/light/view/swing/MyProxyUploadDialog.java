@@ -47,6 +47,7 @@ public class MyProxyUploadDialog extends JDialog {
 			e.printStackTrace();
 		}
 	}
+
 	private JButton cancelButton;
 	private JButton uploadButton;
 	private JPasswordField passwordField;

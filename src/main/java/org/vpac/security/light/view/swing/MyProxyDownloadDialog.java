@@ -46,6 +46,7 @@ public class MyProxyDownloadDialog extends JDialog {
 			e.printStackTrace();
 		}
 	}
+
 	private JButton cancelButton;
 	private JButton downloadButton;
 	private JPasswordField passwordField;

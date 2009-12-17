@@ -291,6 +291,7 @@ public class OtherActionsPanel extends JPanel {
 					"Proxy error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
 	/**
 	 * @return
 	 */

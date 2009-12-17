@@ -105,6 +105,7 @@ public class VomsProxy {
 		return CredentialHelpers.wrapGlobusCredential(vomsproxy
 				.getVomsProxyCredential());
 	}
+
 	public static boolean isVomsProxy(GlobusCredential cred) {
 
 		try {
@@ -114,6 +115,7 @@ public class VomsProxy {
 		}
 		return true;
 	}
+
 	private VO vo = null;
 	private String command = null;
 
