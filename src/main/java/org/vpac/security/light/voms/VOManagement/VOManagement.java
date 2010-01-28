@@ -46,7 +46,7 @@ public class VOManagement {
 			+ File.separator + ".glite" + File.separator + "vomses");
 
 	public final static File GLOBAL_VOMSES = new File(
-			"/etc/grid-security/vomsdir");
+	"/etc/vomses");
 
 	public static final int MEMBER = 1;
 
@@ -115,8 +115,9 @@ public class VOManagement {
 
 		for (VO vo : getAllVOs()) {
 			String[] allFqans = GroupManagement.getAllFqansForVO(vo, gssCred);
-			if (allFqans != null)
+			if (allFqans != null) {
 				allInfoNotProcessed.put(vo, allFqans);
+			}
 		}
 
 		Map<VO, Map<String, Set<String>>> allInfo = new HashMap<VO, Map<String, Set<String>>>();
@@ -159,7 +160,7 @@ public class VOManagement {
 			Vector<VO> vos = new Vector<VO>();
 			File[] files = USER_VOMSES.listFiles();
 
-			if (files == null || files.length == 0) {
+			if ((files == null) || (files.length == 0)) {
 				files = GLOBAL_VOMSES.listFiles();
 			}
 
@@ -176,8 +177,9 @@ public class VOManagement {
 					try {
 						while ((line = f.readLine()) != null) {
 							VO new_vo = parseVomsesLine(line);
-							if (new_vo == null)
+							if (new_vo == null) {
 								continue;
+							}
 							vos.add(new_vo);
 						}
 					} catch (IOException e) {
@@ -194,8 +196,9 @@ public class VOManagement {
 	public static VO getVO(String vo_name) {
 
 		for (VO vo : getAllVOs()) {
-			if (vo_name.equals(vo.getVoName()))
+			if (vo_name.equals(vo.getVoName())) {
 				return vo;
+			}
 		}
 		return null;
 	}
@@ -240,24 +243,27 @@ public class VOManagement {
 		int start = line.indexOf("\"") + 1;
 		int end = line.indexOf("\"", start + 1);
 
-		if (start < 0 || end < 0)
+		if ((start < 0) || (end < 0)) {
 			return null;
+		}
 
 		String name = line.substring(start, end);
 
 		start = line.indexOf("\"", end + 1) + 1;
 		end = line.indexOf("\"", start + 1);
 
-		if (start < 0 || end < 0)
+		if ((start < 0) || (end < 0)) {
 			return null;
+		}
 
 		String host = line.substring(start, end);
 
 		start = line.indexOf("\"", end + 1) + 1;
 		end = line.indexOf("\"", start + 1);
 
-		if (start < 0 || end < 0)
+		if ((start < 0) || (end < 0)) {
 			return null;
+		}
 
 		int port = -1;
 		try {
@@ -265,14 +271,16 @@ public class VOManagement {
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		if (port < 1)
+		if (port < 1) {
 			return null;
+		}
 
 		start = line.indexOf("\"", end + 1) + 1;
 		end = line.indexOf("\"", start + 1);
 
-		if (start < 0 || end < 0)
+		if ((start < 0) || (end < 0)) {
 			return null;
+		}
 
 		String hostDN = line.substring(start, end);
 
@@ -294,7 +302,7 @@ public class VOManagement {
 		String vomrsUrl = line.substring(start, end);
 
 		myLogger
-				.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
+		.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
 
 		return new VO(name, host, port, hostDN, vomrsUrl);
 	}

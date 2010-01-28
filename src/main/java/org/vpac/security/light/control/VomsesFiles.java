@@ -16,9 +16,9 @@ import org.vpac.security.light.Init;
 public class VomsesFiles {
 
 	static final Logger myLogger = Logger
-			.getLogger(VomsesFiles.class.getName());
+	.getLogger(VomsesFiles.class.getName());
 
-	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "ARCS" };
+	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "ARCS", "ACC" };
 
 	public static final File AVAILABLE_VOMSES_DIR = new File(System
 			.getProperty("user.home"), ".glite" + File.separator
@@ -26,7 +26,7 @@ public class VomsesFiles {
 	public static final File USER_VOMSES_DIR = new File(System
 			.getProperty("user.home"), ".glite" + File.separator + "vomses");
 	public static final File GLOBAL_VOMSES_DIR = new File(
-			"/etc/grid-security/vomses");
+	"/etc/vomses");
 
 	public static void copyFile(File in, File out) throws IOException {
 		FileChannel inChannel = new FileInputStream(in).getChannel();
@@ -36,10 +36,12 @@ public class VomsesFiles {
 		} catch (IOException e) {
 			throw e;
 		} finally {
-			if (inChannel != null)
+			if (inChannel != null) {
 				inChannel.close();
-			if (outChannel != null)
+			}
+			if (outChannel != null) {
 				outChannel.close();
+			}
 		}
 	}
 
@@ -51,6 +53,11 @@ public class VomsesFiles {
 	 * @throws Exception
 	 */
 	public static void copyVomses() throws Exception {
+
+		if ( GLOBAL_VOMSES_DIR.exists() && GLOBAL_VOMSES_DIR.isDirectory() ) {
+			myLogger.info("Using global vomses directory /etc/vomses.");
+			return;
+		}
 
 		if (!AVAILABLE_VOMSES_DIR.exists() || !USER_VOMSES_DIR.exists()) {
 			createVomsesDirectories();
@@ -123,8 +130,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-								+ USER_VOMSES_DIR.toString()
-								+ " to be created.");
+						+ USER_VOMSES_DIR.toString()
+						+ " to be created.");
 			}
 		}
 
@@ -133,8 +140,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create available_vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-								+ AVAILABLE_VOMSES_DIR.toString()
-								+ " to be created.");
+						+ AVAILABLE_VOMSES_DIR.toString()
+						+ " to be created.");
 			}
 		}
 	}
