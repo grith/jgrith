@@ -17,6 +17,8 @@ public class CertificateFiles {
 
 	static final Logger myLogger = Logger.getLogger(Init.class.getName());
 
+	public static final File SYSTEM_CA_CERT_DIR = new File("/etc/grid-security/certificates");
+
 	private static boolean caCertsCopied = false;
 
 	/**
@@ -27,6 +29,11 @@ public class CertificateFiles {
 	 * 
 	 */
 	public static void copyCACerts() throws Exception {
+
+		if ( SYSTEM_CA_CERT_DIR.exists() && SYSTEM_CA_CERT_DIR.isDirectory() ) {
+			myLogger.info("Using system ca cert dir in /etc/grid-security/certificates");
+			return;
+		}
 
 		if ( ! caCertsCopied ) {
 
@@ -94,7 +101,6 @@ public class CertificateFiles {
 			caCertsCopied = true;
 		}
 	}
-
 	/**
 	 * Creates the certificates directory if it doesn't exist yet
 	 * 
