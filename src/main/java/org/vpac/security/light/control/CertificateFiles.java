@@ -28,9 +28,9 @@ public class CertificateFiles {
 	 * @throws Exception
 	 * 
 	 */
-	public static void copyCACerts() throws Exception {
+	public static void copyCACerts(boolean force) throws Exception {
 
-		if ( SYSTEM_CA_CERT_DIR.exists() && SYSTEM_CA_CERT_DIR.isDirectory() ) {
+		if ( !force && SYSTEM_CA_CERT_DIR.exists() && SYSTEM_CA_CERT_DIR.isDirectory() ) {
 			myLogger.info("Using system ca cert dir in /etc/grid-security/certificates");
 			return;
 		}

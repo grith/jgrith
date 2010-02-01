@@ -33,7 +33,7 @@ public class VomsProxyInit {
 
 			try {
 				VomsesFiles.copyVomses();
-				CertificateFiles.copyCACerts();
+				CertificateFiles.copyCACerts(true);
 			} catch (Exception e) {
 				myLogger.error("Could not copy ca certs: "
 						+ e.getLocalizedMessage());
@@ -112,7 +112,7 @@ public class VomsProxyInit {
 					FormFactory.RELATED_GAP_ROWSPEC, new RowSpec("default"),
 					FormFactory.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
-					"2, 2, fill, fill"));
+			"2, 2, fill, fill"));
 			panel.add(getMyProxyPanel(), new CellConstraints(2, 4));
 			// panel.add(getMyProxyUpAndDownloadPanel(), new CellConstraints(2,
 			// 4));
@@ -141,6 +141,7 @@ public class VomsProxyInit {
 		frame.setTitle("Voms proxy tool");
 		frame.setLocation(100, 100);
 		frame.addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(final WindowEvent e) {
 				System.exit(0);
 			}
