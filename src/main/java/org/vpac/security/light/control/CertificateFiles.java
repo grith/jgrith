@@ -46,8 +46,8 @@ public class CertificateFiles {
 
 			createCertificatesDirectory();
 
-			File certDir = CertificateHelper.getCertificatesDir();
-
+			//			File certDir = CertificateHelper.getCertificatesDir();
+			File certDir = new File(CertificateHelper.getGlobusDir(), "certificates");
 			int BUFFER_SIZE = 8192;
 			int count;
 			byte data[] = new byte[BUFFER_SIZE];
@@ -109,7 +109,8 @@ public class CertificateFiles {
 	 */
 	public static void createCertificatesDirectory() throws Exception {
 
-		File certDir = CertificateHelper.getCertificatesDir();
+		//		File certDir = CertificateHelper.getCertificatesDir();
+		File certDir = new File(CertificateHelper.getGlobusDir(), "certificates");
 		if (!certDir.exists()) {
 			if (!certDir.mkdirs()) {
 				myLogger.error("Could not create certificates directory");
