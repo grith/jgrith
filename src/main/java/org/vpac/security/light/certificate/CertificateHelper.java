@@ -53,7 +53,7 @@ public class CertificateHelper {
 
 		try {
 			String dir = CoGProperties.getDefault().getCaCertLocations().split(
-					",")[0];
+			",")[0];
 			File certDir = new File(dir);
 			return certDir;
 		} catch (Exception e) {
@@ -75,10 +75,11 @@ public class CertificateHelper {
 	 *             if something is not right with the key
 	 */
 	public static OpenSSLKey getDecryptedUsersPrivateKey(byte[] password)
-			throws InvalidKeyException, GeneralSecurityException {
+	throws InvalidKeyException, GeneralSecurityException {
 		OpenSSLKey key = getUsersPrivateKey();
-		if (key == null)
+		if (key == null) {
 			return null;
+		}
 		key.decrypt(password);
 		Arrays.fill(password, Byte.MAX_VALUE);
 		return key;
@@ -129,7 +130,7 @@ public class CertificateHelper {
 	 * @throws GeneralSecurityException
 	 */
 	public static OpenSSLKey getUsersPrivateKey()
-			throws GeneralSecurityException {
+	throws GeneralSecurityException {
 		BouncyCastleOpenSSLKey key;
 		try {
 			key = new BouncyCastleOpenSSLKey(getUserKey().toString());
@@ -151,7 +152,7 @@ public class CertificateHelper {
 	 *             if there is a problem with the certificate
 	 */
 	public static X509Certificate getX509UserCertificate()
-			throws GeneralSecurityException {
+	throws GeneralSecurityException {
 
 		X509Certificate cert;
 		try {
@@ -173,10 +174,11 @@ public class CertificateHelper {
 	public static boolean globusCredentialsReady() {
 
 		if (getUserKey().exists() && getUserKey().canRead()
-				&& getUserCert().exists() && getUserCert().canRead())
+				&& getUserCert().exists() && getUserCert().canRead()) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -188,8 +190,8 @@ public class CertificateHelper {
 	 * @throws GeneralSecurityException
 	 *             the the pem string can't be parsed/read
 	 */
-	public X509Certificate readCertificate(String pemCert)
-			throws GeneralSecurityException {
+	public static X509Certificate readCertificate(String pemCert)
+	throws GeneralSecurityException {
 		return CertUtil.loadCertificate(new ByteArrayInputStream(pemCert
 				.getBytes()));
 	}
