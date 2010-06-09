@@ -58,7 +58,7 @@ public class GroupManagement {
 
 		} catch (Exception e1) {
 			myLogger.error(e1);
-			e1.printStackTrace();
+//			e1.printStackTrace();
 			status = VOManagement.NO_MEMBER;
 			return null;
 		}
