@@ -29,6 +29,13 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import org.globus.myproxy.MyProxyException;
+import org.globus.myproxy.MyProxyServerAuthorization;
+import org.globus.gsi.gssapi.auth.AuthorizationException;
+import org.ietf.jgss.GSSContext;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class OtherActionsPanel extends JPanel {
 
 	private static final Logger myLogger = Logger
@@ -38,6 +45,28 @@ public class OtherActionsPanel extends JPanel {
 	private JLabel label;
 	public static final MyProxy DEFAULT_MYPROXY = new MyProxy(
 			"myproxy.arcs.org.au", 443);
+
+    {
+	DEFAULT_MYPROXY.setAuthorization( new MyProxyServerAuthorization() {
+		public void authorize(GSSContext context,
+				      String host)
+		    throws AuthorizationException {
+		    System.out.println(""+ host);
+		    try {
+			InetAddress addr = InetAddress.getByName(host);
+			String hostname = addr.getHostName();
+			if (!"myproxy.arcs.org.au".equals(hostname) && !"myproxy2.arcs.org.au".equals(hostname)){
+			    throw new AuthorizationException(context.getDelegCred().getName().toString());
+			}
+		    } catch (UnknownHostException ex){
+			throw new AuthorizationException("DNS lookup failed");
+		    } catch (org.ietf.jgss.GSSException ex){
+			throw new AuthorizationException("hmm ");
+		    }
+		    
+		}
+	    });
+    }
 
 	private ProxyDestructorHolder destructionHolder = null;
 	private ProxyCreatorHolder creationHolder = null;
