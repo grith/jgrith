@@ -154,6 +154,8 @@
 		</dependency>
 	</dependencies>
 
+	<name>SimpleProxyLib</name>
+	<description>Library which provides relatively easy-to-use security objects/methods</description>
 	<build>
 		<plugins>
 			<plugin>

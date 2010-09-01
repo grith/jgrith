@@ -13,27 +13,19 @@ public class Init {
 
 	public static void initBouncyCastle() {
 		try {
-			AccessController.doPrivileged
-			(
-			    new PrivilegedAction<Void>()
-			    {
-			       public Void run()
-			       {
-						// bouncy castle
-						if (Security.addProvider(new BouncyCastleProvider()) == -1) {
-							myLogger
-									.error("Could not load BouncyCastleProvider. Makes no sense to continue...");
-							System.exit(-1);
-						}
-			          return null;
-			       }
-			    }
-			);
+			AccessController.doPrivileged(new PrivilegedAction<Void>() {
+				public Void run() {
+					// bouncy castle
+					if (Security.addProvider(new BouncyCastleProvider()) == -1) {
+						myLogger.debug("Could not add BouncyCastleProvider because it is already installed.");
+					}
+					return null;
+				}
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
-			myLogger
-					.error("Could not load BouncyCastleProvider. Makes no sense to continue...");
-			System.exit(-1);
+			myLogger.error("Could not load BouncyCastleProvider.");
+			throw new RuntimeException(e);
 		}
 		myLogger.info("Loaded BouncyCastleProvider.");
 	}
