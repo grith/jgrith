@@ -15,16 +15,25 @@ public class Init {
 		try {
 			AccessController.doPrivileged(new PrivilegedAction<Void>() {
 				public Void run() {
-					// bouncy castle
-					if (Security.addProvider(new BouncyCastleProvider()) == -1) {
-						myLogger.debug("Could not add BouncyCastleProvider because it is already installed.");
+
+					try {
+
+						// bouncy castle
+						if (Security.addProvider(new BouncyCastleProvider()) == -1) {
+							myLogger.debug("Could not add BouncyCastleProvider because it is already installed.");
+						}
+						return null;
+					} catch (Exception e) {
+						// e.printStackTrace();
+						myLogger.error("Could not load BouncyCastleProvider.",
+								e);
+						return null;
 					}
-					return null;
 				}
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
-			myLogger.error("Could not load BouncyCastleProvider.");
+			// e.printStackTrace();
+			myLogger.error("Could not load BouncyCastleProvider.", e);
 			// throw new RuntimeException(e);
 			return -1;
 		}
