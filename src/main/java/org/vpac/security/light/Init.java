@@ -11,7 +11,7 @@ public class Init {
 
 	static final Logger myLogger = Logger.getLogger(Init.class.getName());
 
-	public static void initBouncyCastle() {
+	public static int initBouncyCastle() {
 		try {
 			AccessController.doPrivileged(new PrivilegedAction<Void>() {
 				public Void run() {
@@ -25,9 +25,11 @@ public class Init {
 		} catch (Exception e) {
 			e.printStackTrace();
 			myLogger.error("Could not load BouncyCastleProvider.");
-			throw new RuntimeException(e);
+			// throw new RuntimeException(e);
+			return -1;
 		}
 		myLogger.info("Loaded BouncyCastleProvider.");
+		return 0;
 	}
 
 }
