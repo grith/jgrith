@@ -23,7 +23,7 @@ public class Init {
 							myLogger.debug("Could not add BouncyCastleProvider because it is already installed.");
 						}
 						return null;
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						// e.printStackTrace();
 						myLogger.error("Could not load BouncyCastleProvider.",
 								e);
