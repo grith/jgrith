@@ -31,7 +31,7 @@ public class Init {
 					}
 				}
 			});
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// e.printStackTrace();
 			myLogger.error("Could not load BouncyCastleProvider.", e);
 			// throw new RuntimeException(e);
