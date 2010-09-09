@@ -12,6 +12,9 @@ public class Init {
 	static final Logger myLogger = Logger.getLogger(Init.class.getName());
 
 	public static int initBouncyCastle() {
+
+		System.out.println("SimpleProxyLib updated");
+
 		try {
 			AccessController.doPrivileged(new PrivilegedAction<Void>() {
 				public Void run() {
