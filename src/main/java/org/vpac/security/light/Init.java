@@ -13,7 +13,7 @@ public class Init {
 
 	public static int initBouncyCastle() {
 
-		System.out.println("SimpleProxyLib updated");
+//		System.out.println("SimpleProxyLib updated");
 
 		try {
 			AccessController.doPrivileged(new PrivilegedAction<Void>() {
