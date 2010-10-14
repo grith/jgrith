@@ -312,7 +312,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 					}.start();
 				}
 			});
-			voButton.setText("Join VO");
+			voButton.setText("Add Group");
 		}
 		return voButton;
 	}

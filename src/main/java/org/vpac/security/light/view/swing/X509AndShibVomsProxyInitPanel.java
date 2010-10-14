@@ -379,7 +379,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 					}.start();
 				}
 			});
-			voButton.setText("Join VO");
+			voButton.setText("Add Group");
 		}
 		return voButton;
 	}

@@ -170,7 +170,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 	protected JLabel getLabel_3() {
 		if (label_3 == null) {
 			label_3 = new JLabel();
-			label_3.setText("VO membership");
+			label_3.setText("Group");
 		}
 		return label_3;
 	}

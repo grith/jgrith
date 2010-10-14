@@ -153,7 +153,7 @@ public class CreateVomsProxyPanel extends JPanel {
 						try {
 							setCursor(Cursor
 									.getPredefinedCursor(Cursor.WAIT_CURSOR));
-							voModel.addElement("Loading VOs...");
+							voModel.addElement("Loading your groups...");
 							fillVOs();
 							getComboBox().setEnabled(true);
 							getJoinVoButton().setEnabled(true);
@@ -242,7 +242,7 @@ public class CreateVomsProxyPanel extends JPanel {
 
 				}
 			});
-			joinVoButton.setText("Join VO");
+			joinVoButton.setText("Add Group");
 		}
 		return joinVoButton;
 	}
@@ -253,7 +253,7 @@ public class CreateVomsProxyPanel extends JPanel {
 	protected JLabel getLabel() {
 		if (label == null) {
 			label = new JLabel();
-			label.setText("Please choose the VO you want to use:");
+			label.setText("Please choose the group you want to use:");
 		}
 		return label;
 	}
