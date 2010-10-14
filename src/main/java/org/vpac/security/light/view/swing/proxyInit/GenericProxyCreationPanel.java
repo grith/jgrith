@@ -41,8 +41,8 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private ProxyCreatorPanel shibProxyCreatorPanel;
 
 	private static final String MYPROXY_TAB_NAME = "MyProxy";
-	private static final String LOCAL_CERT_TAB_NAME = "Local x509 cert";
-	private static final String SHIB_TAB_NAME = "Shibboleth";
+	private static final String LOCAL_CERT_TAB_NAME = "Certificate login";
+	private static final String SHIB_TAB_NAME = "Institution login";
 
 	private String shibUrl = null;
 
