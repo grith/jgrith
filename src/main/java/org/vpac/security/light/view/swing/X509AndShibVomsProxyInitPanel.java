@@ -46,8 +46,8 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 
 	public static final String NON_VOMS_PROXY_NAME = "None";
 
-	private static final String SHIBBOLETH_TAB_NAME = "Shibboleth";
-	private static final String X509_AUTH_TAB_NAME = "x509 auth";
+	private static final String SHIBBOLETH_TAB_NAME = "Institution login";
+	private static final String X509_AUTH_TAB_NAME = "Certificate login";
 
 	private JButton voButton;
 	private JButton initButton;
@@ -379,7 +379,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 					}.start();
 				}
 			});
-			voButton.setText("Join VO");
+			voButton.setText("Add Group");
 		}
 		return voButton;
 	}
