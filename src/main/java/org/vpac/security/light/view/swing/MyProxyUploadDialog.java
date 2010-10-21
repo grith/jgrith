@@ -38,6 +38,7 @@ public class MyProxyUploadDialog extends JDialog {
 		try {
 			MyProxyUploadDialog dialog = new MyProxyUploadDialog();
 			dialog.addWindowListener(new WindowAdapter() {
+				@Override
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
 				}
@@ -191,13 +192,14 @@ public class MyProxyUploadDialog extends JDialog {
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
+						@Override
 						public void run() {
 							enablePanel(false);
 							setCursor(Cursor
 									.getPredefinedCursor(Cursor.WAIT_CURSOR));
 							String username = getTextField().getText();
 
-							if (username == null || "".equals(username)) {
+							if ((username == null) || "".equals(username)) {
 								setCursor(Cursor
 										.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 								JOptionPane.showMessageDialog(
@@ -222,7 +224,8 @@ public class MyProxyUploadDialog extends JDialog {
 							char[] passphrase = getPasswordField()
 									.getPassword();
 
-							if (passphrase == null || passphrase.length == 0) {
+							if ((passphrase == null)
+									|| (passphrase.length == 0)) {
 								setCursor(Cursor
 										.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 								JOptionPane.showMessageDialog(
@@ -283,9 +286,9 @@ public class MyProxyUploadDialog extends JDialog {
 
 		String defaultUsername = UserProperty
 				.getProperty(UserProperty.LAST_MYPROXY_USERNAME_KEY);
-		if (defaultUsername == null || "".equals(defaultUsername)) {
+		if ((defaultUsername == null) || "".equals(defaultUsername)) {
 			defaultUsername = params.getUserName();
-			if (defaultUsername == null || "".equals(defaultUsername)) {
+			if ((defaultUsername == null) || "".equals(defaultUsername)) {
 				defaultUsername = System.getProperty("user.name");
 			}
 		}

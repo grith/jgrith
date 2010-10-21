@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 
 import org.ietf.jgss.GSSCredential;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.utils.ActionPerformedListener;
 
 /**
@@ -48,8 +49,9 @@ public class MyProxyLogonApp implements ActionPerformedListener {
 	 */
 	protected MyProxyGetPanel getMyProxyGetPanel() {
 		if (myProxyGetPanel == null) {
-			myProxyGetPanel = new MyProxyGetPanel(this, "myproxy.arcs.org.au",
-					443, null, -1);
+			myProxyGetPanel = new MyProxyGetPanel(this, Environment
+					.getDefaultMyProxy().getHost(), Environment
+					.getDefaultMyProxy().getPort(), null, -1);
 		}
 		return myProxyGetPanel;
 	}

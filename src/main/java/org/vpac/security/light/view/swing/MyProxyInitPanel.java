@@ -36,7 +36,7 @@ public class MyProxyInitPanel extends JPanel {
 	ActionPerformedListener listener = null;
 	public static final String SUCCESS_ACTION_NAME = "Proxy created";
 
-	private String defaultLifeTimes = "1,2,3,12,28,24,48,96";
+	private final String defaultLifeTimes = "1,2,3,12,28,24,48,96";
 	private String myproxyServer = null;
 	private int myproxyPort = -1;
 	private int lifetime_in_seconds = -1;
@@ -78,13 +78,14 @@ public class MyProxyInitPanel extends JPanel {
 		// for(int i=0; i < urls.length; i++) {
 		// classpath.append(urls[i].getFile()).append("\r\n");
 		// }
-		//		     
+		//
 		// System.out.println("Classpath: "+classpath.toString());
 
 		Init.initBouncyCastle();
-		if (!CertificateHelper.globusCredentialsReady())
+		if (!CertificateHelper.globusCredentialsReady()) {
 			throw new RuntimeException(
 					"No certificate & private key available to create a proxy.");
+		}
 		this.listener = listener;
 		this.myproxyServer = myproxyServer;
 		this.myproxyPort = myproxyPort;
@@ -117,9 +118,8 @@ public class MyProxyInitPanel extends JPanel {
 									(String) getLifetimeComboBox()
 											.getSelectedItem()) * 3600 * 24;
 						} catch (NumberFormatException e1) {
-							MyProxyInitPanel.this
-									.setCursor(Cursor
-											.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							MyProxyInitPanel.this.setCursor(Cursor
+									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 							getInitButton().setEnabled(true);
 							Utils.showErrorMessage(MyProxyInitPanel.this,
 									"notANumber", e1);

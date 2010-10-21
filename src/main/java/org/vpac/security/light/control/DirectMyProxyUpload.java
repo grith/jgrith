@@ -16,6 +16,7 @@ import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.certificate.CertificateHelper;
 import org.vpac.security.light.myProxy.MyProxy_light;
 import org.vpac.security.light.plainProxy.LocalProxy;
@@ -87,7 +88,7 @@ public class DirectMyProxyUpload {
 
 			if (!CertificateHelper.globusCredentialsReady()) {
 				throw new RuntimeException(
-				"Cant' create proxy because either/both certificate & private key are missing.");
+						"Cant' create proxy because either/both certificate & private key are missing.");
 			}
 
 			// create proxy from certificate / private key
@@ -97,7 +98,7 @@ public class DirectMyProxyUpload {
 			} catch (Exception e1) {
 				throw new RuntimeException(
 						"Could not create proxy from local certificate & private key: "
-						+ e1.getMessage());
+								+ e1.getMessage());
 			}
 			Arrays.fill(privateKeyPassphrase, 'x');
 		}
@@ -158,8 +159,8 @@ public class DirectMyProxyUpload {
 			String retriever, String description, int lifetime_in_seconds) {
 
 		return init(proxy, myProxyServer, myProxyPort, myProxyUsername,
-				myProxyPassphrase, proxyname, renewer,
-				retriever, description, lifetime_in_seconds, true);
+				myProxyPassphrase, proxyname, renewer, retriever, description,
+				lifetime_in_seconds, true);
 
 	}
 
@@ -194,31 +195,35 @@ public class DirectMyProxyUpload {
 	 * @param lifetime_in_seconds
 	 *            the lifetime in seconds
 	 * @param createUniqueMyProxyUsername
-	 * 			  if you set this to true a timestamp will be appended to your myproxy username
+	 *            if you set this to true a timestamp will be appended to your
+	 *            myproxy username
 	 * @return a Map which contains the MyProxy username as key and the password
 	 *         as value
 	 */
 	public static Map<String, char[]> init(GSSCredential proxy,
 			String myProxyServer, int myProxyPort, String myProxyUsername,
 			char[] myProxyPassphrase, String proxyname, String renewer,
-			String retriever, String description, int lifetime_in_seconds, boolean createUniqueMyProxyUsername) {
+			String retriever, String description, int lifetime_in_seconds,
+			boolean createUniqueMyProxyUsername) {
 
 		String username = myProxyUsername;
 		if (StringUtils.isBlank(username)) {
 			try {
-				if ( createUniqueMyProxyUsername ) {
-					username = proxy.getName().toString()+"_"+new Long(new Date().getTime()).toString();
+				if (createUniqueMyProxyUsername) {
+					username = proxy.getName().toString() + "_"
+							+ new Long(new Date().getTime()).toString();
 				} else {
 					username = proxy.getName().toString();
 				}
 			} catch (GSSException e) {
 				throw new RuntimeException(
 						"Could not read created temporary proxy: "
-						+ e.getMessage());
+								+ e.getMessage());
 			}
 		} else {
-			if ( createUniqueMyProxyUsername ) {
-				username = username + "_"+new Long(new Date().getTime()).toString();
+			if (createUniqueMyProxyUsername) {
+				username = username + "_"
+						+ new Long(new Date().getTime()).toString();
 			}
 		}
 
@@ -242,7 +247,7 @@ public class DirectMyProxyUpload {
 		} catch (Exception e) {
 			throw new RuntimeException(
 					"Could not upload proxy credential to the MyProxy server: "
-					+ e.getMessage());
+							+ e.getMessage());
 		}
 
 		// contains myproxy username & password
@@ -256,7 +261,7 @@ public class DirectMyProxyUpload {
 
 		StringBuffer classpath = new StringBuffer();
 		ClassLoader applicationClassLoader = classpath.getClass()
-		.getClassLoader();
+				.getClassLoader();
 		if (applicationClassLoader == null) {
 			applicationClassLoader = ClassLoader.getSystemClassLoader();
 		}
@@ -268,12 +273,12 @@ public class DirectMyProxyUpload {
 		System.out.println("Classpath: " + classpath.toString());
 
 		VO vo = new VO("APACGrid", "vomrs.apac.edu.au", 15001,
-		"/C=AU/O=APACGrid/OU=APAC/CN=vomrs.apac.edu.au");
+				"/C=AU/O=APACGrid/OU=APAC/CN=vomrs.apac.edu.au");
 		System.out.println("VO created");
 		VomsProxy vomsProxy = null;
 		try {
-			vomsProxy = new VomsProxy(vo, "/APACGrid/NGAdmin", "xxxx"
-					.toCharArray(), 100000);
+			vomsProxy = new VomsProxy(vo, "/APACGrid/NGAdmin",
+					"xxxx".toCharArray(), 100000);
 			System.out.println("Voms proxy created.");
 		} catch (Exception e) {
 			// that didn't work, did it?
@@ -283,9 +288,10 @@ public class DirectMyProxyUpload {
 		}
 
 		GSSCredential gssVomsProxy = CredentialHelpers
-		.wrapGlobusCredential(vomsProxy.getVomsProxyCredential());
+				.wrapGlobusCredential(vomsProxy.getVomsProxyCredential());
 		System.out.println("Wrapped proxy in GSSCredential.");
-		init(gssVomsProxy, "myproxyarcs.org.au", 443, "markus_voms",
+		init(gssVomsProxy, Environment.getDefaultMyProxy().getHost(),
+				Environment.getDefaultMyProxy().getPort(), "markus_voms",
 				"myProxyPassword".toCharArray(), null, null, null, null, 500);
 		System.out.println("Uploaded proxy to MyProxy server.");
 	}

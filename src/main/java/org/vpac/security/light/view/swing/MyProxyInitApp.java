@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.utils.ActionPerformedListener;
 
 public class MyProxyInitApp implements ActionPerformedListener {
@@ -38,8 +39,9 @@ public class MyProxyInitApp implements ActionPerformedListener {
 	 */
 	protected MyProxyInitPanel getMyProxyInitPanel() {
 		if (myProxyInitPanel == null) {
-			myProxyInitPanel = new MyProxyInitPanel(this,
-					"myproxy.arcs.org.au", 443, -1, null, null);
+			myProxyInitPanel = new MyProxyInitPanel(this, Environment
+					.getDefaultMyProxy().getHost(), Environment
+					.getDefaultMyProxy().getPort(), -1, null, null);
 		}
 		return myProxyInitPanel;
 	}

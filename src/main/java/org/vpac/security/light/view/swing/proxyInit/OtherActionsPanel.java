@@ -13,9 +13,9 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.InitParams;
-import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.myProxy.MyProxy_light;
 import org.vpac.security.light.plainProxy.LocalProxy;
 import org.vpac.security.light.view.swing.MyProxyUploadDialog;
@@ -29,13 +29,6 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import org.globus.myproxy.MyProxyException;
-import org.globus.myproxy.MyProxyServerAuthorization;
-import org.globus.gsi.gssapi.auth.AuthorizationException;
-import org.ietf.jgss.GSSContext;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 public class OtherActionsPanel extends JPanel {
 
 	private static final Logger myLogger = Logger
@@ -43,30 +36,6 @@ public class OtherActionsPanel extends JPanel {
 
 	private JButton loadLocalProxyButton;
 	private JLabel label;
-	public static final MyProxy DEFAULT_MYPROXY = new MyProxy(
-			"myproxy.arcs.org.au", 443);
-
-    {
-	DEFAULT_MYPROXY.setAuthorization( new MyProxyServerAuthorization() {
-		public void authorize(GSSContext context,
-				      String host)
-		    throws AuthorizationException {
-		    System.out.println(""+ host);
-		    try {
-			InetAddress addr = InetAddress.getByName(host);
-			String hostname = addr.getHostName();
-			if (!"myproxy.arcs.org.au".equals(hostname) && !"myproxy2.arcs.org.au".equals(hostname)){
-			    throw new AuthorizationException(context.getDelegCred().getName().toString());
-			}
-		    } catch (UnknownHostException ex){
-			throw new AuthorizationException("DNS lookup failed");
-		    } catch (org.ietf.jgss.GSSException ex){
-			throw new AuthorizationException("hmm ");
-		    }
-		    
-		}
-	    });
-    }
 
 	private ProxyDestructorHolder destructionHolder = null;
 	private ProxyCreatorHolder creationHolder = null;
@@ -77,8 +46,6 @@ public class OtherActionsPanel extends JPanel {
 	private JLabel destroyLabel;
 	private JLabel uploadCurrentProxyLabel;
 	private JLabel storeLocalProxyLabel;
-
-	private MyProxy myproxy = null;
 
 	private GlobusCredential proxy = null;
 
@@ -200,15 +167,6 @@ public class OtherActionsPanel extends JPanel {
 		return loadLocalProxyButton;
 	}
 
-	public MyProxy getMyproxy() {
-
-		if (myproxy == null) {
-			return DEFAULT_MYPROXY;
-		}
-
-		return myproxy;
-	}
-
 	/**
 	 * @return
 	 */
@@ -269,16 +227,17 @@ public class OtherActionsPanel extends JPanel {
 					MyProxyUploadDialog mpud = new MyProxyUploadDialog();
 					InitParams params;
 					try {
-						params = MyProxy_light.prepareProxyParameters(System
-								.getProperty("user.name"), null, "*", "*",
-								null, -1);
+						params = MyProxy_light.prepareProxyParameters(
+								System.getProperty("user.name"), null, "*",
+								"*", null, -1);
 					} catch (MyProxyException e1) {
 						JOptionPane.showMessageDialog(OtherActionsPanel.this,
 								e1.getLocalizedMessage(), "MyProxy error",
 								JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					mpud.initialize(proxy, params, getMyproxy());
+					mpud.initialize(proxy, params,
+							Environment.getDefaultMyProxy());
 					mpud.setVisible(true);
 
 					boolean success = mpud.isSuccess();
@@ -319,14 +278,6 @@ public class OtherActionsPanel extends JPanel {
 					"Could not load local proxy: " + e1.getLocalizedMessage(),
 					"Proxy error", JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	/**
-	 * @return
-	 */
-
-	public void setMyProxy(MyProxy myproxy) {
-		this.myproxy = myproxy;
 	}
 
 	public void setProxy(GlobusCredential proxy) {

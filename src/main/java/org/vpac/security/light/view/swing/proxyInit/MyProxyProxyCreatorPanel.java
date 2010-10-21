@@ -21,6 +21,7 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.control.UserProperty;
 import org.vpac.security.light.myProxy.MyProxy_light;
 
@@ -39,8 +40,6 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 	private static final Logger myLogger = Logger
 			.getLogger(MyProxyProxyCreatorPanel.class.getName());
 
-	public static final MyProxy DEFAULT_MYPROXY = new MyProxy(
-			"myproxy.arcs.org.au", 443);
 	public static final Integer[] DEFAULT_PROXY_LIFETIME_VALUES = new Integer[] {
 			1, 2, 3, 7, 14, 21 };
 
@@ -54,7 +53,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 	private JLabel usernameLabel;
 
 	private ProxyCreatorHolder holder = null;
-	private DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
+	private final DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
 			DEFAULT_PROXY_LIFETIME_VALUES);
 
 	/**
@@ -111,6 +110,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 					if (holder != null) {
 
 						new Thread() {
+							@Override
 							public void run() {
 								myProxyLogin();
 							}
@@ -151,7 +151,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 	public MyProxy getMyproxy() {
 
 		if (myproxy == null) {
-			return DEFAULT_MYPROXY;
+			return Environment.getDefaultMyProxy();
 		}
 
 		return myproxy;
@@ -164,11 +164,13 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 		if (passwordField == null) {
 			passwordField = new JPasswordField();
 			passwordField.addKeyListener(new KeyAdapter() {
+				@Override
 				public void keyPressed(final KeyEvent e) {
 					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 						if (holder != null) {
 
 							new Thread() {
+								@Override
 								public void run() {
 									myProxyLogin();
 								}
@@ -222,6 +224,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 		if (usernameTextField == null) {
 			usernameTextField = new JTextField();
 			usernameTextField.addKeyListener(new KeyAdapter() {
+				@Override
 				public void keyPressed(final KeyEvent e) {
 					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 						getPasswordField().requestFocus();
@@ -239,7 +242,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 
 		String username = getUsernameTextField().getText();
 
-		if (username == null || "".equals(username)) {
+		if ((username == null) || "".equals(username)) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			JOptionPane.showMessageDialog(MyProxyProxyCreatorPanel.this,
 					"You have to provide a username", "No username",
@@ -257,7 +260,7 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 
 		char[] passphrase = getPasswordField().getPassword();
 
-		if (passphrase == null || passphrase.length == 0) {
+		if ((passphrase == null) || (passphrase.length == 0)) {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			JOptionPane.showMessageDialog(MyProxyProxyCreatorPanel.this,
 					"You have to provide a password", "No password",

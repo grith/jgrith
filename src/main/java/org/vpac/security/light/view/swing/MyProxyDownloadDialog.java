@@ -37,6 +37,7 @@ public class MyProxyDownloadDialog extends JDialog {
 		try {
 			MyProxyDownloadDialog dialog = new MyProxyDownloadDialog();
 			dialog.addWindowListener(new WindowAdapter() {
+				@Override
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
 				}
@@ -111,7 +112,7 @@ public class MyProxyDownloadDialog extends JDialog {
 				public void actionPerformed(final ActionEvent e) {
 					String username = getTextField().getText();
 
-					if (username == null || "".equals(username)) {
+					if ((username == null) || "".equals(username)) {
 						JOptionPane.showMessageDialog(
 								MyProxyDownloadDialog.this,
 								"You have to provide a username",
@@ -130,7 +131,7 @@ public class MyProxyDownloadDialog extends JDialog {
 
 					char[] passphrase = getPasswordField().getPassword();
 
-					if (passphrase == null || passphrase.length == 0) {
+					if ((passphrase == null) || (passphrase.length == 0)) {
 						JOptionPane.showMessageDialog(
 								MyProxyDownloadDialog.this,
 								"You have to provide a password",
@@ -242,7 +243,7 @@ public class MyProxyDownloadDialog extends JDialog {
 
 		String defaultUsername = UserProperty
 				.getProperty(UserProperty.LAST_MYPROXY_USERNAME_KEY);
-		if (defaultUsername == null || "".equals(defaultUsername)) {
+		if ((defaultUsername == null) || "".equals(defaultUsername)) {
 			defaultUsername = System.getProperty("user.name");
 		}
 

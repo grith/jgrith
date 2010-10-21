@@ -28,6 +28,7 @@ import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 
 /**
  * I called this class LocalMyProxy so that there is no confusion with the
@@ -43,11 +44,8 @@ public class LocalMyProxy {
 	static final Logger myLogger = Logger.getLogger(LocalMyProxy.class
 			.getName());
 
-	/**
-	 * The default myproxy server of the APACGrid.
-	 */
-	public static final MyProxy DEFAULT_MYPROXY_SERVER = new MyProxy(
-			"myproxy.arcs.org.au", 443);
+	public static final MyProxy DEFAULT_MYPROXY_SERVER = Environment
+			.getDefaultMyProxy();
 
 	/**
 	 * Equivalent to the commandline myproxy-get-delegation command for getting

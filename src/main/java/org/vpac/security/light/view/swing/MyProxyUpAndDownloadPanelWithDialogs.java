@@ -17,6 +17,7 @@ import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.myProxy.MyProxy_light;
 
 import com.jgoodies.forms.factories.FormFactory;
@@ -30,9 +31,6 @@ public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 
 	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
 			.getName());
-
-	public static final MyProxy DEFAULT_MYPROXY = new MyProxy(
-			"myproxy.arcs.org.au", 443);
 
 	private JButton uploadButton;
 	private JButton downloadButton;
@@ -70,14 +68,15 @@ public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -107,7 +106,7 @@ public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 				public void actionPerformed(final ActionEvent e) {
 
 					MyProxyDownloadDialog mpdd = new MyProxyDownloadDialog();
-					mpdd.initialize(getMyproxy());
+					mpdd.initialize(Environment.getDefaultMyProxy());
 
 					mpdd.setVisible(true);
 
@@ -123,15 +122,6 @@ public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 		return downloadButton;
 	}
 
-	public MyProxy getMyproxy() {
-
-		if (myproxy == null) {
-			return DEFAULT_MYPROXY;
-		}
-
-		return myproxy;
-	}
-
 	/**
 	 * @return
 	 */
@@ -142,11 +132,12 @@ public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 				public void actionPerformed(final ActionEvent e) {
 					InitParams params;
 					try {
-						params = MyProxy_light.prepareProxyParameters(System
-								.getProperty("user.name"), null, "*", "*",
-								null, -1);
+						params = MyProxy_light.prepareProxyParameters(
+								System.getProperty("user.name"), null, "*",
+								"*", null, -1);
 						MyProxyUploadDialog mpud = new MyProxyUploadDialog(
-								currentCredential, params, getMyproxy());
+								currentCredential, params, Environment
+										.getDefaultMyProxy());
 						mpud.setVisible(true);
 
 					} catch (MyProxyException e1) {

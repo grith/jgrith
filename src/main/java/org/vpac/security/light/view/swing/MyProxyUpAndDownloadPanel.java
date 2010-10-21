@@ -21,6 +21,7 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 import org.vpac.security.light.control.UserProperty;
 import org.vpac.security.light.myProxy.MyProxy_light;
 
@@ -39,9 +40,6 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 	private JLabel label;
 	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
 			.getName());
-
-	public static final MyProxy DEFAULT_MYPROXY = new MyProxy(
-			"myproxy.arcs.org.au", 443);
 
 	private JButton uploadButton;
 	private JButton downloadButton;
@@ -85,7 +83,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 		String defaultUsername = UserProperty
 				.getProperty(UserProperty.LAST_MYPROXY_USERNAME_KEY);
-		if (defaultUsername == null || "".equals(defaultUsername)) {
+		if ((defaultUsername == null) || "".equals(defaultUsername)) {
 			defaultUsername = System.getProperty("user.name");
 		}
 		getTextField().setText(defaultUsername);
@@ -93,14 +91,15 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -131,7 +130,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					String username = getTextField().getText();
 
-					if (username == null || "".equals(username)) {
+					if ((username == null) || "".equals(username)) {
 						JOptionPane.showMessageDialog(
 								MyProxyUpAndDownloadPanel.this,
 								"You have to provide a username",
@@ -149,7 +148,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					char[] passphrase = getPasswordField().getPassword();
 
-					if (passphrase == null || passphrase.length == 0) {
+					if ((passphrase == null) || (passphrase.length == 0)) {
 						JOptionPane.showMessageDialog(
 								MyProxyUpAndDownloadPanel.this,
 								"You have to provide a password",
@@ -207,7 +206,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 	public MyProxy getMyproxy() {
 
 		if (myproxy == null) {
-			return DEFAULT_MYPROXY;
+			return Environment.getDefaultMyProxy();
 		}
 
 		return myproxy;
@@ -244,7 +243,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					String username = getTextField().getText();
 
-					if (username == null || "".equals(username)) {
+					if ((username == null) || "".equals(username)) {
 						JOptionPane.showMessageDialog(
 								MyProxyUpAndDownloadPanel.this,
 								"You have to provide a username",
@@ -279,7 +278,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					char[] passphrase = getPasswordField().getPassword();
 
-					if (passphrase == null || passphrase.length == 0) {
+					if ((passphrase == null) || (passphrase.length == 0)) {
 						JOptionPane.showMessageDialog(
 								MyProxyUpAndDownloadPanel.this,
 								"You have to provide a password",
