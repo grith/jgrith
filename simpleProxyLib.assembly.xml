@@ -32,6 +32,7 @@
 					<exclude>log4j.properties</exclude>
 					<exclude>certificates.zip</exclude>
 					<exclude>vomses.zip</exclude>
+					<exclude>arcs/__init__.py</exclude>
 				</excludes>
 			</unpackOptions>
 		</dependencySet>

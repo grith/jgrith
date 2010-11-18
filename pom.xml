@@ -142,8 +142,19 @@
 		<dependency>
 			<groupId>org.bestgrid</groupId>
 			<artifactId>grid-jcommons</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.3-SNAPSHOT</version>
+			<scope>compile</scope>
 			<type>jar</type>
+                        <exclusions>
+                                <exclusion>
+                                        <artifactId>commons-digester</artifactId>
+                                        <groupId>commons-digester</groupId>
+                                </exclusion>
+                                <exclusion>
+                                	<artifactId>commons-beanutils-core</artifactId>
+                                	<groupId>commons-beanutils</groupId>
+                                </exclusion>
+                        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>au.org.arcs.auth</groupId>
@@ -212,7 +223,7 @@
 					<keypass>FxAKs3p6</keypass>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
