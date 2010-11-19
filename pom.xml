@@ -218,7 +218,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<alias>arcs</alias>
+					<alias>grisu</alias>
 					<storepass>FxAKs3p6</storepass>
 					<keypass>FxAKs3p6</keypass>
 				</configuration>
