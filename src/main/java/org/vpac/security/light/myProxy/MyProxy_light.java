@@ -18,6 +18,7 @@
 
 package org.vpac.security.light.myProxy;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
@@ -27,6 +28,7 @@ import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.vpac.security.light.CredentialHelpers;
+import org.vpac.security.light.Environment;
 
 /**
  * This class is really only to show how to upload/retrieve a MyProxy
@@ -70,7 +72,8 @@ public class MyProxy_light {
 	public static GSSCredential getDelegation(String myproxyServer,
 			int myproxyPort, GSSCredential credential, String username,
 			char[] passphrase, int lifetime_in_seconds) throws MyProxyException {
-		MyProxy myproxy = new MyProxy(myproxyServer, myproxyPort);
+
+		MyProxy myproxy = getMyProxy(myproxyServer, myproxyPort);
 		GSSCredential proxyCredential = null;
 		try {
 			proxyCredential = myproxy.get(credential, username, new String(
@@ -107,7 +110,7 @@ public class MyProxy_light {
 	public static GSSCredential getDelegation(String myproxyServer,
 			int myproxyPort, String username, char[] passphrase,
 			int lifetime_in_secs) throws MyProxyException {
-		MyProxy myproxy = new MyProxy(myproxyServer, myproxyPort);
+		MyProxy myproxy = getMyProxy(myproxyServer, myproxyPort);
 		GSSCredential credential = null;
 		try {
 			credential = myproxy.get(username, new String(passphrase),
@@ -120,6 +123,16 @@ public class MyProxy_light {
 			throw e;
 		}
 		return credential;
+	}
+
+	public static MyProxy getMyProxy(String myproxyserver, int myproxyPort) {
+		if (StringUtils.isBlank(myproxyserver)
+				|| "myproxy.arcs.org.au".equals(myproxyserver)
+				|| "myproxy2.arcs.org.au".equals(myproxyserver)) {
+			return Environment.getDefaultMyProxy();
+		} else {
+			return new MyProxy(myproxyserver, myproxyPort);
+		}
 	}
 
 	/**
@@ -229,29 +242,29 @@ public class MyProxy_light {
 
 		InitParams proxy_parameters = new InitParams();
 
-		if (username == null || "".equals(username)) {
+		if ((username == null) || "".equals(username)) {
 			throw new MyProxyException("No myproxy username specified.");
 		} else {
 			proxy_parameters.setUserName(username);
 		}
 
-		if (proxyname != null && !"".equals(proxyname)) {
+		if ((proxyname != null) && !"".equals(proxyname)) {
 			proxy_parameters.setCredentialName(proxyname);
 		}
 
-		if (renewer == null || "".equals(renewer)) {
+		if ((renewer == null) || "".equals(renewer)) {
 			// means anonymous renewer
 			renewer = "*";
 		}
 		proxy_parameters.setRenewer(renewer);
 
-		if (retriever == null || "".equals(retriever)) {
+		if ((retriever == null) || "".equals(retriever)) {
 			// means anonymous retriever
 			retriever = "*";
 		}
 		proxy_parameters.setRetriever(retriever);
 
-		if (description != null || !"".equals(description)) {
+		if ((description != null) || !"".equals(description)) {
 			proxy_parameters.setCredentialDescription(description);
 		}
 

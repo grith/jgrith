@@ -240,18 +240,7 @@ public class DirectMyProxyUpload {
 					+ e.getMessage());
 		}
 
-		MyProxy myproxy = null;
-		if (myProxyServer == null) {
-			myproxy = Environment.getDefaultMyProxy();
-		} else {
-
-			if (myProxyServer.equals("myproxy.arcs.org.au")
-					|| myProxyServer.equals("myproxy2.arcs.org.au")) {
-				myproxy = Environment.getDefaultMyProxy();
-			} else {
-				myproxy = new MyProxy(myProxyServer, myProxyPort);
-			}
-		}
+		MyProxy myproxy = MyProxy_light.getMyProxy(myProxyServer, myProxyPort);
 
 		try {
 			MyProxy_light.init(myproxy, proxy, params, myProxyPassphrase);
