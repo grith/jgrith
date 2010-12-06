@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -34,6 +35,9 @@ import com.Ostermiller.util.RandPass;
  * 
  */
 public class DirectMyProxyUpload {
+
+	static final Logger myLogger = Logger.getLogger(DirectMyProxyUpload.class
+			.getName());
 
 	/**
 	 * Call this method if you want to upload a proxy directly to a MyProxy
@@ -205,6 +209,9 @@ public class DirectMyProxyUpload {
 			char[] myProxyPassphrase, String proxyname, String renewer,
 			String retriever, String description, int lifetime_in_seconds,
 			boolean createUniqueMyProxyUsername) {
+
+		myLogger.debug("Direct myproxy upload to: " + myProxyServer + " / "
+				+ myProxyPort + ".");
 
 		String username = myProxyUsername;
 		if (StringUtils.isBlank(username)) {

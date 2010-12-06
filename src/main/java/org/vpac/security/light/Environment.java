@@ -20,19 +20,30 @@ public class Environment {
 	private static MyProxy myproxy = null;
 
 	public static MyProxy getDefaultMyProxy() {
+
+		myLogger.debug("Using default myproxy...");
+
 		if (myproxy == null) {
 
 			int port = ArcsEnvironment.getDefaultMyProxyPort();
 			String server = ArcsEnvironment.getDefaultMyProxyServer();
 			myLogger.debug("Creating default MyProxy object: " + server + " / "
 					+ port);
+
+			try {
+				server = InetAddress.getByName(server).getHostAddress();
+			} catch (final UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 			myproxy = new MyProxy(server, port);
 
 			myproxy.setAuthorization(new MyProxyServerAuthorization() {
 				@Override
 				public void authorize(GSSContext context, String host)
 						throws AuthorizationException {
-					System.out.println("" + host);
+					myLogger.debug("actual host: " + host);
 					try {
 						InetAddress addr = InetAddress.getByName(host);
 						String hostname = addr.getHostName();
