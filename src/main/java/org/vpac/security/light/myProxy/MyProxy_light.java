@@ -128,7 +128,8 @@ public class MyProxy_light {
 	public static MyProxy getMyProxy(String myproxyserver, int myproxyPort) {
 		if (StringUtils.isBlank(myproxyserver)
 				|| "myproxy.arcs.org.au".equals(myproxyserver)
-				|| "myproxy2.arcs.org.au".equals(myproxyserver)) {
+				|| "myproxy2.arcs.org.au".equals(myproxyserver)
+				|| "202.158.218.205".equals(myproxyserver)) {
 			return Environment.getDefaultMyProxy();
 		} else {
 			return new MyProxy(myproxyserver, myproxyPort);
