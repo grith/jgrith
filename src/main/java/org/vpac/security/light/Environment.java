@@ -29,6 +29,8 @@ public class Environment {
 			String server = ArcsEnvironment.getDefaultMyProxyServer();
 			myLogger.debug("Creating default MyProxy object: " + server + " / "
 					+ port);
+			System.out.println("Creating default MyProxy object: " + server
+					+ " / " + port);
 
 			try {
 				server = InetAddress.getByName(server).getHostAddress();
