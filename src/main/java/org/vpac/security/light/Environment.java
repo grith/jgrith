@@ -22,6 +22,7 @@ public class Environment {
 	public static MyProxy getDefaultMyProxy() {
 
 		myLogger.debug("Using default myproxy...");
+		System.out.println("Using default myproxy...");
 
 		if (myproxy == null) {
 
@@ -35,7 +36,6 @@ public class Environment {
 			try {
 				server = InetAddress.getByName(server).getHostAddress();
 			} catch (final UnknownHostException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
