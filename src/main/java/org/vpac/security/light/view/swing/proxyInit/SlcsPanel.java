@@ -1,5 +1,7 @@
 package org.vpac.security.light.view.swing.proxyInit;
 
+import grith.gsindl.SLCS;
+
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +22,6 @@ import org.vpac.security.light.plainProxy.PlainProxy;
 
 import au.org.arcs.auth.shibboleth.ShibListener;
 import au.org.arcs.auth.shibboleth.ShibLoginPanel;
-import au.org.arcs.auth.slcs.SLCS;
 import au.org.arcs.commonInterfaces.HttpProxyInfoHolder;
 import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
 import au.org.arcs.commonInterfaces.ProxyCreatorPanel;
@@ -49,7 +50,7 @@ public class SlcsPanel extends JPanel implements SlcsListener,
 	 */
 	public SlcsPanel(String url) {
 
-		if (url == null || "".equals(url)) {
+		if ((url == null) || "".equals(url)) {
 			this.url = DEFAULT_URL;
 		} else {
 			this.url = url;
