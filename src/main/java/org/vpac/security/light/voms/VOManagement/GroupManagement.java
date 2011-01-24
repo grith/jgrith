@@ -57,8 +57,9 @@ public class GroupManagement {
 			}
 
 		} catch (Exception e1) {
+			e1.printStackTrace();
 			myLogger.error(e1);
-//			e1.printStackTrace();
+			// e1.printStackTrace();
 			status = VOManagement.NO_MEMBER;
 			return null;
 		}
@@ -69,8 +70,8 @@ public class GroupManagement {
 	}
 
 	public static String getRolePart(String fqan) {
-		String role = fqan.substring(fqan.indexOf("/Role=") + 6, fqan
-				.indexOf("/Capability="));
+		String role = fqan.substring(fqan.indexOf("/Role=") + 6,
+				fqan.indexOf("/Capability="));
 		return role;
 	}
 
