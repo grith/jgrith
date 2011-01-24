@@ -405,8 +405,8 @@ public class VOMSAttributeCertificate {
 				// this tagged object has TagNumber value of 6 (?)
 				ASN1OctetString originOctetString = (ASN1OctetString) taggedObject2
 						.getObject();
-				String origin = (new DERGeneralString(originOctetString
-						.getOctets())).getString();
+				String origin = (new DERGeneralString(
+						originOctetString.getOctets())).getString();
 
 				ASN1Sequence fqanSequence = (ASN1Sequence) sequence2
 						.getObjectAt(1);
@@ -415,8 +415,8 @@ public class VOMSAttributeCertificate {
 				for (int fqan = 0; fqan < fqanSequence.size(); fqan++) {
 					ASN1OctetString fqanOctetString = (ASN1OctetString) fqanSequence
 							.getObjectAt(fqan);
-					String FQAN_Value = (new DERGeneralString(fqanOctetString
-							.getOctets())).getString();
+					String FQAN_Value = (new DERGeneralString(
+							fqanOctetString.getOctets())).getString();
 					theseFQANs.add(FQAN_Value);
 				}
 
@@ -465,8 +465,7 @@ public class VOMSAttributeCertificate {
 
 			// --------------------------------------------------------------------------
 			// AuthorityKeyIdentifier
-			myLogger
-					.warn("VOMSAttributeCertificate verification not implemented yet.");
+			myLogger.warn("VOMSAttributeCertificate verification not implemented yet.");
 
 			// String issuerDN = this.getIssuer() ;
 			//
@@ -701,9 +700,9 @@ public class VOMSAttributeCertificate {
 			Signature sig = Signature.getInstance(signatureAlgorithm
 					.getObjectId().getId());
 
-			String hostPrivateKeyLocation = new String(System
-					.getProperty("user.home")
-					+ "/gridsecurity/hostkey.pem");
+			String hostPrivateKeyLocation = new String(
+					System.getProperty("user.home")
+							+ "/gridsecurity/hostkey.pem");
 
 			OpenSSLKey key = new BouncyCastleOpenSSLKey(hostPrivateKeyLocation);
 
@@ -778,8 +777,7 @@ public class VOMSAttributeCertificate {
 		// }
 		//
 		// }
-		myLogger
-				.warn("VOMESAttributeCertificate verification not implemented yet.");
+		myLogger.warn("VOMESAttributeCertificate verification not implemented yet.");
 
 		return checked;
 

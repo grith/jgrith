@@ -218,227 +218,228 @@ public class RandPass {
 		return -1;
 	}
 
-//	/**
-//	 * Generate a random passwords. Run with --help argument for more
-//	 * information.
-//	 * 
-//	 * @param args
-//	 *            Command line arguments.
-//	 * 
-//	 * @since ostermillerutils 1.00.00
-//	 */
-//	public static void main(String[] args) throws Exception {
-//		// create the command line options that we are looking for
-//		LongOpt[] longopts = {
-//				new LongOpt(labels.getString("help.option"),
-//						LongOpt.NO_ARGUMENT, null, 1),
-//				new LongOpt(labels.getString("version.option"),
-//						LongOpt.NO_ARGUMENT, null, 2),
-//				new LongOpt(labels.getString("about.option"),
-//						LongOpt.NO_ARGUMENT, null, 3),
-//				new LongOpt(labels.getString("alphabet.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'a'),
-//				new LongOpt(labels.getString("first.alphabet.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'F'),
-//				new LongOpt(labels.getString("last.alphabet.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'L'),
-//				new LongOpt(labels.getString("number.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'n'),
-//				new LongOpt(labels.getString("maxrep.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'r'),
-//				new LongOpt(labels.getString("length.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'l'),
-//				new LongOpt(labels.getString("require.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'R'),
-//				new LongOpt(labels.getString("verify.option"),
-//						LongOpt.REQUIRED_ARGUMENT, null, 'v'), };
-//		String oneLetterOptions = "a:n:F:L:r:l:R:v:";
-//		Getopt opts = new Getopt(labels.getString("randpass"), args,
-//				oneLetterOptions, longopts);
-//		int number = 1;
-//		char[] alphabet = NONCONFUSING_ALPHABET;
-//		char[] firstAlphabet = null;
-//		char[] lastAlphabet = null;
-//		Vector<String> reqs = new Vector<String>();
-//		Vector<String> ver = new Vector<String>();
-//		int maxreps = 0;
-//		int length = 8;
-//		int c;
-//		while ((c = opts.getopt()) != -1) {
-//			switch (c) {
-//			case 1: {
-//				// print out the help message
-//				String[] helpFlags = new String[] {
-//						"--" + labels.getString("help.option"),
-//						"--" + labels.getString("version.option"),
-//						"--" + labels.getString("about.option"),
-//						"-a --" + labels.getString("alphabet.option") + " "
-//								+ labels.getString("alphabet.argument"),
-//						"-n --" + labels.getString("number.option") + " "
-//								+ labels.getString("number.argument"),
-//						"-F --" + labels.getString("first.alphabet.option")
-//								+ " " + labels.getString("alphabet.argument"),
-//						"-L --" + labels.getString("last.alphabet.option")
-//								+ " " + labels.getString("alphabet.argument"),
-//						"-l --" + labels.getString("length.option") + " "
-//								+ labels.getString("number.argument"),
-//						"-r --" + labels.getString("maxrep.option") + " "
-//								+ labels.getString("number.argument"),
-//						"-R --" + labels.getString("require.option") + " "
-//								+ labels.getString("alphabet.argument"),
-//						"-v --" + labels.getString("verify.option") + " "
-//								+ labels.getString("class.argument"), };
-//				int maxLength = 0;
-//				for (int i = 0; i < helpFlags.length; i++) {
-//					maxLength = Math.max(maxLength, helpFlags[i].length());
-//				}
-//				maxLength += 2;
-//				System.out.println(labels.getString("randpass") + " [-"
-//						+ StringHelper.replace(oneLetterOptions, ":", "")
-//						+ "]\n" + labels.getString("purpose.message") + "\n"
-//						+ "  "
-//						+ StringHelper.postpad(helpFlags[0], maxLength, ' ')
-//						+ labels.getString("help.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[1], maxLength, ' ')
-//						+ labels.getString("version.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[2], maxLength, ' ')
-//						+ labels.getString("about.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[3], maxLength, ' ')
-//						+ labels.getString("a.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[4], maxLength, ' ')
-//						+ labels.getString("n.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[5], maxLength, ' ')
-//						+ labels.getString("F.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[6], maxLength, ' ')
-//						+ labels.getString("L.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[7], maxLength, ' ')
-//						+ labels.getString("l.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[8], maxLength, ' ')
-//						+ labels.getString("r.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[9], maxLength, ' ')
-//						+ labels.getString("R.message") + "\n" + "  "
-//						+ StringHelper.postpad(helpFlags[10], maxLength, ' ')
-//						+ labels.getString("v.message") + "\n");
-//				System.exit(0);
-//			}
-//				break;
-//			case 2: {
-//				// print out the version message
-//				System.out.println(MessageFormat.format(labels
-//						.getString("version"),
-//						(Object[]) new String[] { version }));
-//				System.exit(0);
-//			}
-//				break;
-//			case 3: {
-//				System.out
-//						.println(labels.getString("randpass")
-//								+ " -- "
-//								+ labels.getString("purpose.message")
-//								+ "\n"
-//								+ MessageFormat
-//										.format(
-//												labels.getString("copyright"),
-//												(Object[]) new String[] {
-//														"2001-2002",
-//														"Stephen Ostermiller (http://ostermiller.org/contact.pl?regarding=Java+Utilities)" })
-//								+ "\n\n" + labels.getString("license"));
-//				System.exit(0);
-//			}
-//				break;
-//			case 'a': {
-//				String alph = opts.getOptarg();
-//				if (alph.length() == 0) {
-//					alphabet = NONCONFUSING_ALPHABET;
-//				} else {
-//					alphabet = alph.toCharArray();
-//				}
-//			}
-//				break;
-//			case 'F': {
-//				String alph = opts.getOptarg();
-//				if (alph.length() == 0) {
-//					firstAlphabet = null;
-//				} else {
-//					firstAlphabet = alph.toCharArray();
-//				}
-//			}
-//				break;
-//			case 'L': {
-//				String alph = opts.getOptarg();
-//				if (alph.length() == 0) {
-//					lastAlphabet = null;
-//				} else {
-//					lastAlphabet = alph.toCharArray();
-//				}
-//			}
-//				break;
-//			case 'R': {
-//				String alph = opts.getOptarg();
-//				if (alph.length() != 0) {
-//					reqs.add(alph);
-//				}
-//			}
-//				break;
-//			case 'v': {
-//				ver.add(opts.getOptarg());
-//			}
-//				break;
-//			case 'n': {
-//				try {
-//					number = Integer.parseInt(opts.getOptarg());
-//					if (number <= 0)
-//						throw new NumberFormatException();
-//				} catch (NumberFormatException nfe) {
-//					System.err.println(labels.getString("number.bad_argument"));
-//					System.exit(0);
-//				}
-//			}
-//				break;
-//			case 'r': {
-//				try {
-//					maxreps = Integer.parseInt(opts.getOptarg());
-//					if (maxreps < 0)
-//						throw new NumberFormatException();
-//				} catch (NumberFormatException nfe) {
-//					System.err.println(labels.getString("number.bad_argument"));
-//					System.exit(0);
-//				}
-//			}
-//				break;
-//			case 'l': {
-//				try {
-//					length = Integer.parseInt(opts.getOptarg());
-//					if (length < 0)
-//						throw new NumberFormatException();
-//				} catch (NumberFormatException nfe) {
-//					System.err.println(labels.getString("number.bad_argument"));
-//					System.exit(0);
-//				}
-//			}
-//				break;
-//			default: {
-//				System.exit(0);
-//			}
-//			}
-//		}
-//		RandPass randPass = new RandPass();
-//		randPass.setAlphabet(alphabet);
-//		randPass.setFirstAlphabet(firstAlphabet);
-//		randPass.setLastAlphabet(lastAlphabet);
-//		randPass.setMaxRepetition(maxreps);
-//		for (int i = 0; i < reqs.size(); i++) {
-//			randPass.addRequirement(((String) (reqs.elementAt(i)))
-//					.toCharArray(), 1);
-//		}
-//		for (int i = 0; i < ver.size(); i++) {
-//			randPass.addVerifier((PasswordVerifier) ((Class
-//					.forName((String) (ver.elementAt(i)))).newInstance()));
-//		}
-//		for (int i = 0; i < number; i++) {
-//			System.out.println(randPass.getPass(length));
-//		}
-//	}
+	// /**
+	// * Generate a random passwords. Run with --help argument for more
+	// * information.
+	// *
+	// * @param args
+	// * Command line arguments.
+	// *
+	// * @since ostermillerutils 1.00.00
+	// */
+	// public static void main(String[] args) throws Exception {
+	// // create the command line options that we are looking for
+	// LongOpt[] longopts = {
+	// new LongOpt(labels.getString("help.option"),
+	// LongOpt.NO_ARGUMENT, null, 1),
+	// new LongOpt(labels.getString("version.option"),
+	// LongOpt.NO_ARGUMENT, null, 2),
+	// new LongOpt(labels.getString("about.option"),
+	// LongOpt.NO_ARGUMENT, null, 3),
+	// new LongOpt(labels.getString("alphabet.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'a'),
+	// new LongOpt(labels.getString("first.alphabet.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'F'),
+	// new LongOpt(labels.getString("last.alphabet.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'L'),
+	// new LongOpt(labels.getString("number.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'n'),
+	// new LongOpt(labels.getString("maxrep.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'r'),
+	// new LongOpt(labels.getString("length.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'l'),
+	// new LongOpt(labels.getString("require.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'R'),
+	// new LongOpt(labels.getString("verify.option"),
+	// LongOpt.REQUIRED_ARGUMENT, null, 'v'), };
+	// String oneLetterOptions = "a:n:F:L:r:l:R:v:";
+	// Getopt opts = new Getopt(labels.getString("randpass"), args,
+	// oneLetterOptions, longopts);
+	// int number = 1;
+	// char[] alphabet = NONCONFUSING_ALPHABET;
+	// char[] firstAlphabet = null;
+	// char[] lastAlphabet = null;
+	// Vector<String> reqs = new Vector<String>();
+	// Vector<String> ver = new Vector<String>();
+	// int maxreps = 0;
+	// int length = 8;
+	// int c;
+	// while ((c = opts.getopt()) != -1) {
+	// switch (c) {
+	// case 1: {
+	// // print out the help message
+	// String[] helpFlags = new String[] {
+	// "--" + labels.getString("help.option"),
+	// "--" + labels.getString("version.option"),
+	// "--" + labels.getString("about.option"),
+	// "-a --" + labels.getString("alphabet.option") + " "
+	// + labels.getString("alphabet.argument"),
+	// "-n --" + labels.getString("number.option") + " "
+	// + labels.getString("number.argument"),
+	// "-F --" + labels.getString("first.alphabet.option")
+	// + " " + labels.getString("alphabet.argument"),
+	// "-L --" + labels.getString("last.alphabet.option")
+	// + " " + labels.getString("alphabet.argument"),
+	// "-l --" + labels.getString("length.option") + " "
+	// + labels.getString("number.argument"),
+	// "-r --" + labels.getString("maxrep.option") + " "
+	// + labels.getString("number.argument"),
+	// "-R --" + labels.getString("require.option") + " "
+	// + labels.getString("alphabet.argument"),
+	// "-v --" + labels.getString("verify.option") + " "
+	// + labels.getString("class.argument"), };
+	// int maxLength = 0;
+	// for (int i = 0; i < helpFlags.length; i++) {
+	// maxLength = Math.max(maxLength, helpFlags[i].length());
+	// }
+	// maxLength += 2;
+	// System.out.println(labels.getString("randpass") + " [-"
+	// + StringHelper.replace(oneLetterOptions, ":", "")
+	// + "]\n" + labels.getString("purpose.message") + "\n"
+	// + "  "
+	// + StringHelper.postpad(helpFlags[0], maxLength, ' ')
+	// + labels.getString("help.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[1], maxLength, ' ')
+	// + labels.getString("version.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[2], maxLength, ' ')
+	// + labels.getString("about.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[3], maxLength, ' ')
+	// + labels.getString("a.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[4], maxLength, ' ')
+	// + labels.getString("n.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[5], maxLength, ' ')
+	// + labels.getString("F.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[6], maxLength, ' ')
+	// + labels.getString("L.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[7], maxLength, ' ')
+	// + labels.getString("l.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[8], maxLength, ' ')
+	// + labels.getString("r.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[9], maxLength, ' ')
+	// + labels.getString("R.message") + "\n" + "  "
+	// + StringHelper.postpad(helpFlags[10], maxLength, ' ')
+	// + labels.getString("v.message") + "\n");
+	// System.exit(0);
+	// }
+	// break;
+	// case 2: {
+	// // print out the version message
+	// System.out.println(MessageFormat.format(labels
+	// .getString("version"),
+	// (Object[]) new String[] { version }));
+	// System.exit(0);
+	// }
+	// break;
+	// case 3: {
+	// System.out
+	// .println(labels.getString("randpass")
+	// + " -- "
+	// + labels.getString("purpose.message")
+	// + "\n"
+	// + MessageFormat
+	// .format(
+	// labels.getString("copyright"),
+	// (Object[]) new String[] {
+	// "2001-2002",
+	// "Stephen Ostermiller (http://ostermiller.org/contact.pl?regarding=Java+Utilities)"
+	// })
+	// + "\n\n" + labels.getString("license"));
+	// System.exit(0);
+	// }
+	// break;
+	// case 'a': {
+	// String alph = opts.getOptarg();
+	// if (alph.length() == 0) {
+	// alphabet = NONCONFUSING_ALPHABET;
+	// } else {
+	// alphabet = alph.toCharArray();
+	// }
+	// }
+	// break;
+	// case 'F': {
+	// String alph = opts.getOptarg();
+	// if (alph.length() == 0) {
+	// firstAlphabet = null;
+	// } else {
+	// firstAlphabet = alph.toCharArray();
+	// }
+	// }
+	// break;
+	// case 'L': {
+	// String alph = opts.getOptarg();
+	// if (alph.length() == 0) {
+	// lastAlphabet = null;
+	// } else {
+	// lastAlphabet = alph.toCharArray();
+	// }
+	// }
+	// break;
+	// case 'R': {
+	// String alph = opts.getOptarg();
+	// if (alph.length() != 0) {
+	// reqs.add(alph);
+	// }
+	// }
+	// break;
+	// case 'v': {
+	// ver.add(opts.getOptarg());
+	// }
+	// break;
+	// case 'n': {
+	// try {
+	// number = Integer.parseInt(opts.getOptarg());
+	// if (number <= 0)
+	// throw new NumberFormatException();
+	// } catch (NumberFormatException nfe) {
+	// System.err.println(labels.getString("number.bad_argument"));
+	// System.exit(0);
+	// }
+	// }
+	// break;
+	// case 'r': {
+	// try {
+	// maxreps = Integer.parseInt(opts.getOptarg());
+	// if (maxreps < 0)
+	// throw new NumberFormatException();
+	// } catch (NumberFormatException nfe) {
+	// System.err.println(labels.getString("number.bad_argument"));
+	// System.exit(0);
+	// }
+	// }
+	// break;
+	// case 'l': {
+	// try {
+	// length = Integer.parseInt(opts.getOptarg());
+	// if (length < 0)
+	// throw new NumberFormatException();
+	// } catch (NumberFormatException nfe) {
+	// System.err.println(labels.getString("number.bad_argument"));
+	// System.exit(0);
+	// }
+	// }
+	// break;
+	// default: {
+	// System.exit(0);
+	// }
+	// }
+	// }
+	// RandPass randPass = new RandPass();
+	// randPass.setAlphabet(alphabet);
+	// randPass.setFirstAlphabet(firstAlphabet);
+	// randPass.setLastAlphabet(lastAlphabet);
+	// randPass.setMaxRepetition(maxreps);
+	// for (int i = 0; i < reqs.size(); i++) {
+	// randPass.addRequirement(((String) (reqs.elementAt(i)))
+	// .toCharArray(), 1);
+	// }
+	// for (int i = 0; i < ver.size(); i++) {
+	// randPass.addVerifier((PasswordVerifier) ((Class
+	// .forName((String) (ver.elementAt(i)))).newInstance()));
+	// }
+	// for (int i = 0; i < number; i++) {
+	// System.out.println(randPass.getPass(length));
+	// }
+	// }
 
 	/**
 	 * move all of the given character to the end of the array and return the

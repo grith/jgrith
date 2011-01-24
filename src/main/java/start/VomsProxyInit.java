@@ -1,5 +1,10 @@
 package start;
 
+import grith.jgrith.control.CertificateFiles;
+import grith.jgrith.control.VomsesFiles;
+import grith.jgrith.view.swing.MyProxyUpAndDownloadPanel;
+import grith.jgrith.view.swing.VomsProxyInfoAndInitPanel;
+
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -9,10 +14,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.vpac.security.light.control.CertificateFiles;
-import org.vpac.security.light.control.VomsesFiles;
-import org.vpac.security.light.view.swing.MyProxyUpAndDownloadPanel;
-import org.vpac.security.light.view.swing.VomsProxyInfoAndInitPanel;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -112,7 +113,7 @@ public class VomsProxyInit {
 					FormFactory.RELATED_GAP_ROWSPEC, new RowSpec("default"),
 					FormFactory.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
-			"2, 2, fill, fill"));
+					"2, 2, fill, fill"));
 			panel.add(getMyProxyPanel(), new CellConstraints(2, 4));
 			// panel.add(getMyProxyUpAndDownloadPanel(), new CellConstraints(2,
 			// 4));
