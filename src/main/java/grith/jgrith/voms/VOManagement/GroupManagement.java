@@ -34,7 +34,7 @@ public class GroupManagement {
 		GlobusCredential globusCredential = null;
 		try {
 			globusCredential = CredentialHelpers
-					.unwrapGlobusCredential(gssCred);
+			.unwrapGlobusCredential(gssCred);
 
 			// create a temporary VomsProxyCredential to contact the voms server
 			// and ask about all it knows about the user
@@ -57,7 +57,7 @@ public class GroupManagement {
 			}
 
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			// e1.printStackTrace();
 			myLogger.error(e1);
 			// e1.printStackTrace();
 			status = VOManagement.NO_MEMBER;
