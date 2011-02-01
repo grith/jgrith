@@ -1,8 +1,15 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grisu.jcommons.commonInterfaces.HttpProxyInfoHolder;
+import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
+import grisu.jcommons.commonInterfaces.ProxyCreatorPanel;
+import grisu.jcommons.interfaces.IdpListener;
+import grisu.jcommons.interfaces.SlcsListener;
 import grith.gsindl.SLCS;
 import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.sibboleth.ShibListener;
+import grith.sibboleth.ShibLoginPanel;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
@@ -20,13 +27,6 @@ import javax.swing.JPanel;
 import org.ietf.jgss.GSSCredential;
 import org.python.core.PyInstance;
 
-import au.org.arcs.auth.shibboleth.ShibListener;
-import au.org.arcs.auth.shibboleth.ShibLoginPanel;
-import au.org.arcs.commonInterfaces.HttpProxyInfoHolder;
-import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
-import au.org.arcs.commonInterfaces.ProxyCreatorPanel;
-import au.org.arcs.jcommons.interfaces.IdpListener;
-import au.org.arcs.jcommons.interfaces.SlcsListener;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;

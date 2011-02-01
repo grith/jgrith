@@ -1,5 +1,6 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
 import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.view.swing.Utils;
@@ -21,7 +22,6 @@ import javax.swing.JPasswordField;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
 
-import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;

@@ -1,5 +1,8 @@
 package grith.jgrith;
 
+import grisu.jcommons.constants.GridEnvironment;
+import grisu.jcommons.utils.HttpProxyManager;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -9,8 +12,6 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyServerAuthorization;
 import org.ietf.jgss.GSSContext;
 
-import au.org.arcs.jcommons.constants.ArcsEnvironment;
-import au.org.arcs.jcommons.utils.HttpProxyManager;
 
 public class Environment {
 
@@ -25,8 +26,8 @@ public class Environment {
 
 		if (myproxy == null) {
 
-			int port = ArcsEnvironment.getDefaultMyProxyPort();
-			String server = ArcsEnvironment.getDefaultMyProxyServer();
+			int port = GridEnvironment.getDefaultMyProxyPort();
+			String server = GridEnvironment.getDefaultMyProxyServer();
 			myLogger.debug("Creating default MyProxy object: " + server + " / "
 					+ port);
 

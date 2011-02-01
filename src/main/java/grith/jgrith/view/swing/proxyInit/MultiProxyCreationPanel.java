@@ -1,5 +1,7 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
@@ -8,7 +10,6 @@ import javax.swing.SwingConstants;
 
 import org.globus.gsi.GlobusCredential;
 
-import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
 
 public class MultiProxyCreationPanel extends JPanel implements
 		ProxyCreatorHolder {

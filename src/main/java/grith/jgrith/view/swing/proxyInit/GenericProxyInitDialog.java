@@ -1,5 +1,7 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grith.sibboleth.Shibboleth;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
@@ -9,7 +11,6 @@ import javax.swing.JDialog;
 
 import org.globus.common.CoGProperties;
 
-import au.org.arcs.auth.shibboleth.Shibboleth;
 
 public class GenericProxyInitDialog extends JDialog {
 

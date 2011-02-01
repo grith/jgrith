@@ -1,5 +1,7 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
+import grisu.jcommons.commonInterfaces.ProxyDestructorHolder;
 import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.myProxy.MyProxy_light;
@@ -21,8 +23,6 @@ import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxyException;
 
-import au.org.arcs.commonInterfaces.ProxyCreatorHolder;
-import au.org.arcs.commonInterfaces.ProxyDestructorHolder;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
