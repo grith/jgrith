@@ -177,7 +177,7 @@
 							<descriptors>
 								<descriptor>simpleProxyLib.assembly.xml</descriptor>
 							</descriptors>
-							<finalName>proxy</finalName>
+							<finalName>simple-proxy</finalName>
 							<archive>
 
 								<index>true</index>

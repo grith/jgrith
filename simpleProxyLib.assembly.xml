@@ -1,5 +1,5 @@
 <assembly>
-	<id>tool</id>
+	<id>lib</id>
 	<formats>
 <!--				<format>dir</format>-->
 		<!--		<format>zip</format>-->
