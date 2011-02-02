@@ -24,7 +24,7 @@ import com.jgoodies.forms.layout.RowSpec;
 public class VomsProxyInit {
 
 	/**
-	 * Launch the GUI application
+	 * Launch the app
 	 * 
 	 * @param args
 	 */
