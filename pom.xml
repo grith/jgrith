@@ -23,9 +23,7 @@
 		<scm>
 		<connection>scm:git:git://github.com/grith/jgrith.git
 		</connection>
-		<developerConnection>scm:git:git@github.com:grith/jgrith.git
-		</developerConnection>
-		<url>https://github.com/grith/jgrith
+		<url>scm:git:git@github.com:grith/jgrith.git
 		</url>
 	</scm>
 
