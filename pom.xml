@@ -161,26 +161,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>grisu</groupId>
-			<artifactId>grid-jcommons</artifactId>
-			<version>1.2.3-SNAPSHOT</version>
-			<scope>compile</scope>
-			<type>jar</type>
-                        <exclusions>
-                                <exclusion>
-                                        <artifactId>commons-digester</artifactId>
-                                        <groupId>commons-digester</groupId>
-                                </exclusion>
-                                <exclusion>
-                                	<artifactId>commons-beanutils-core</artifactId>
-                                	<groupId>commons-beanutils</groupId>
-                                </exclusion>
-                        </exclusions>
-		</dependency>
-		<dependency>
 			<groupId>grith</groupId>
 			<artifactId>gsindl</artifactId>
-			<version>1.3.1-SNAPSHOT</version>
+			<version>1.3.1</version>
 		</dependency>
 	</dependencies>
 
