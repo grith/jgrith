@@ -17,17 +17,16 @@ import org.apache.log4j.Logger;
 public class VomsesFiles {
 
 	static final Logger myLogger = Logger
-			.getLogger(VomsesFiles.class.getName());
+	.getLogger(VomsesFiles.class.getName());
 
-	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "ARCS",
-			"ACC" };
+	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "nz" };
 
 	public static final File AVAILABLE_VOMSES_DIR = new File(
 			System.getProperty("user.home"), ".glite" + File.separator
-					+ "vomses_available");
+			+ "vomses_available");
 	public static final File USER_VOMSES_DIR = new File(
 			System.getProperty("user.home"), ".glite" + File.separator
-					+ "vomses");
+			+ "vomses");
 	public static final File GLOBAL_VOMSES_DIR = new File("/etc/vomses");
 
 	public static void copyFile(File in, File out) throws IOException {
@@ -104,8 +103,7 @@ public class VomsesFiles {
 			for (String vomsFile : VOMSES_TO_ACTIVATE) {
 				File source = new File(AVAILABLE_VOMSES_DIR, vomsFile);
 				File target = new File(USER_VOMSES_DIR, vomsFile);
-				if (target.exists() || "ARCS".equals(source.getName())
-						|| "ACC".equals(source.getName())) {
+				if (target.exists() || "nz".equals(source.getName())) {
 					copyFile(source, target);
 				} else {
 					myLogger.error("Could not activate VO: " + vomsFile
@@ -133,8 +131,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-								+ USER_VOMSES_DIR.toString()
-								+ " to be created.");
+						+ USER_VOMSES_DIR.toString()
+						+ " to be created.");
 			}
 		}
 
@@ -143,8 +141,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create available_vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-								+ AVAILABLE_VOMSES_DIR.toString()
-								+ " to be created.");
+						+ AVAILABLE_VOMSES_DIR.toString()
+						+ " to be created.");
 			}
 		}
 	}

@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>jgrith</artifactId>
 	<groupId>grith</groupId>
@@ -41,7 +40,7 @@
 		</repository>
 	</repositories>
 
-	<scm>
+		<scm>
 		<connection>scm:git:git://github.com/grith/jgrith.git
 		</connection>
 		<developerConnection>scm:git:git@github.com:grith/jgrith.git</developerConnection>
@@ -77,7 +76,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.15</version>
+			<version>1.2.14</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jms</artifactId>
@@ -167,11 +166,11 @@
 			<version>1.7.0</version>
 		</dependency>
 
-		<!-- <dependency> -->
-		<!-- <groupId>urbanophile</groupId> -->
-		<!-- <artifactId>java-getopt</artifactId> -->
-		<!-- <version>1.0.9</version> -->
-		<!-- </dependency> -->
+<!--		<dependency>-->
+<!--			<groupId>urbanophile</groupId>-->
+<!--			<artifactId>java-getopt</artifactId>-->
+<!--			<version>1.0.9</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>com.jgoodies</groupId>
@@ -231,7 +230,7 @@
 
 		</plugins>
 	</build>
-
+	
 	<profiles>
 		<profile>
 			<id>sign</id>
