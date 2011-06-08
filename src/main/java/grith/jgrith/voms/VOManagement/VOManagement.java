@@ -9,12 +9,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredentialException;
@@ -44,7 +49,7 @@ public class VOManagement {
 
 	public final static File USER_VOMSES = new File(
 			System.getProperty("user.home") + File.separator + ".glite"
-					+ File.separator + "vomses");
+			+ File.separator + "vomses");
 
 	public final static File GLOBAL_VOMSES = new File("/etc/vomses");
 
@@ -75,28 +80,54 @@ public class VOManagement {
 	 *            whether to return the full fqan (true) or not (false)
 	 * @return the fqan
 	 */
-	public static Map<String, String> getAllFqans(GSSCredential cred,
-			boolean returnWholeFqan) {
+	public static Map<String, String> getAllFqans(final GSSCredential cred,
+			final boolean returnWholeFqan) {
 
-		Map<String, String> allFqans = new TreeMap<String, String>();
-		for (VO vo : getAllVOs()) {
-			String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo,
-					cred);
-			// check whether user is in a vo at all
-			if (allFqansFromThisVO != null) {
-				for (String fqan : allFqansFromThisVO) {
-					if (!returnWholeFqan) {
-						// if ( "NULL".equals(GroupManagement.getRolePart(fqan))
-						// ) {
-						if (fqan.indexOf("/Role=") >= 0) {
-							fqan = fqan.substring(0, fqan.indexOf("/Role="));
+		final ExecutorService executor = Executors
+		.newFixedThreadPool(getAllVOs().size());
+
+		final Map<String, String> allFqans = Collections
+		.synchronizedMap(new TreeMap<String, String>());
+		for (final VO vo : getAllVOs()) {
+
+			Thread t = new Thread() {
+				@Override
+				public void run() {
+					myLogger.debug("Getting all fqans for: " + vo.getVoName()
+							+ "...");
+					Date start = new Date();
+					String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo,
+							cred);
+					// check whether user is in a vo at all
+					if (allFqansFromThisVO != null) {
+						for (String fqan : allFqansFromThisVO) {
+							if (!returnWholeFqan) {
+								// if ( "NULL".equals(GroupManagement.getRolePart(fqan))
+								// ) {
+								if (fqan.indexOf("/Role=") >= 0) {
+									fqan = fqan.substring(0, fqan.indexOf("/Role="));
+								}
+								// }
+							}
+							allFqans.put(fqan, vo.getVoName());
 						}
-						// }
 					}
-					allFqans.put(fqan, vo.getVoName());
+					Date end = new Date();
+					myLogger.debug("Getting all fqans for: " + vo.getVoName()
+							+ " took: " + (end.getTime() - start.getTime())
+							+ " ms.");
 				}
-			}
+			};
+			executor.execute(t);
 		}
+
+		executor.shutdown();
+		try {
+			executor.awaitTermination(30, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			myLogger.error(e);
+		}
+
 		return allFqans;
 	}
 
