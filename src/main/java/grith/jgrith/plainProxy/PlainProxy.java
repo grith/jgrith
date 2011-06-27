@@ -60,10 +60,32 @@ public class PlainProxy {
 
 		CoGProperties props = CoGProperties.getDefault();
 
-		X509Certificate userCert = CertUtil.loadCertificate(props
-				.getUserCertFile());
+		return init(props.getUserCertFile(), props.getUserKeyFile(),
+				passphrase, lifetime_in_hours);
 
-		OpenSSLKey key = new BouncyCastleOpenSSLKey(props.getUserKeyFile());
+	}
+
+	/**
+	 * Creates a {@link GSSCredential}
+	 * 
+	 * @param certFile
+	 *            the certificate file path
+	 * @param keyFile
+	 *            the key file path
+	 * @param passphrase
+	 *            the passphrase of your private key
+	 * @param lifetime_in_hours
+	 *            the lifetime of the proxy
+	 * @return the proxy
+	 * @throws Exception
+	 *             if something has gone wrong
+	 */
+	public static GSSCredential init(String certFile, String keyFile,
+			char[] passphrase, int lifetime_in_hours) throws Exception {
+
+		X509Certificate userCert = CertUtil.loadCertificate(certFile);
+
+		OpenSSLKey key = new BouncyCastleOpenSSLKey(keyFile);
 
 		if (key.isEncrypted()) {
 			try {
@@ -81,7 +103,7 @@ public class PlainProxy {
 
 	public static GSSCredential init(X509Certificate userCert,
 			PrivateKey userKey, int lifetime_in_hours)
-			throws GeneralSecurityException {
+					throws GeneralSecurityException {
 
 		CoGProperties props = CoGProperties.getDefault();
 
@@ -108,7 +130,7 @@ public class PlainProxy {
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
 				// .getProxyStrength(), props.getProxyLifeTime() * 3600
-						.getProxyStrength(), 3600 * lifetime_in_hours,
+				.getProxyStrength(), 3600 * lifetime_in_hours,
 				proxyType, extSet);
 
 		return CredentialHelpers.wrapGlobusCredential(proxy);
