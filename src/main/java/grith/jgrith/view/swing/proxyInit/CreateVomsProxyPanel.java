@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 
-
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -38,7 +37,7 @@ public class CreateVomsProxyPanel extends JPanel {
 	private JComboBox comboBox;
 	private JLabel label;
 
-	private DefaultComboBoxModel voModel = new DefaultComboBoxModel();
+	private final DefaultComboBoxModel voModel = new DefaultComboBoxModel();
 
 	Map<String, String> allFqans = null;
 
@@ -77,6 +76,7 @@ public class CreateVomsProxyPanel extends JPanel {
 	private void createVomsProxy() {
 
 		new Thread() {
+			@Override
 			public void run() {
 				try {
 
@@ -98,14 +98,14 @@ public class CreateVomsProxyPanel extends JPanel {
 					denyComboboxUpdate = false;
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					myLogger.error(e);
 					CreateVomsProxyPanel.this.setCursor(Cursor
 							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					JOptionPane
-							.showMessageDialog(
-									CreateVomsProxyPanel.this,
-									"<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
-									"Voms error", JOptionPane.ERROR_MESSAGE);
+					.showMessageDialog(
+							CreateVomsProxyPanel.this,
+							"<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
+							"Voms error", JOptionPane.ERROR_MESSAGE);
 					enablePanel(true);
 					return;
 				} finally {
@@ -130,11 +130,12 @@ public class CreateVomsProxyPanel extends JPanel {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		} else {
 
-			if (fillThread != null && fillThread.isAlive()) {
+			if ((fillThread != null) && fillThread.isAlive()) {
 				// I know, I know, shouldn't do that...
 				fillThread.stop();
 			}
 			fillThread = new Thread() {
+				@Override
 				public void run() {
 
 					getComboBox().setEnabled(false);
@@ -266,7 +267,7 @@ public class CreateVomsProxyPanel extends JPanel {
 		if (proxy != null) {
 			enablePanel(true);
 		} else {
-			if (fillThread != null && fillThread.isAlive()) {
+			if ((fillThread != null) && fillThread.isAlive()) {
 				// I'm being a bad boy again...
 				fillThread.stop();
 			}

@@ -52,11 +52,9 @@ public class LocalVomsProxy {
 		try {
 			LocalVomsProxy.vomsProxyInit("/APACGrid/NGAdmin", passphrase, 12);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e);
 		}
 
 	}

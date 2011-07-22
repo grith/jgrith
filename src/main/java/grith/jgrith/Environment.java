@@ -1,7 +1,6 @@
 package grith.jgrith;
 
 import grisu.jcommons.constants.GridEnvironment;
-import grisu.jcommons.utils.HttpProxyManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,7 +14,8 @@ import org.ietf.jgss.GSSContext;
 
 public class Environment {
 
-	static final Logger myLogger = Logger.getLogger(HttpProxyManager.class
+	static final Logger myLogger = Logger
+			.getLogger(Environment.class
 			.getName());
 
 	private static MyProxy myproxy = null;
@@ -34,7 +34,7 @@ public class Environment {
 			try {
 				server = InetAddress.getByName(server).getHostAddress();
 			} catch (final UnknownHostException e1) {
-				e1.printStackTrace();
+				myLogger.error(e1);
 			}
 
 			myproxy = new MyProxy(server, port);

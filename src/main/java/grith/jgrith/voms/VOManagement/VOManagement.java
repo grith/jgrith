@@ -49,7 +49,7 @@ public class VOManagement {
 
 	public final static File USER_VOMSES = new File(
 			System.getProperty("user.home") + File.separator + ".glite"
-			+ File.separator + "vomses");
+					+ File.separator + "vomses");
 
 	public final static File GLOBAL_VOMSES = new File("/etc/vomses");
 
@@ -84,10 +84,10 @@ public class VOManagement {
 			final boolean returnWholeFqan) {
 
 		final ExecutorService executor = Executors
-		.newFixedThreadPool(getAllVOs().size());
+				.newFixedThreadPool(getAllVOs().size());
 
 		final Map<String, String> allFqans = Collections
-		.synchronizedMap(new TreeMap<String, String>());
+				.synchronizedMap(new TreeMap<String, String>());
 		for (final VO vo : getAllVOs()) {
 
 			Thread t = new Thread() {
@@ -241,8 +241,7 @@ public class VOManagement {
 			cred = CredentialHelpers.wrapGlobusCredential(LocalProxy
 					.loadGlobusCredential());
 		} catch (GlobusCredentialException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e);
 		}
 
 		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);
