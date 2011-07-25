@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 
+import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 
