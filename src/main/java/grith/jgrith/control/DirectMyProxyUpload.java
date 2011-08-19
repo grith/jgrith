@@ -80,6 +80,16 @@ public class DirectMyProxyUpload {
 			char[] myProxyPassphrase, String proxyname, String renewer,
 			String retriever, String description, int lifetime_in_seconds) {
 
+		return init(privateKeyPassphrase, myProxyServer, myProxyPort,
+				myProxyUsername, myProxyPassphrase, proxyname, renewer,
+				retriever, description, lifetime_in_seconds, true);
+	}
+
+	public static Map<String, char[]> init(char[] privateKeyPassphrase,
+			String myProxyServer, int myProxyPort, String myProxyUsername,
+			char[] myProxyPassphrase, String proxyname, String renewer,
+			String retriever, String description, int lifetime_in_seconds, boolean createUniqueMyProxy) {
+
 		GSSCredential proxy = null;
 
 		if (privateKeyPassphrase == null) {
@@ -110,7 +120,7 @@ public class DirectMyProxyUpload {
 
 		return init(proxy, myProxyServer, myProxyPort, myProxyUsername,
 				myProxyPassphrase, proxyname, renewer, retriever, description,
-				lifetime_in_seconds);
+				lifetime_in_seconds, createUniqueMyProxy);
 	}
 
 	public static Map<String, char[]> init(GlobusCredential proxy,
