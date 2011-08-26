@@ -57,12 +57,7 @@ public class PlainProxy {
 	 */
 	public static GSSCredential init(char[] passphrase, int lifetime_in_hours)
 			throws Exception {
-
-		CoGProperties props = CoGProperties.getDefault();
-
-		return init(props.getUserCertFile(), props.getUserKeyFile(),
-				passphrase, lifetime_in_hours);
-
+		return init_lifetimeInSeconds(passphrase, lifetime_in_hours * 3600);
 	}
 
 	/**
@@ -80,8 +75,33 @@ public class PlainProxy {
 	 * @throws Exception
 	 *             if something has gone wrong
 	 */
+
 	public static GSSCredential init(String certFile, String keyFile,
 			char[] passphrase, int lifetime_in_hours) throws Exception {
+		return init_lifetimeInSeconds(certFile, keyFile, passphrase,
+				lifetime_in_hours * 3600);
+	}
+
+	public static GSSCredential init(X509Certificate userCert,
+			PrivateKey userKey, int lifetime_in_hours)
+					throws GeneralSecurityException {
+
+		return init_lifetimeInSeconds(userCert, userKey,
+				lifetime_in_hours * 3600);
+	}
+
+	public static GSSCredential init_lifetimeInSeconds(char[] passphrase,
+			int lifetime_in_seconds)
+			throws Exception {
+
+		CoGProperties props = CoGProperties.getDefault();
+
+		return init_lifetimeInSeconds(props.getUserCertFile(),
+				props.getUserKeyFile(), passphrase, lifetime_in_seconds);
+
+	}
+	public static GSSCredential init_lifetimeInSeconds(String certFile, String keyFile,
+			char[] passphrase, int lifetime_in_seconds) throws Exception {
 
 		X509Certificate userCert = CertUtil.loadCertificate(certFile);
 
@@ -97,13 +117,13 @@ public class PlainProxy {
 
 		PrivateKey userKey = key.getPrivateKey();
 
-		return init(userCert, userKey, lifetime_in_hours);
+		return init_lifetimeInSeconds(userCert, userKey, lifetime_in_seconds);
 
 	}
 
-	public static GSSCredential init(X509Certificate userCert,
-			PrivateKey userKey, int lifetime_in_hours)
-					throws GeneralSecurityException {
+	public static GSSCredential init_lifetimeInSeconds(
+			X509Certificate userCert, PrivateKey userKey,
+			int lifetime_in_seconds) throws GeneralSecurityException {
 
 		CoGProperties props = CoGProperties.getDefault();
 
@@ -130,7 +150,7 @@ public class PlainProxy {
 		GlobusCredential proxy = factory.createCredential(
 				new X509Certificate[] { userCert }, userKey, props
 				// .getProxyStrength(), props.getProxyLifeTime() * 3600
-				.getProxyStrength(), 3600 * lifetime_in_hours,
+				.getProxyStrength(), lifetime_in_seconds,
 				proxyType, extSet);
 
 		return CredentialHelpers.wrapGlobusCredential(proxy);

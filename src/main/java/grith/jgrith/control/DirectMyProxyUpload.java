@@ -108,8 +108,8 @@ public class DirectMyProxyUpload {
 
 			// create proxy from certificate / private key
 			try {
-				proxy = PlainProxy.init(privateKeyPassphrase,
-						(lifetime_in_seconds / 3600) + 1);
+				proxy = PlainProxy.init_lifetimeInSeconds(privateKeyPassphrase,
+						lifetime_in_seconds);
 			} catch (Exception e1) {
 				throw new RuntimeException(
 						"Could not create proxy from local certificate & private key: "
