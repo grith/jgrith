@@ -39,7 +39,7 @@ public class CreateVomsProxyPanel extends JPanel {
 
 	private final DefaultComboBoxModel voModel = new DefaultComboBoxModel();
 
-	Map<String, String> allFqans = null;
+	Map<String, VO> allFqans = null;
 
 	Thread fillThread = null;
 
@@ -85,7 +85,7 @@ public class CreateVomsProxyPanel extends JPanel {
 							.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					String fqan = (String) voModel.getSelectedItem();
 
-					VO vo = VOManagement.getVO(getAllFqans().get(fqan));
+					VO vo = getAllFqans().get(fqan);
 					long lifetime;
 					lifetime = CredentialHelpers.wrapGlobusCredential(proxy)
 							.getRemainingLifetime() * 1000;
@@ -187,7 +187,7 @@ public class CreateVomsProxyPanel extends JPanel {
 
 		//
 		// voModel.addElement(NON_VOMS_PROXY_NAME);
-		Map<String, String> tempAllFqans = getAllFqans();
+		Map<String, VO> tempAllFqans = getAllFqans();
 
 		if (tempAllFqans == null) {
 			throw new VomsException("Can't get list of fqans...");
@@ -203,7 +203,7 @@ public class CreateVomsProxyPanel extends JPanel {
 		}
 	}
 
-	private Map<String, String> getAllFqans() {
+	private Map<String, VO> getAllFqans() {
 
 		try {
 			proxy.verify();

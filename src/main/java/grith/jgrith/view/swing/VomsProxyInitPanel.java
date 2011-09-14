@@ -49,18 +49,18 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 	private JLabel label;
 
 	public static final Integer[] DEFAULT_LIFETIMES = new Integer[] { 1, 2, 3,
-			7, 14, 21 };
+		7, 14, 21 };
 	public static final String DEFAULT_TITLE = "Update";
 
-	private DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
+	private final DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
 			DEFAULT_LIFETIMES);
-	private DefaultComboBoxModel voModel = new DefaultComboBoxModel();
+	private final DefaultComboBoxModel voModel = new DefaultComboBoxModel();
 
 	private GlobusCredential credential = null;
 	private VomsProxy currentVomsProxy = null;
 	// Map<VO, Set<String>> info = null;
 
-	Map<String, String> allFqans = null;
+	Map<String, VO> allFqans = null;
 
 	boolean ignoreErrors = true;
 
@@ -98,8 +98,9 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
@@ -126,7 +127,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -156,6 +157,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
+						@Override
 						public void run() {
 							try {
 								VomsProxyInitPanel.this.setCursor(Cursor
@@ -255,6 +257,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
+						@Override
 						public void run() {
 							try {
 								VomsProxyInitPanel.this.setCursor(Cursor
@@ -271,7 +274,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 								//
 								// } else {
 
-								VO vo = VOManagement.getVO(allFqans.get(fqan));
+								VO vo = allFqans.get(fqan);
 								long lifetime;
 
 								lifetime = CredentialHelpers
@@ -376,8 +379,9 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
 	public void setLifetimes(Integer[] values) {
 		lifetimeModel.removeAllElements();
-		for (Integer value : values)
+		for (Integer value : values) {
 			lifetimeModel.addElement(value);
+		}
 
 	}
 

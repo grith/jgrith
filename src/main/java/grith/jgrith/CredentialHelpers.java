@@ -78,6 +78,11 @@ public class CredentialHelpers {
 		return new GlobusCredential(proxyFile.toString());
 	}
 
+	public static GSSCredential loadGssCredential(File proxyFile)
+			throws GlobusCredentialException {
+		return wrapGlobusCredential(loadGlobusCredential(proxyFile));
+	}
+
 	/**
 	 * Returns the wrapped {@link GlobusCredential} of a {@link GSSCredential}
 	 * object
@@ -188,7 +193,7 @@ public class CredentialHelpers {
 	 *             if something's wonky with the file / file permission
 	 */
 	public static void writeToDisk(GSSCredential gssCred) throws IOException,
-			GSSException {
+	GSSException {
 		writeToDisk(gssCred, new File(LocalProxy.PROXY_FILE));
 	}
 

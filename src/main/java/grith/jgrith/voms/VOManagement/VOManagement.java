@@ -66,7 +66,7 @@ public class VOManagement {
 	 *            the credential
 	 * @return the (short) fqan
 	 */
-	public static Map<String, String> getAllFqans(GSSCredential cred) {
+	public static Map<String, VO> getAllFqans(GSSCredential cred) {
 		return getAllFqans(cred, false);
 	}
 
@@ -80,14 +80,14 @@ public class VOManagement {
 	 *            whether to return the full fqan (true) or not (false)
 	 * @return the fqan
 	 */
-	public static Map<String, String> getAllFqans(final GSSCredential cred,
+	public static Map<String, VO> getAllFqans(final GSSCredential cred,
 			final boolean returnWholeFqan) {
 
 		final ExecutorService executor = Executors
 				.newFixedThreadPool(getAllVOs().size());
 
-		final Map<String, String> allFqans = Collections
-				.synchronizedMap(new TreeMap<String, String>());
+		final Map<String, VO> allFqans = Collections
+				.synchronizedMap(new TreeMap<String, VO>());
 		for (final VO vo : getAllVOs()) {
 
 			Thread t = new Thread() {
@@ -109,7 +109,7 @@ public class VOManagement {
 								}
 								// }
 							}
-							allFqans.put(fqan, vo.getVoName());
+							allFqans.put(fqan, vo);
 						}
 					}
 					Date end = new Date();
