@@ -33,7 +33,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class MyProxyUpAndDownloadPanel extends JPanel implements
-		ProxyInitListener {
+ProxyInitListener {
 
 	private JPasswordField passwordField;
 	private JTextField textField;
@@ -170,8 +170,8 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								MyProxyUpAndDownloadPanel.this,
 								"Could not download proxy:\n\n"
 										+ e1.getLocalizedMessage(),
-								"Proxy download error",
-								JOptionPane.ERROR_MESSAGE);
+										"Proxy download error",
+										JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 
@@ -258,11 +258,11 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								null, "*", "*", null, -1);
 					} catch (MyProxyException e3) {
 						JOptionPane
-								.showMessageDialog(
-										MyProxyUpAndDownloadPanel.this,
-										"Error preparing myproxy parameters: "
-												+ e3.getLocalizedMessage()
-												+ "\n\n. Please contact your administrator.",
+						.showMessageDialog(
+								MyProxyUpAndDownloadPanel.this,
+								"Error preparing myproxy parameters: "
+										+ e3.getLocalizedMessage()
+										+ "\n\n. Please contact your administrator.",
 										"MyProxy error",
 										JOptionPane.ERROR_MESSAGE);
 					}
@@ -289,7 +289,8 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					params.setLifetime((int) currentCredential.getTimeLeft());
 					try {
-						MyProxy_light.init(getMyproxy(), currentCredential,
+						MyProxy_light.init(getMyproxy(), CredentialHelpers
+								.wrapGlobusCredential(currentCredential),
 								params, passphrase);
 						getPasswordField().setText("");
 					} catch (Exception e1) {
@@ -297,7 +298,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								MyProxyUpAndDownloadPanel.this,
 								"Could not upload proxy: "
 										+ e1.getLocalizedMessage(),
-								"Upload error", JOptionPane.ERROR_MESSAGE);
+										"Upload error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 

@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
+import org.globus.gsi.X509Credential;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.util.Util;
 import org.gridforum.jgss.ExtendedGSSCredential;
@@ -78,10 +79,10 @@ public class CredentialHelpers {
 		return new GlobusCredential(proxyFile.toString());
 	}
 
-	public static GSSCredential loadGssCredential(File proxyFile)
-			throws GlobusCredentialException {
-		return wrapGlobusCredential(loadGlobusCredential(proxyFile));
-	}
+	// public static GSSCredential loadGssCredential(File proxyFile)
+	// throws GlobusCredentialException {
+	// return wrapGlobusCredential(loadGlobusCredential(proxyFile));
+	// }
 
 	/**
 	 * Returns the wrapped {@link GlobusCredential} of a {@link GSSCredential}
@@ -96,11 +97,11 @@ public class CredentialHelpers {
 	 */
 	public static GlobusCredential unwrapGlobusCredential(GSSCredential gss) {
 
-		GlobusCredential globusCred = null;
+		X509Credential globusCred = null;
 		if (gss instanceof GlobusGSSCredentialImpl) {
-			globusCred = ((GlobusGSSCredentialImpl) gss).getGlobusCredential();
+			globusCred = ((GlobusGSSCredentialImpl) gss).getX509Credential();
 		}
-		return globusCred;
+		return new GlobusCredential(globusCred);
 	}
 
 	/**
@@ -117,7 +118,7 @@ public class CredentialHelpers {
 		GSSCredential gss;
 
 		try {
-			gss = new GlobusGSSCredentialImpl(globusCred,
+			gss = new GlobusGSSCredentialImpl(globusCred.getX509Credential(),
 					GSSCredential.INITIATE_AND_ACCEPT);
 		} catch (GSSException e) {
 			myLogger.error("Could not wrap GlobusCredential: " + e.getMessage());

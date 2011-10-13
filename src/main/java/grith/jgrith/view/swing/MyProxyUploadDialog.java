@@ -1,5 +1,6 @@
 package grith.jgrith.view.swing;
 
+import grith.jgrith.CredentialHelpers;
 import grith.jgrith.control.UserProperty;
 import grith.jgrith.myProxy.MyProxy_light;
 
@@ -240,7 +241,8 @@ public class MyProxyUploadDialog extends JDialog {
 
 							params.setLifetime((int) proxy.getTimeLeft());
 							try {
-								MyProxy_light.init(myproxy, proxy, params,
+								MyProxy_light.init(myproxy, CredentialHelpers
+										.wrapGlobusCredential(proxy), params,
 										passphrase);
 							} catch (Exception e1) {
 								setCursor(Cursor
@@ -249,8 +251,8 @@ public class MyProxyUploadDialog extends JDialog {
 										MyProxyUploadDialog.this,
 										"Could not upload proxy: "
 												+ e1.getLocalizedMessage(),
-										"Upload error",
-										JOptionPane.ERROR_MESSAGE);
+												"Upload error",
+												JOptionPane.ERROR_MESSAGE);
 								uploadException = e1;
 								enablePanel(true);
 								return;

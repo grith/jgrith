@@ -18,7 +18,6 @@
 
 package grith.jgrith.myProxy;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 
 import org.apache.commons.lang.StringUtils;
@@ -81,9 +80,9 @@ public class MyProxy_light {
 					passphrase), lifetime_in_seconds);
 		} catch (MyProxyException e) {
 			LocalMyProxy.myLogger
-					.error("Could not get delegated proxy from server \""
-							+ myproxyServer + ":" + myproxyPort + ": "
-							+ e.getMessage());
+			.error("Could not get delegated proxy from server \""
+					+ myproxyServer + ":" + myproxyPort + ": "
+					+ e.getMessage());
 			throw e;
 		}
 		return proxyCredential;
@@ -118,9 +117,9 @@ public class MyProxy_light {
 					lifetime_in_secs);
 		} catch (MyProxyException e) {
 			LocalMyProxy.myLogger
-					.error("Could not get delegated proxy from server \""
-							+ myproxyServer + ":" + myproxyPort + ": "
-							+ e.getMessage());
+			.error("Could not get delegated proxy from server \""
+					+ myproxyServer + ":" + myproxyPort + ": "
+					+ e.getMessage());
 			throw e;
 		}
 		return credential;
@@ -138,52 +137,6 @@ public class MyProxy_light {
 		}
 	}
 
-	/**
-	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
-	 * the specified proxy_paramters. Use the prepareProxyParameters() method to
-	 * actually prepare them.
-	 * 
-	 * @param myproxy
-	 *            the myproxy server to upload the credential to (create with
-	 *            new MyProxy("server", port) - port is usually 7512)
-	 * @param credential
-	 *            the credential you want to delegate to the server (this uses a
-	 *            {@link GlobusCredential}) instead of a {@link GSSCredential}
-	 * @param proxy_parameters
-	 *            the parameters for the credential on the myproxy server. See
-	 *            the prepareProxyParameters() method.
-	 * @param myProxyPassphrase
-	 *            the passphrase for the credentials on the myproxy server.
-	 * @throws GSSException
-	 *             if the credential can't be used (or destroyed after the
-	 *             upload)
-	 * @throws MyProxyException
-	 *             if the delegation process fails
-	 */
-	public static void init(MyProxy myproxy, GlobusCredential credential,
-			InitParams proxy_parameters, char[] myProxyPassphrase)
-			throws GSSException, MyProxyException {
-
-		GSSCredential newCredential = null;
-
-		newCredential = new GlobusGSSCredentialImpl(credential,
-				GSSCredential.INITIATE_AND_ACCEPT);
-		myLogger.debug("Created gss_credentials.");
-
-		// I don't use the InitParams from the method signature for
-		// username/password because it uses a String for the passphrase instead
-		// of char[]
-		proxy_parameters.setPassphrase(new String(myProxyPassphrase));
-		// Arrays.fill(myProxyPassphrase, 'x');
-
-		myproxy.put(newCredential, proxy_parameters);
-		myLogger.debug("Put myproxy credentials on server.");
-
-		// very important to dispose the long-live credential after storage!
-		newCredential.dispose();
-		myLogger.debug("Disposed gss_credentials.");
-
-	}
 
 	/**
 	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
@@ -208,10 +161,20 @@ public class MyProxy_light {
 	 */
 	public static void init(MyProxy myproxy, GSSCredential credential,
 			InitParams proxy_parameters, char[] myProxyPassphrase)
-			throws GSSException, MyProxyException {
+					throws GSSException, MyProxyException {
 
-		init(myproxy, CredentialHelpers.unwrapGlobusCredential(credential),
-				proxy_parameters, myProxyPassphrase);
+		// I don't use the InitParams from the method signature for
+		// username/password because it uses a String for the passphrase instead
+		// of char[]
+		proxy_parameters.setPassphrase(new String(myProxyPassphrase));
+		// Arrays.fill(myProxyPassphrase, 'x');
+
+		myproxy.put(credential, proxy_parameters);
+		myLogger.debug("Put myproxy credentials on server.");
+
+		// very important to dispose the long-live credential after storage!
+		credential.dispose();
+		myLogger.debug("Disposed gss_credentials.");
 	}
 
 	/**
@@ -241,7 +204,7 @@ public class MyProxy_light {
 	public static InitParams prepareProxyParameters(String username,
 			String proxyname, String renewer, String retriever,
 			String description, int lifetime_in_seconds)
-			throws MyProxyException {
+					throws MyProxyException {
 
 		InitParams proxy_parameters = new InitParams();
 

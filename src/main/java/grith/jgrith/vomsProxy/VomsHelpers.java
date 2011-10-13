@@ -49,10 +49,9 @@ public class VomsHelpers {
 		ArrayList<AttributeCertificate> acs = VomsProxyCredential
 				.extractVOMSACs(globusCredential);
 
-		if (acs == null || acs.size() == 0)
+		if ((acs == null) || (acs.size() == 0)) {
 			return null;
-
-		else if (acs.size() > 1) {
+		} else if (acs.size() > 1) {
 			myLogger.warn("More than one AttributeCertificates in the voms proxy. This is not implemented yet. Using the first one.");
 		}
 
