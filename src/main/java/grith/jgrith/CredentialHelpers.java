@@ -162,8 +162,8 @@ public class CredentialHelpers {
 		myLogger.debug("Save proxy file: " + proxyFile);
 		try {
 			out = new FileOutputStream(proxyFile);
-			Util.setFilePermissions(proxyFile.toString(), 600);
 			globusCred.save(out);
+			Util.setFilePermissions(proxyFile.toString(), 600);
 		} catch (FileNotFoundException e) {
 			myLogger.error("Could not write credential to file "
 					+ proxyFile.getAbsolutePath() + ": " + e.getMessage());
@@ -214,10 +214,10 @@ public class CredentialHelpers {
 
 		byte[] data = convertGSSCredentialToByteArray(gssCred);
 		String path = proxyFile.getPath();
-		Util.setFilePermissions(proxyFile.toString(), 600);
 
 		FileOutputStream out = new FileOutputStream(path);
 		out.write(data);
+		Util.setFilePermissions(proxyFile.toString(), 600);
 
 	}
 
