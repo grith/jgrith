@@ -24,7 +24,8 @@ import grith.jgrith.Environment;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
@@ -42,7 +43,7 @@ import org.ietf.jgss.GSSException;
  */
 public class LocalMyProxy {
 
-	static final Logger myLogger = Logger.getLogger(LocalMyProxy.class
+	static final Logger myLogger = LoggerFactory.getLogger(LocalMyProxy.class
 			.getName());
 
 	public static final MyProxy DEFAULT_MYPROXY_SERVER = Environment

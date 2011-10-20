@@ -7,13 +7,14 @@ import grith.jgrith.vomsProxy.VomsProxyCredential;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
 
 public class GroupManagement {
 
-	static final Logger myLogger = Logger.getLogger(GroupManagement.class
+	static final Logger myLogger = LoggerFactory.getLogger(GroupManagement.class
 			.getName());
 
 	/**

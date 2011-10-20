@@ -24,8 +24,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -42,8 +43,8 @@ ProxyInitListener {
 	private JPanel shibbolethPanel;
 	private JTabbedPane tabbedPane_1;
 	private JPanel panel;
-	static final Logger myLogger = Logger
-			.getLogger(X509AndShibVomsProxyInitPanel.class.getName());
+	static final Logger myLogger = LoggerFactory
+			.getLogger(X509AndShibVomsProxyInitPanel.class);
 
 	public static final String NON_VOMS_PROXY_NAME = "None";
 

@@ -14,7 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -30,7 +31,7 @@ import com.jgoodies.forms.layout.RowSpec;
 public class MyProxyUpAndDownloadPanelWithDialogs extends JPanel implements
 		ProxyInitListener {
 
-	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
+	static final Logger myLogger = LoggerFactory.getLogger(MyProxy_light.class
 			.getName());
 
 	private JButton uploadButton;

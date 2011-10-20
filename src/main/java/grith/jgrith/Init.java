@@ -4,12 +4,13 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Security;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class Init {
 
-	static final Logger myLogger = Logger.getLogger(Init.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(Init.class.getName());
 
 	public static int initBouncyCastle() {
 

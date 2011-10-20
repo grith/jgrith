@@ -16,9 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.MyProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -33,8 +34,8 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 	private JPanel panel;
 	private CreateVomsProxyPanel createVomsProxyPanel;
 	private VomsProxyInfoPanel vomsProxyInfoPanel;
-	private static final Logger myLogger = Logger
-			.getLogger(GenericProxyCreationPanel.class.getName());
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(GenericProxyCreationPanel.class);
 
 	private MyProxyProxyCreatorPanel myProxyProxyCreatorPanel;
 	private LocalX509CertProxyCreatorPanel localX509CertProxyCreatorPanel;
@@ -220,7 +221,7 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 
 			} catch (Exception e) {
 				myLogger.error("Can't create shibProxyPanel: "
-								+ e.getLocalizedMessage(), e);
+						+ e.getLocalizedMessage(), e);
 				throw new RuntimeException(
 						"Can't create shibboleth authentication panel.", e);
 			}

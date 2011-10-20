@@ -4,14 +4,15 @@ import java.util.Enumeration;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CredentialStatusTimerTask extends TimerTask {
 
-	static final Logger myLogger = Logger
-			.getLogger(CredentialStatusTimerTask.class.getName());
+	static final Logger myLogger = LoggerFactory
+			.getLogger(CredentialStatusTimerTask.class);
 
 	private GlobusCredential proxy = null;
 
@@ -51,7 +52,7 @@ public class CredentialStatusTimerTask extends TimerTask {
 				try {
 					l.credentialStatusChanged(event);
 				} catch (Exception e1) {
-					myLogger.error(e1);
+					myLogger.error(e1.getLocalizedMessage());
 				}
 			}
 		}

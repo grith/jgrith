@@ -28,7 +28,8 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the properties file which is located in the .globus
@@ -45,7 +46,7 @@ public class UserProperty {
 	// let's use the same properties file as grix
 	public static final String PROPERTIES_FILE_NAME = "grix.properties";
 
-	static final Logger myLogger = Logger.getLogger(UserProperty.class
+	static final Logger myLogger = LoggerFactory.getLogger(UserProperty.class
 			.getName());
 
 	private static final File prop_file = new File(

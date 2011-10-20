@@ -26,7 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
@@ -38,7 +39,7 @@ import org.ietf.jgss.GSSException;
 
 public class CredentialHelpers {
 
-	static final Logger myLogger = Logger.getLogger(CredentialHelpers.class
+	static final Logger myLogger = LoggerFactory.getLogger(CredentialHelpers.class
 			.getName());
 
 	public static GSSCredential convertByteArrayToGSSCredential(byte[] data)

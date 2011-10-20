@@ -22,7 +22,8 @@ import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.myproxy.InitParams;
@@ -40,7 +41,7 @@ import org.ietf.jgss.GSSException;
  */
 public class MyProxy_light {
 
-	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
+	static final Logger myLogger = LoggerFactory.getLogger(MyProxy_light.class
 			.getName());
 
 	/**

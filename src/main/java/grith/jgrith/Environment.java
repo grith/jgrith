@@ -5,17 +5,17 @@ import grisu.jcommons.constants.GridEnvironment;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.gssapi.auth.AuthorizationException;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyServerAuthorization;
 import org.ietf.jgss.GSSContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Environment {
 
-	static final Logger myLogger = Logger
-			.getLogger(Environment.class
+	static final Logger myLogger = LoggerFactory.getLogger(Environment.class
 			.getName());
 
 	private static MyProxy myproxy = null;
@@ -34,7 +34,7 @@ public class Environment {
 			try {
 				server = InetAddress.getByName(server).getHostAddress();
 			} catch (final UnknownHostException e1) {
-				myLogger.error(e1);
+				myLogger.error(e1.getLocalizedMessage());
 			}
 
 			myproxy = new MyProxy(server, port);

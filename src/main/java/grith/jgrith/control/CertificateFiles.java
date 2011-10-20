@@ -11,12 +11,13 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 
 public class CertificateFiles {
 
-	static final Logger myLogger = Logger.getLogger(Init.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(Init.class.getName());
 
 	public static final File SYSTEM_CA_CERT_DIR = new File(
 			"/etc/grid-security/certificates");

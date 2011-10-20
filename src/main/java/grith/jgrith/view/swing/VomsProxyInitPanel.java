@@ -23,7 +23,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 
 import com.jgoodies.forms.factories.FormFactory;
@@ -34,7 +35,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
-	static final Logger myLogger = Logger.getLogger(VomsProxyInitPanel.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxyInitPanel.class
 			.getName());
 
 	public static final String NON_VOMS_PROXY_NAME = "None";

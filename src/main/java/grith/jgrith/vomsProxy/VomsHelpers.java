@@ -32,16 +32,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x509.AttributeCertificate;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsHelpers {
 
-	static final Logger myLogger = Logger
-			.getLogger(VomsHelpers.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(VomsHelpers.class);
 
 	public static AttributeCertificate extractFirstAC(
 			GlobusCredential globusCredential) {
@@ -49,10 +49,9 @@ public class VomsHelpers {
 		ArrayList<AttributeCertificate> acs = VomsProxyCredential
 				.extractVOMSACs(globusCredential);
 
-		if (acs == null || acs.size() == 0)
+		if ((acs == null) || (acs.size() == 0)) {
 			return null;
-
-		else if (acs.size() > 1) {
+		} else if (acs.size() > 1) {
 			myLogger.warn("More than one AttributeCertificates in the voms proxy. This is not implemented yet. Using the first one.");
 		}
 
@@ -86,7 +85,7 @@ public class VomsHelpers {
 			tempVomsProxyCredential.destroy();
 			return groups;
 		} catch (Exception e1) {
-			myLogger.error(e1);
+			myLogger.error(e1.getLocalizedMessage(), e1);
 			throw new VomsException("Could not get VO groups for VO: "
 					+ vo.getVoName() + " with this credential.");
 		}
@@ -110,7 +109,7 @@ public class VomsHelpers {
 	 */
 	public static Map<VO, Set<String>> getAllVosAndVoGroups(
 			GSSCredential credential, boolean ignoreErrors)
-			throws VomsException {
+					throws VomsException {
 
 		Map<VO, Set<String>> result = new TreeMap<VO, Set<String>>();
 
@@ -159,7 +158,7 @@ public class VomsHelpers {
 			vomsProxyCredential.getAttributeCertificate();
 			List<String> fqans = new VOMSAttributeCertificate(
 					vomsProxyCredential.getAttributeCertificate())
-					.getVOMSFQANs();
+			.getVOMSFQANs();
 			// remove trailing "/Role=NULL/Capability=NULL" if present
 			Set<String> result = new TreeSet<String>();
 			for (String s : fqans) {
@@ -175,7 +174,7 @@ public class VomsHelpers {
 	}
 
 	public static void main(String[] args) throws GlobusCredentialException,
-			VomsException {
+	VomsException {
 
 		GSSCredential proxy = LocalProxy.loadGSSCredential();
 

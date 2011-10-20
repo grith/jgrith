@@ -24,9 +24,10 @@ import java.util.SortedSet;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.ietf.jgss.GSSCredential;
 import org.python.core.PyInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -36,7 +37,7 @@ import com.jgoodies.forms.layout.RowSpec;
 public class SlcsPanel extends JPanel implements SlcsListener,
 ProxyCreatorPanel, ShibListener, IdpListener {
 
-	private static final Logger myLogger = Logger.getLogger(SlcsPanel.class
+	private static final Logger myLogger = LoggerFactory.getLogger(SlcsPanel.class
 			.getName());
 
 	private ShibLoginPanel shibLoginPanel;
@@ -161,14 +162,14 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 			if (holder != null) {
 				holder.proxyCreationFailed(e.getLocalizedMessage());
 			}
-			myLogger.error(e);
+			myLogger.error("SLCS login could not be completed.", e);
 		}
 
 	}
 
 	public void slcsLoginFailed(String message, Exception optionalException) {
 
-		myLogger.error(optionalException);
+		myLogger.error("SLCS login failed.", optionalException);
 		enablePanel(true);
 
 		if (holder != null) {

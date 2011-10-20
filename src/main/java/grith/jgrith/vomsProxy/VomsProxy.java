@@ -25,7 +25,8 @@ import grith.jgrith.voms.VO;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bouncycastle.asn1.x509.AttributeCertificate;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
@@ -56,7 +57,7 @@ import org.ietf.jgss.GSSCredential;
  */
 public class VomsProxy {
 
-	static final Logger myLogger = Logger.getLogger(VomsProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxy.class.getName());
 
 	/**
 	 * This one creates a voms proxy with the requested vo information and

@@ -23,7 +23,8 @@ import grith.jgrith.CredentialHelpers;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
@@ -33,7 +34,7 @@ import org.ietf.jgss.GSSException;
 
 public class LocalProxy {
 
-	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(LocalProxy.class.getName());
 
 	public static final String PROXY_FILE = CoGProperties.getDefault()
 			.getProxyFile();

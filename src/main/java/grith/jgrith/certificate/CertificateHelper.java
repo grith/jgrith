@@ -26,7 +26,8 @@ import java.security.InvalidKeyException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.CertUtil;
 import org.globus.gsi.OpenSSLKey;
@@ -40,7 +41,7 @@ import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
  */
 public class CertificateHelper {
 
-	static final Logger myLogger = Logger.getLogger(CertificateHelper.class
+	static final Logger myLogger = LoggerFactory.getLogger(CertificateHelper.class
 			.getName());
 
 	/**

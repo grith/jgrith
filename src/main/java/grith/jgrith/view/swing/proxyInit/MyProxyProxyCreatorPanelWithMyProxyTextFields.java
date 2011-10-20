@@ -21,12 +21,12 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -38,12 +38,12 @@ public class MyProxyProxyCreatorPanelWithMyProxyTextFields extends JPanel {
 
 	private JLabel lifetimeinDaysLabel;
 	private JComboBox comboBox;
-	private static final Logger myLogger = Logger
+	private static final Logger myLogger = LoggerFactory
 			.getLogger(MyProxyProxyCreatorPanelWithMyProxyTextFields.class
 					.getName());
 
 	public static final Integer[] DEFAULT_PROXY_LIFETIME_VALUES = new Integer[] {
-			1, 2, 3, 7, 14, 21 };
+		1, 2, 3, 7, 14, 21 };
 
 	private MyProxy myproxy = null;
 

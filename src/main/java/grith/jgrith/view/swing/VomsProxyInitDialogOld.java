@@ -9,14 +9,15 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsProxyInitDialogOld extends JDialog implements
 ProxyInitListener {
 
-	static final Logger myLogger = Logger
+	static final Logger myLogger = LoggerFactory
 			.getLogger(VomsProxyInitDialogOld.class.getName());
 
 	/**
@@ -78,7 +79,8 @@ ProxyInitListener {
 						+ LocalProxy.loadGlobusCredential().getTimeLeft()
 						+ " seconds.");
 			} catch (GlobusCredentialException e) {
-				myLogger.error(e);
+				myLogger.error(
+						"Can't create proxy: " + e.getLocalizedMessage(), e);
 			}
 		} else if (type == ProxyInitListener.VOMS_PROXY_CREATED) {
 			System.out.println("Voms proxy created. Valid until: "
@@ -91,7 +93,9 @@ ProxyInitListener {
 					System.out.println(info);
 				}
 			} catch (Exception e) {
-				myLogger.error(e);
+				myLogger.error(
+						"Can't create voms proxy: " + e.getLocalizedMessage(),
+						e);
 			}
 
 		}

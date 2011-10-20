@@ -25,13 +25,14 @@ import grith.jgrith.voms.VO;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalVomsProxy {
 
-	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(LocalProxy.class.getName());
 
 	// this is the default apacgrid voms server
 	public static final VO APACGRID_VO = new VO("APACGrid",
@@ -52,9 +53,9 @@ public class LocalVomsProxy {
 		try {
 			LocalVomsProxy.vomsProxyInit("/APACGrid/NGAdmin", passphrase, 12);
 		} catch (IOException e) {
-			myLogger.error(e);
+			myLogger.error(e.getLocalizedMessage());
 		} catch (Exception e) {
-			myLogger.error(e);
+			myLogger.error(e.getLocalizedMessage());
 		}
 
 	}

@@ -21,12 +21,13 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ietf.jgss.GSSCredential;
 
 public class VomsInfoPanel extends JPanel {
 
-	static final Logger myLogger = Logger.getLogger(VomsInfoPanel.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsInfoPanel.class
 			.getName());
 
 	private JButton initButton;

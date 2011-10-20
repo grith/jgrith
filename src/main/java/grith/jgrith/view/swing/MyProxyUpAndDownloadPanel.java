@@ -18,7 +18,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -39,7 +40,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 	private JTextField textField;
 	private JLabel label_1;
 	private JLabel label;
-	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
+	static final Logger myLogger = LoggerFactory.getLogger(MyProxy_light.class
 			.getName());
 
 	private JButton uploadButton;

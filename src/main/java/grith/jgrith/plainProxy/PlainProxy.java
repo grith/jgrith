@@ -24,7 +24,8 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.CertUtil;
 import org.globus.gsi.GSIConstants;
@@ -41,7 +42,7 @@ import org.ietf.jgss.GSSCredential;
 
 public class PlainProxy {
 
-	static final Logger myLogger = Logger.getLogger(PlainProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(PlainProxy.class.getName());
 
 	/**
 	 * Creates a {@link GSSCredential} using all the (cog-) defaults like cert

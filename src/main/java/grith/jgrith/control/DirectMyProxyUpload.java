@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -37,7 +38,7 @@ import com.Ostermiller.util.RandPass;
  */
 public class DirectMyProxyUpload {
 
-	static final Logger myLogger = Logger.getLogger(DirectMyProxyUpload.class
+	static final Logger myLogger = LoggerFactory.getLogger(DirectMyProxyUpload.class
 			.getName());
 
 	/**

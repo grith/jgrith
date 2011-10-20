@@ -19,8 +19,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -30,8 +31,8 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class CreateVomsProxyPanel extends JPanel {
 
-	private static final Logger myLogger = Logger
-			.getLogger(CreateVomsProxyPanel.class.getName());
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(CreateVomsProxyPanel.class);
 
 	private JButton joinVoButton;
 	private JComboBox comboBox;
@@ -98,7 +99,9 @@ public class CreateVomsProxyPanel extends JPanel {
 					denyComboboxUpdate = false;
 
 				} catch (Exception e) {
-					myLogger.error(e);
+					myLogger.error(
+							"Can't create vomsProxy: "
+									+ e.getLocalizedMessage(), e);
 					CreateVomsProxyPanel.this.setCursor(Cursor
 							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					JOptionPane

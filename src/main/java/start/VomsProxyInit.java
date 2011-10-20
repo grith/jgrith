@@ -13,7 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -51,7 +52,7 @@ public class VomsProxyInit {
 
 	private MyProxyUpAndDownloadPanel myProxyUpAndDownloadPanel;
 
-	static final Logger myLogger = Logger.getLogger(VomsProxyInit.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxyInit.class
 			.getName());
 	private MyProxyUpAndDownloadPanel myProxyPanel;
 	private JPanel panel;

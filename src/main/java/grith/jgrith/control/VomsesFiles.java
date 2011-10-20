@@ -12,12 +12,13 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsesFiles {
 
-	static final Logger myLogger = Logger
-	.getLogger(VomsesFiles.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(VomsesFiles.class
+			.getName());
 
 	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "nz" };
 
@@ -114,7 +115,7 @@ public class VomsesFiles {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
-			myLogger.error(e);
+			myLogger.error("Can't copy vomses files.", e);
 		}
 	}
 
@@ -131,8 +132,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-						+ USER_VOMSES_DIR.toString()
-						+ " to be created.");
+								+ USER_VOMSES_DIR.toString()
+								+ " to be created.");
 			}
 		}
 
@@ -141,8 +142,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create available_vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-						+ AVAILABLE_VOMSES_DIR.toString()
-						+ " to be created.");
+								+ AVAILABLE_VOMSES_DIR.toString()
+								+ " to be created.");
 			}
 		}
 	}

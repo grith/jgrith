@@ -21,9 +21,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages all VOMS servers that are of interest for the user. Information about
@@ -44,7 +45,7 @@ import org.ietf.jgss.GSSCredential;
  */
 public class VOManagement {
 
-	static final Logger myLogger = Logger.getLogger(VOManagement.class
+	static final Logger myLogger = LoggerFactory.getLogger(VOManagement.class
 			.getName());
 
 	public final static File USER_VOMSES = new File(
@@ -125,7 +126,7 @@ public class VOManagement {
 		try {
 			executor.awaitTermination(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			myLogger.error(e);
+			myLogger.error("Retrieving of FQANs interrupted.", e);
 		}
 
 		return allFqans;
@@ -241,7 +242,7 @@ public class VOManagement {
 			cred = CredentialHelpers.wrapGlobusCredential(LocalProxy
 					.loadGlobusCredential());
 		} catch (GlobusCredentialException e) {
-			myLogger.error(e);
+			myLogger.error(e.getLocalizedMessage());
 		}
 
 		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);

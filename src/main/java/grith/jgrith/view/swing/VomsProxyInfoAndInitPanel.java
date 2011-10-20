@@ -11,9 +11,10 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -22,9 +23,9 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInfoAndInitPanel extends JPanel implements
-		ProxyInitListener {
+ProxyInitListener {
 
-	static final Logger myLogger = Logger
+	static final Logger myLogger = LoggerFactory
 			.getLogger(VomsProxyInfoAndInitPanel.class.getName());
 
 	private VomsProxyInitPanel vomsProxyInitPanel;
@@ -61,8 +62,9 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
@@ -83,7 +85,7 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
