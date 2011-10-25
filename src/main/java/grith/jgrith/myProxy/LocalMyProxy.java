@@ -18,19 +18,19 @@
 
 package grith.jgrith.myProxy;
 
+import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.globus.common.CoGProperties;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * I called this class LocalMyProxy so that there is no confusion with the
@@ -67,13 +67,12 @@ public class LocalMyProxy {
 	 * @throws MyProxyException
 	 *             if something did not work
 	 * @throws GSSException
-	 *             if something is wrong with the retrieved proxy
-	 * @throws IOException
-	 *             if the proxy can't be written to disk
+	 *             if something is wrong with the retrieved proxy or the proxy
+	 *             can't be written to disk
 	 */
 	public static void getDelegationAndWriteToDisk(GSSCredential credential,
 			String username, char[] passphrase, int lifetime_in_seconds)
-			throws MyProxyException, IOException, GSSException {
+			throws MyProxyException, CredentialException {
 		getDelegationAndWriteToDisk(DEFAULT_MYPROXY_SERVER.getHost(),
 				DEFAULT_MYPROXY_SERVER.getPort(), credential, username,
 				passphrase, lifetime_in_seconds);
@@ -93,14 +92,13 @@ public class LocalMyProxy {
 	 *            how long you want the proxy to be valid
 	 * @throws MyProxyException
 	 *             if something did not work
-	 * @throws GSSException
-	 *             if something is wrong with the retrieved proxy
-	 * @throws IOException
-	 *             if the proxy can't be written to disk
+	 * @throws CredentialException
+	 *             if something is wrong with the retrieved proxy or the proxy
+	 *             can't be written to disk
 	 */
 	public static void getDelegationAndWriteToDisk(String username,
 			char[] passphrase, int lifetime_in_seconds)
-			throws MyProxyException, IOException, GSSException {
+					throws MyProxyException, CredentialException {
 		getDelegationAndWriteToDisk(DEFAULT_MYPROXY_SERVER.getHost(),
 				DEFAULT_MYPROXY_SERVER.getPort(), username, passphrase,
 				lifetime_in_seconds);
@@ -125,15 +123,14 @@ public class LocalMyProxy {
 	 *            how long you want the proxy to be valid
 	 * @throws MyProxyException
 	 *             if something did not work
-	 * @throws GSSException
-	 *             if something is wrong with the retrieved proxy
-	 * @throws IOException
-	 *             if the proxy can't be written to disk
+	 * @throws CredentialException
+	 *             if something is wrong with the retrieved proxy or the proxy
+	 *             can't be written to disk
 	 */
 	public static void getDelegationAndWriteToDisk(String myproxyServer,
 			int myproxyPort, GSSCredential credential, String username,
 			char[] passphrase, int lifetime_in_seconds)
-			throws MyProxyException, IOException, GSSException {
+					throws MyProxyException, CredentialException {
 
 		GSSCredential new_credential = MyProxy_light.getDelegation(
 				myproxyServer, myproxyPort, credential, username, passphrase,
@@ -160,14 +157,12 @@ public class LocalMyProxy {
 	 * @throws MyProxyException
 	 *             if something did not work
 	 * @throws GSSException
-	 *             if something is wrong with the retrieved proxy
-	 * @throws IOException
-	 *             if the proxy can't be written to disk
+	 *             if something is wrong with the retrieved proxy or the proxy
+	 *             can't be written to disk
 	 */
 	public static void getDelegationAndWriteToDisk(String myproxyServer,
 			int myproxyPort, String username, char[] passphrase,
-			int lifetime_in_secs) throws MyProxyException, IOException,
-			GSSException {
+			int lifetime_in_secs) throws MyProxyException, CredentialException {
 
 		GSSCredential credential = MyProxy_light.getDelegation(myproxyServer,
 				myproxyPort, username, passphrase, lifetime_in_secs);

@@ -18,6 +18,7 @@
 
 package grith.jgrith.vomsProxy;
 
+import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.voms.VO;
@@ -108,7 +109,7 @@ public class LocalVomsProxy {
 	 *             if another error occured
 	 */
 	public static void vomsProxyInit(VO vo, String group, char[] passphrase,
-			int lifetime_in_hours) throws IOException, Exception {
+			int lifetime_in_hours) throws CredentialException {
 
 		GSSCredential credential = VomsProxy.init(vo, group, passphrase,
 				lifetime_in_hours);
@@ -117,7 +118,7 @@ public class LocalVomsProxy {
 		try {
 			// write the proxy to disk
 			CredentialHelpers.writeToDisk(credential, proxyFile);
-		} catch (IOException e) {
+		} catch (CredentialException e) {
 			// could not write proxy to disk
 			myLogger.error("Could not write voms proxy to disk: "
 					+ e.getMessage());

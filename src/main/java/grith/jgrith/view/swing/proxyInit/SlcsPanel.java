@@ -3,6 +3,7 @@ package grith.jgrith.view.swing.proxyInit;
 import grisu.jcommons.commonInterfaces.HttpProxyInfoHolder;
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
 import grisu.jcommons.commonInterfaces.ProxyCreatorPanel;
+import grisu.jcommons.exceptions.CredentialException;
 import grisu.jcommons.interfaces.IdpListener;
 import grisu.jcommons.interfaces.SlcsListener;
 import grith.gsindl.SLCS;
@@ -14,7 +15,6 @@ import grith.sibboleth.ShibLoginPanel;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -157,7 +157,7 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 						.unwrapGlobusCredential(proxy));
 			}
 
-		} catch (GeneralSecurityException e) {
+		} catch (CredentialException e) {
 
 			if (holder != null) {
 				holder.proxyCreationFailed(e.getLocalizedMessage());
