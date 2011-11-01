@@ -24,7 +24,6 @@ import grith.jgrith.CredentialHelpers;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
@@ -138,16 +137,16 @@ public class LocalProxy {
 			throws GlobusCredentialException {
 		GlobusCredential globusCredential = null;
 
-		String jobProxy = System.getenv("X509_USER_PROXY");
-		if (StringUtils.isNotBlank(jobProxy)) {
+		// String jobProxy = System.getenv("X509_USER_PROXY");
+		// if (StringUtils.isNotBlank(jobProxy)) {
+		//
+		// globusCredential = new GlobusCredential(jobProxy);
+		//
+		// } else {
 
-			globusCredential = new GlobusCredential(jobProxy);
-
-		} else {
-
-			globusCredential = new GlobusCredential(CoGProperties.getDefault()
-					.getProxyFile());
-		}
+		globusCredential = new GlobusCredential(CoGProperties.getDefault()
+				.getProxyFile());
+		// }
 
 		return globusCredential;
 	}
