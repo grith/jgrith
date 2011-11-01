@@ -22,8 +22,6 @@ import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.myproxy.InitParams;
@@ -31,6 +29,8 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is really only to show how to upload/retrieve a MyProxy
@@ -82,9 +82,9 @@ public class MyProxy_light {
 					passphrase), lifetime_in_seconds);
 		} catch (MyProxyException e) {
 			LocalMyProxy.myLogger
-					.error("Could not get delegated proxy from server \""
-							+ myproxyServer + ":" + myproxyPort + ": "
-							+ e.getMessage());
+			.error("Could not get delegated proxy from server \""
+					+ myproxyServer + ":" + myproxyPort + ": "
+					+ e.getMessage());
 			throw e;
 		}
 		return proxyCredential;
@@ -119,9 +119,9 @@ public class MyProxy_light {
 					lifetime_in_secs);
 		} catch (MyProxyException e) {
 			LocalMyProxy.myLogger
-					.error("Could not get delegated proxy from server \""
-							+ myproxyServer + ":" + myproxyPort + ": "
-							+ e.getMessage());
+			.error("Could not get delegated proxy from server \""
+					+ myproxyServer + ":" + myproxyPort + ": "
+					+ e.getMessage());
 			throw e;
 		}
 		return credential;
@@ -162,8 +162,43 @@ public class MyProxy_light {
 	 *             if the delegation process fails
 	 */
 	public static void init(MyProxy myproxy, GlobusCredential credential,
-			InitParams proxy_parameters, char[] myProxyPassphrase)
-			throws GSSException, MyProxyException {
+			InitParams proxy_parameters, char[] myProxyPassphraseboolean)
+					throws MyProxyException, GSSException {
+
+		init(myproxy, credential, proxy_parameters, myProxyPassphraseboolean,
+				false);
+
+	}
+
+	/**
+	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
+	 * the specified proxy_paramters. Use the prepareProxyParameters() method to
+	 * actually prepare them.
+	 * 
+	 * @param myproxy
+	 *            the myproxy server to upload the credential to (create with
+	 *            new MyProxy("server", port) - port is usually 7512)
+	 * @param credential
+	 *            the credential you want to delegate to the server (this uses a
+	 *            {@link GlobusCredential}) instead of a {@link GSSCredential}
+	 * @param proxy_parameters
+	 *            the parameters for the credential on the myproxy server. See
+	 *            the prepareProxyParameters() method.
+	 * @param myProxyPassphrase
+	 *            the passphrase for the credentials on the myproxy server.
+	 * @param storeMyProxyCredsLocally
+	 *            whether to store the MyPropxy details on local disk for later
+	 *            re-usage without having to re-upload again
+	 * @throws GSSException
+	 *             if the credential can't be used (or destroyed after the
+	 *             upload)
+	 * @throws MyProxyException
+	 *             if the delegation process fails
+	 */
+	public static void init(MyProxy myproxy, GlobusCredential credential,
+			InitParams proxy_parameters, char[] myProxyPassphrase,
+			boolean storeMyProxyCredsLocally)
+					throws GSSException, MyProxyException {
 
 		GSSCredential newCredential = null;
 
@@ -183,6 +218,11 @@ public class MyProxy_light {
 		// very important to dispose the long-live credential after storage!
 		newCredential.dispose();
 		myLogger.debug("Disposed gss_credentials.");
+
+		if (storeMyProxyCredsLocally) {
+			storeMyProxyDetailsLocally(proxy_parameters.getUserName(),
+					myProxyPassphrase);
+		}
 
 	}
 
@@ -209,10 +249,10 @@ public class MyProxy_light {
 	 */
 	public static void init(MyProxy myproxy, GSSCredential credential,
 			InitParams proxy_parameters, char[] myProxyPassphrase)
-			throws GSSException, MyProxyException {
+					throws GSSException, MyProxyException {
 
 		init(myproxy, CredentialHelpers.unwrapGlobusCredential(credential),
-				proxy_parameters, myProxyPassphrase);
+				proxy_parameters, myProxyPassphrase, false);
 	}
 
 	/**
@@ -242,7 +282,7 @@ public class MyProxy_light {
 	public static InitParams prepareProxyParameters(String username,
 			String proxyname, String renewer, String retriever,
 			String description, int lifetime_in_seconds)
-			throws MyProxyException {
+					throws MyProxyException {
 
 		InitParams proxy_parameters = new InitParams();
 
@@ -278,6 +318,12 @@ public class MyProxy_light {
 		proxy_parameters.setLifetime(lifetime_in_seconds);
 
 		return proxy_parameters;
+	}
+
+	public static void storeMyProxyDetailsLocally(String username, char[] password) {
+
+
+
 	}
 
 }
