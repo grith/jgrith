@@ -1,7 +1,5 @@
 package grith.jgrith.control;
 
-import grith.jgrith.Init;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,7 +67,7 @@ public class VomsesFiles {
 		int count;
 		byte data[] = new byte[BUFFER_SIZE];
 
-		InputStream in = Init.class.getResourceAsStream("/vomses.zip");
+		InputStream in = VomsesFiles.class.getResourceAsStream("/vomses.zip");
 		ZipInputStream vomsStream = new ZipInputStream(in);
 
 		BufferedOutputStream dest = null;

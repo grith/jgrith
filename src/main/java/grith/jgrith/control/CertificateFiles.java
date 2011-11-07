@@ -1,6 +1,5 @@
 package grith.jgrith.control;
 
-import grith.jgrith.Init;
 import grith.jgrith.certificate.CertificateHelper;
 
 import java.io.BufferedOutputStream;
@@ -11,13 +10,14 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.globus.common.CoGProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.globus.common.CoGProperties;
 
 public class CertificateFiles {
 
-	static final Logger myLogger = LoggerFactory.getLogger(Init.class.getName());
+	static final Logger myLogger = LoggerFactory
+			.getLogger(CertificateFiles.class.getName());
 
 	public static final File SYSTEM_CA_CERT_DIR = new File(
 			"/etc/grid-security/certificates");
@@ -57,7 +57,7 @@ public class CertificateFiles {
 			int count;
 			byte data[] = new byte[BUFFER_SIZE];
 
-			InputStream in = Init.class
+			InputStream in = CertificateFiles.class
 					.getResourceAsStream("/certificates.zip");
 			ZipInputStream certStream = new ZipInputStream(in);
 
@@ -80,8 +80,8 @@ public class CertificateFiles {
 							if (!cert_file.exists()
 									|| cert_file.getName().startsWith(
 											"1e12d831")
-									|| cert_file.getName().startsWith(
-											"1ed4795f")) {
+											|| cert_file.getName().startsWith(
+													"1ed4795f")) {
 
 								// Write the file to the file system
 								FileOutputStream fos = new FileOutputStream(

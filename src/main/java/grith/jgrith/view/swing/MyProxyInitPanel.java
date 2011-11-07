@@ -1,6 +1,6 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.Init;
+import grisu.jcommons.dependencies.BouncyCastleTool;
 import grith.jgrith.certificate.CertificateHelper;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.PlainProxy;
@@ -82,7 +82,11 @@ public class MyProxyInitPanel extends JPanel {
 		//
 		// System.out.println("Classpath: "+classpath.toString());
 
-		Init.initBouncyCastle();
+		try {
+			BouncyCastleTool.initBouncyCastle();
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 		if (!CertificateHelper.globusCredentialsReady()) {
 			throw new RuntimeException(
 					"No certificate & private key available to create a proxy.");
@@ -117,7 +121,7 @@ public class MyProxyInitPanel extends JPanel {
 						try {
 							seconds = new Integer(
 									(String) getLifetimeComboBox()
-											.getSelectedItem()) * 3600 * 24;
+									.getSelectedItem()) * 3600 * 24;
 						} catch (NumberFormatException e1) {
 							MyProxyInitPanel.this.setCursor(Cursor
 									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -159,8 +163,8 @@ public class MyProxyInitPanel extends JPanel {
 								params, getPasswordField().getPassword());
 						listener.success(SUCCESS_ACTION_NAME, true,
 								new Object[] {
-										getUsernameTextField().getText(),
-										getPasswordField().getPassword() });
+								getUsernameTextField().getText(),
+								getPasswordField().getPassword() });
 					} catch (Exception e1) {
 						MyProxyInitPanel.this.setCursor(Cursor
 								.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

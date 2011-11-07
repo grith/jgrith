@@ -165,6 +165,11 @@
 			<artifactId>gsindl</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>grisu</groupId>
+			<artifactId>grid-jcommons</artifactId>
+			<version>1.5.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<name>SimpleProxyLib</name>
