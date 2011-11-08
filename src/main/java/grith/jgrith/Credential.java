@@ -1,6 +1,7 @@
 package grith.jgrith;
 
 import grisu.jcommons.constants.Constants;
+import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
@@ -40,8 +41,10 @@ public class Credential {
 	static final Logger myLogger = LoggerFactory.getLogger(Credential.class
 			.getName());
 
-	public final static String DEFAULT_MYPROXY_SERVER = "myproxy.arcs.org.au";
-	public final static int DEFAULT_MYPROXY_PORT = 7512;
+	public final static String DEFAULT_MYPROXY_SERVER = GridEnvironment
+			.getDefaultMyProxyServer();
+	public final static int DEFAULT_MYPROXY_PORT = GridEnvironment
+			.getDefaultMyProxyPort();
 
 	public final static int DEFAULT_PROXY_LIFETIME_IN_HOURS = 12;
 
@@ -67,6 +70,12 @@ public class Credential {
 	private final UUID uuid = UUID.randomUUID();
 
 	private Map<String, VO> fqans;
+
+	public Credential() {
+
+		this(LocalProxy.PROXY_FILE);
+
+	}
 
 	/**
 	 * Creates a Credential object from an x509 certificate and key pair that
@@ -201,8 +210,16 @@ public class Credential {
 		this.myProxyUsername = myProxyUsername;
 		this.myProxyPassword = myProxyPassword;
 		this.myproxyCredential = true;
-		this.myProxyHostOrig = myproxyHost;
-		this.myProxyPortOrig = myproxyPort;
+		if (StringUtils.isBlank(myproxyHost)) {
+			this.myProxyHostOrig = GridEnvironment.getDefaultMyProxyServer();
+		} else {
+			this.myProxyHostOrig = myproxyHost;
+		}
+		if (myproxyPort <= 0) {
+			this.myProxyPortOrig = GridEnvironment.getDefaultMyProxyPort();
+		} else {
+			this.myProxyPortOrig = myproxyPort;
+		}
 
 		this.myProxyHostNew = this.myProxyHostOrig;
 		this.myProxyPortNew = this.myProxyPortOrig;
@@ -339,7 +356,7 @@ public class Credential {
 			try {
 				cred = MyProxy_light.getDelegation(myProxyHostOrig, myProxyPortOrig,
 						myProxyUsername, myProxyPassword,
-						DEFAULT_PROXY_LIFETIME_IN_HOURS);
+						DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
 			} catch (MyProxyException e) {
 				throw new CredentialException(
 						"Can't retrieve credential from MyProxy", e);
@@ -411,6 +428,10 @@ public class Credential {
 				return myProxyPassword;
 			}
 		}
+	}
+
+	public int getMyProxyPort() {
+		return this.myProxyPortNew;
 	}
 
 	/**
@@ -507,6 +528,10 @@ public class Credential {
 		return myproxyCredential;
 	}
 
+	public void saveCredential() throws CredentialException {
+		saveCredential(null);
+	}
+
 	/**
 	 * Saves this Credential to disk.
 	 * 
@@ -524,6 +549,14 @@ public class Credential {
 		CredentialHelpers.writeToDisk(getCredential(), new File(localPath));
 
 		this.localPath = localPath;
+	}
+
+	public void setMyProxyDelegatedPassword(char[] myProxyPassphrase) {
+		this.myProxyPassword = myProxyPassphrase;
+	}
+
+	public void setMyProxyDelegatedUsername(String myProxyUsername2) {
+		this.myProxyUsername = myProxyUsername2;
 	}
 
 	/**
@@ -551,8 +584,7 @@ public class Credential {
 	 *             if the MyProxy credential can't be delegated.
 	 */
 	public synchronized void uploadMyProxy(String myProxyHostUp,
-			int myProxyPortUp)
-			throws CredentialException {
+			int myProxyPortUp) throws CredentialException {
 
 		// TODO: check whether new upload is required?
 		if (uploaded == true) {
