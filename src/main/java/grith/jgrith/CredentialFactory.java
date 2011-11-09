@@ -4,6 +4,7 @@ import grisu.jcommons.configuration.CommonGridProperties;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
+import grisu.jcommons.utils.CliHelpers;
 import grith.gsindl.SLCS;
 import grith.jgrith.control.LoginParams;
 import grith.jgrith.control.SlcsLoginWrapper;
@@ -177,10 +178,15 @@ public class CredentialFactory {
 			password = params.getMyProxyPassphrase();
 		}
 
-		Credential cred = createFromMyProxy(username, password, MYPROXY_HOST,
-				MYPROXY_PORT);
+		CliHelpers.setIndeterminateProgress("Retrieving credential...", true);
+		try {
+			Credential cred = createFromMyProxy(username, password, MYPROXY_HOST,
+					MYPROXY_PORT);
+			return cred;
+		} finally {
+			CliHelpers.setIndeterminateProgress(false);
+		}
 
-		return cred;
 	}
 
 	public static Credential createFromSlcs(String url, String idp,
@@ -223,10 +229,14 @@ public class CredentialFactory {
 
 		List<String> idps = null;
 		try {
+			CliHelpers.setIndeterminateProgress(
+					"Loading list of institutions...", true);
 			idps = SlcsLoginWrapper.getAllIdps();
 		} catch (Throwable e) {
 			throw new CredentialException("Could not list idps: "
 					+ e.getLocalizedMessage());
+		} finally {
+			CliHelpers.setIndeterminateProgress(false);
 		}
 
 		String lastIdp = CommonGridProperties.getDefault().getLastShibIdp();
@@ -253,9 +263,14 @@ public class CredentialFactory {
 
 		char[] pw = CliLogin.askPassword("Your institution password");
 
-		Credential cred = createFromSlcs(SLCS_URL, idp, username, pw);
+		CliHelpers.setIndeterminateProgress("Logging in...", true);
+		try {
+			Credential cred = createFromSlcs(SLCS_URL, idp, username, pw);
+			return cred;
+		} finally {
+			CliHelpers.setIndeterminateProgress(false);
+		}
 
-		return cred;
 	}
 
 	public static Credential loadFromLocalProxy() {
@@ -278,6 +293,8 @@ public class CredentialFactory {
 
 		// Credential cred = createFromSlcsCommandline();
 		System.out.println(cred.getCredential().getRemainingLifetime());
+
+		System.out.println("Enddate: " + cred.getEndDate().getTime());
 
 	}
 

@@ -13,7 +13,10 @@ import grith.jgrith.vomsProxy.VomsProxy;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,17 +41,52 @@ import com.Ostermiller.util.RandPass;
  */
 public class Credential {
 
+	private class ExpiryReminder extends TimerTask {
+
+		private final CredentialListener l;
+
+		public ExpiryReminder(CredentialListener l) {
+			this.l = l;
+		}
+
+		@Override
+		public void run() {
+			l.credentialAboutToExpire(Credential.this);
+		}
+	}
+
 	static final Logger myLogger = LoggerFactory.getLogger(Credential.class
 			.getName());
 
 	public final static String DEFAULT_MYPROXY_SERVER = GridEnvironment
 			.getDefaultMyProxyServer();
+
 	public final static int DEFAULT_MYPROXY_PORT = GridEnvironment
 			.getDefaultMyProxyPort();
-
 	public final static int DEFAULT_PROXY_LIFETIME_IN_HOURS = 12;
 
 	public final static int MIN_REMAINING_LIFETIME = 600;
+
+	public static void main(String[] args) {
+
+		Credential c = CredentialFactory.createFromCommandline();
+
+		CredentialListener l = new CredentialListener() {
+
+			public void credentialAboutToExpire(Credential cred) {
+
+				System.out.println("Credential about to expire");
+
+			}
+		};
+
+		System.out.println("Waiting...");
+
+		int expiry = c.getRemainingLifetime();
+		c.fireCredentialExpiryReminder(l, expiry - 5);
+
+
+	}
 
 	private GSSCredential cred = null;
 	private String myProxyUsername = null;
@@ -70,6 +108,10 @@ public class Credential {
 	private final UUID uuid = UUID.randomUUID();
 
 	private Map<String, VO> fqans;
+
+	private Calendar endTime;
+
+	private final Timer timer = new Timer("credentialExpiryTimer", true);
 
 	public Credential() {
 
@@ -131,6 +173,7 @@ public class Credential {
 		this.myProxyPortNew = this.myProxyPortOrig;
 
 		getCredential();
+
 	}
 
 	/**
@@ -170,6 +213,7 @@ public class Credential {
 		this.myProxyHostNew = this.myProxyHostOrig;
 		this.myProxyPortNew = this.myProxyPortOrig;
 
+		getCredential();
 	}
 
 	/**
@@ -260,7 +304,10 @@ public class Credential {
 
 		this.fqan = Constants.NON_VO_FQAN;
 
+		getCredential();
+
 	}
+
 
 	/**
 	 * Creates a (new) voms-enabled credential object.
@@ -327,6 +374,31 @@ public class Credential {
 	}
 
 	/**
+	 * Calls the {@link CredentialListener#credentialAboutToExpire(Credential)}
+	 * method of the listener xx seconds before this credential expires.
+	 * 
+	 * @param l
+	 *            the listener
+	 * @param secondsBeforeExpiry
+	 *            the min time until this credential expires. if this is bigger
+	 *            than the credential lifetime, the method will be called after
+	 *            1 second straight away...
+	 */
+	public void fireCredentialExpiryReminder(final CredentialListener l,
+			final int secondsBeforeExpiry) {
+
+		int remainingLifetime = getRemainingLifetime();
+		int wait = remainingLifetime - secondsBeforeExpiry;
+		if (wait <= 0) {
+			wait = 1;
+		}
+
+		ExpiryReminder er = new ExpiryReminder(l);
+		timer.schedule(er, wait * 1000);
+
+	}
+
+	/**
 	 * Get a map of all Fqans (and VOs) the user has access to.
 	 * 
 	 * @return the Fqans of the user
@@ -375,6 +447,14 @@ public class Credential {
 			}
 		}
 		return cred;
+	}
+
+	public Calendar getEndDate() {
+		if ( this.endTime == null ) {
+			endTime = Calendar.getInstance();
+			endTime.add(Calendar.SECOND, getRemainingLifetime());
+		}
+		return endTime;
 	}
 
 	/**
@@ -476,6 +556,24 @@ public class Credential {
 				return myProxyUsername;
 			}
 
+		}
+	}
+
+	/**
+	 * The remaining lifetime in seconds.
+	 * 
+	 * @return the lifetime
+	 * @throws CredentialException
+	 *             if the credential lifetime is shorther than
+	 *             {@link #MIN_REMAINING_LIFETIME} or if the lifetime can't be
+	 *             read from underlying credential.
+	 */
+	public int getRemainingLifetime() throws CredentialException {
+
+		try {
+			return getCredential().getRemainingLifetime();
+		} catch (GSSException e) {
+			throw new CredentialException("Can't get remaining lifetime from credential.", e);
 		}
 	}
 
