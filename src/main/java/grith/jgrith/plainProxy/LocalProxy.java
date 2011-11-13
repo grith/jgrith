@@ -40,6 +40,11 @@ public class LocalProxy {
 	public static final String PROXY_FILE = CoGProperties.getDefault()
 			.getProxyFile();
 
+	public static final String CERT_FILE = CoGProperties.getDefault()
+			.getUserCertFile();
+	public static final String KEY_FILE = CoGProperties.getDefault()
+			.getUserKeyFile();
+
 	/**
 	 * Writes random data in the default local proxy file and then deletes it.
 	 */

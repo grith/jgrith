@@ -8,12 +8,7 @@ import grisu.jcommons.utils.CliHelpers;
 import grith.gsindl.SLCS;
 import grith.jgrith.control.LoginParams;
 import grith.jgrith.control.SlcsLoginWrapper;
-import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.utils.CliLogin;
-import grith.sibboleth.CredentialManager;
-import grith.sibboleth.IdpObject;
-import grith.sibboleth.StaticCredentialManager;
-import grith.sibboleth.StaticIdpObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -126,6 +121,8 @@ public class CredentialFactory {
 	public static Credential createFromLocalCert(char[] passphrase) {
 
 		Credential cred = new Credential(passphrase);
+		cred.setProperty(Credential.PROPERTY.LoginType,
+				LoginType.X509_CERTIFICATE);
 		return cred;
 
 	}
@@ -144,6 +141,7 @@ public class CredentialFactory {
 	public static Credential createFromMyProxy(String username, char[] password, String myProxyHost, int myProxyPort) {
 
 		Credential cred = new Credential(username, password, myProxyHost, myProxyPort);
+		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.MYPROXY);
 
 		CommonGridProperties.getDefault().setLastMyProxyUsername(username);
 
@@ -193,34 +191,13 @@ public class CredentialFactory {
 			String username,
 			char[] password) {
 
-		myLogger.debug("SLCS login: setting idpObject and credentialManager...");
-		final IdpObject idpO = new StaticIdpObject(idp);
-		final CredentialManager cm = new StaticCredentialManager(username,
+		final GSSCredential gss = Credential.createFromSlcs(url, idp, username,
 				password);
-
-		myLogger.debug("SLCS login: starting actual login...");
-
-		if (StringUtils.isBlank(url)) {
-			url = SLCS.DEFAULT_SLCS_URL;
-		}
-
-		final SLCS slcs = new SLCS(url, idpO, cm);
-		if ((slcs.getCertificate() == null) || (slcs.getPrivateKey() == null)) {
-			myLogger.debug("SLCS login: Could not get SLCS certificate and/or SLCS key...");
-			throw new CredentialException(
-					"Could not get SLCS certificate and/or SLCS key...");
-		}
-
-		myLogger.debug("SLCS login: Login finished.");
-		myLogger.debug("SLCS login: Creating proxy from slcs credential...");
-
-		final GSSCredential gss = PlainProxy.init(slcs.getCertificate(),
-				slcs.getPrivateKey(), 24 * 10);
-
 		CommonGridProperties.getDefault().setLastShibUsername(username);
 		CommonGridProperties.getDefault().setLastShibIdp(idp);
 
 		Credential cred = new Credential(gss);
+		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.SHIBBOLETH);
 		return cred;
 
 	}
@@ -276,6 +253,7 @@ public class CredentialFactory {
 	public static Credential loadFromLocalProxy() {
 
 		Credential cred = new Credential();
+		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 		return cred;
 
 	}
