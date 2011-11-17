@@ -1409,11 +1409,11 @@ public class Credential {
 
 		MyProxy mp = MyProxy_light.getMyProxy(myProxyHostNew, myProxyPortNew);
 
+
 		InitParams params = null;
 		try {
 			params = MyProxy_light.prepareProxyParameters(getMyProxyUsername(),
-					null, null, null, null,
-					DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
+					null, null, null, null, getRemainingLifetime());
 		} catch (MyProxyException e) {
 			throw new CredentialException("Can't prepare myproxy parameters", e);
 		}

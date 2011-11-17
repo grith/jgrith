@@ -216,9 +216,14 @@ public class CredentialFactory {
 			CliHelpers.setIndeterminateProgress(false);
 		}
 
+		System.out.println("");
 		String lastIdp = CommonGridProperties.getDefault().getLastShibIdp();
 		String idp = CliLogin.ask("Your institution", lastIdp, idps,
 				"Please select the institution you are associated with:", true);
+
+		if (StringUtils.isBlank(idp)) {
+			System.exit(0);
+		}
 
 		return createFromSlcsCommandline(idp);
 	}
