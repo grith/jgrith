@@ -781,9 +781,10 @@ public class Credential {
 
 		ExpiryReminder er = new ExpiryReminder(l, secondsBeforeExpiry);
 		expiryReminders.add(er);
-		timer.schedule(er.getTask(), er.getSecondsBeforeExpiry() * 1000);
+		timer.schedule(er.getTask(), wait * 1000);
 
 	}
+
 
 	/**
 	 * Get a map of all Fqans (and VOs) the user has access to.
@@ -1197,8 +1198,13 @@ public class Credential {
 		this.endTime = null;
 		this.timer = new Timer("credentialExpiryTimer", true);
 		for (ExpiryReminder er : expiryReminders) {
-			this.timer.schedule(er.getTask(),
-					er.getSecondsBeforeExpiry() * 1000);
+
+			int remainingLifetime = getRemainingLifetime();
+			int wait = remainingLifetime - er.getSecondsBeforeExpiry();
+			if (wait <= 0) {
+				wait = 1;
+			}
+			this.timer.schedule(er.getTask(), wait * 1000);
 		}
 
 		if (StringUtils.isNotBlank(this.localPath)) {
