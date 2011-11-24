@@ -1,7 +1,7 @@
 package start;
 
-import grith.jgrith.control.CertificateFiles;
-import grith.jgrith.control.VomsesFiles;
+import grith.jgrith.utils.CertificateFiles;
+import grith.jgrith.utils.VomsesFiles;
 import grith.jgrith.view.swing.MyProxyUpAndDownloadPanel;
 import grith.jgrith.view.swing.VomsProxyInfoAndInitPanel;
 
@@ -35,7 +35,7 @@ public class VomsProxyInit {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 
 			try {
-				VomsesFiles.copyVomses();
+				VomsesFiles.copyVomses(null);
 				CertificateFiles.copyCACerts(true);
 			} catch (Exception e) {
 				myLogger.error("Could not copy ca certs: "

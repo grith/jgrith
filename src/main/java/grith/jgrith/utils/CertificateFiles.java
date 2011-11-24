@@ -1,4 +1,4 @@
-package grith.jgrith.control;
+package grith.jgrith.utils;
 
 import grith.jgrith.certificate.CertificateHelper;
 
