@@ -11,6 +11,7 @@ import grith.jgrith.control.SlcsLoginWrapper;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CliLogin;
 import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
@@ -308,6 +309,7 @@ public class Credential {
 			throw new CredentialException(e);
 		}
 	}
+
 	public static void main(String[] args) throws Exception {
 
 		// VomsesFiles.copyVomses();
@@ -356,23 +358,24 @@ public class Credential {
 
 	}
 
+	private final int myproxyLifetimeInSeconds;
 	private GSSCredential cred = null;
-	private String myProxyUsername = null;
 
+	private String myProxyUsername = null;
 	private char[] myProxyPassword = null;
 
 	private boolean myproxyCredential = false;
 
 	private boolean uploaded = false;
-	private String myProxyHostOrig = DEFAULT_MYPROXY_SERVER;
 
+	private String myProxyHostOrig = DEFAULT_MYPROXY_SERVER;
 	private int myProxyPortOrig = DEFAULT_MYPROXY_PORT;
 
 	private String myProxyHostNew = null;
 
 	private int myProxyPortNew = -1;
-	private String localPath = null;
 
+	private String localPath = null;
 	private final String fqan;
 
 	private final UUID uuid = UUID.randomUUID();
@@ -393,14 +396,14 @@ public class Credential {
 
 	private final Map<String, Credential> children = Maps.newConcurrentMap();
 
-
-
 	public Credential() {
 		this(CredentialHelpers
 				.loadGssCredential(new File(LocalProxy.PROXY_FILE)));
 		this.localPath = LocalProxy.PROXY_FILE;
 		properties.put(PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 	}
+
+
 
 	/**
 	 * Creates a Credential object from an x509 certificate and key pair that
@@ -449,6 +452,8 @@ public class Credential {
 		this.myproxyCredential = false;
 		this.fqan = null;
 
+		this.myproxyLifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
+
 		initGSSCredential(cred);
 
 		properties.put(PROPERTY.LoginType, LoginType.UNDEFINED);
@@ -460,7 +465,6 @@ public class Credential {
 		this(cred, VOManagement.getAllFqans(cred).get(fqan), fqan);
 
 	}
-
 
 	/**
 	 * Creates a new, VOMS-enabled credential out of the provided base
@@ -496,6 +500,7 @@ public class Credential {
 		getCredential();
 
 		properties.put(PROPERTY.LoginType, LoginType.UNDEFINED);
+		this.myproxyLifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
 	}
 
 	public Credential(Properties p, String group, boolean check) {
@@ -506,12 +511,14 @@ public class Credential {
 		LoginType lt = (LoginType) properties.get(PROPERTY.LoginType);
 		if (LoginType.MYPROXY.equals(lt)) {
 			this.myproxyCredential = true;
+			this.myproxyLifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
 		} else {
 			this.myproxyCredential = false;
+			this.myproxyLifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
 		}
 
-
 	}
+
 
 	/**
 	 * Creates a Credential object out of an existing metadataFile or proxy.
@@ -605,6 +612,7 @@ public class Credential {
 			properties.put(PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 		}
 
+		this.myproxyLifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
 
 	}
 
@@ -619,16 +627,19 @@ public class Credential {
 	 *            the MyProxy host
 	 * @param myproxyPort
 	 *            the MyProxy port
+	 * @param lifetimeInSeconds
+	 *            the lifetime of the delegated proxy
 	 * @throws CredentialException
 	 *             if no valid proxy could be retrieved from MyProxy
 	 */
 	public Credential(String myProxyUsername, char[] myProxyPassword,
-			String myproxyHost, int myproxyPort)
+			String myproxyHost, int myproxyPort, int lifetimeInSeconds)
 					throws CredentialException {
 
 		this.myProxyUsername = myProxyUsername;
 		this.myProxyPassword = myProxyPassword;
 		this.myproxyCredential = true;
+		this.myproxyLifetimeInSeconds = lifetimeInSeconds;
 		if (StringUtils.isBlank(myproxyHost)) {
 			this.myProxyHostOrig = GridEnvironment.getDefaultMyProxyServer();
 		} else {
@@ -687,6 +698,7 @@ public class Credential {
 
 		getCredential();
 		properties.put(PROPERTY.LoginType, LoginType.X509_CERTIFICATE);
+		this.myproxyLifetimeInSeconds = lifetime_in_hours * 3600;
 	}
 
 	/**
@@ -758,7 +770,6 @@ public class Credential {
 
 	}
 
-
 	/**
 	 * Calls the {@link CredentialListener#credentialAboutToExpire(Credential)}
 	 * method of the listener xx seconds before this credential expires.
@@ -785,7 +796,6 @@ public class Credential {
 
 	}
 
-
 	/**
 	 * Get a map of all Fqans (and VOs) the user has access to.
 	 * 
@@ -799,6 +809,7 @@ public class Credential {
 		return fqans;
 
 	}
+
 
 	/**
 	 * The underlying GSSCredential.
@@ -816,7 +827,7 @@ public class Credential {
 			try {
 				cred = MyProxy_light.getDelegation(myProxyHostOrig, myProxyPortOrig,
 						myProxyUsername, myProxyPassword,
-						DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
+						myproxyLifetimeInSeconds);
 			} catch (MyProxyException e) {
 				throw new CredentialException(
 						"Can't retrieve credential from MyProxy", e);
@@ -835,6 +846,11 @@ public class Credential {
 		}
 
 		return cred;
+	}
+
+
+	public String getDn() {
+		return CertHelpers.getDnInProperFormat(getCredential());
 	}
 
 	public Calendar getEndDate() {
@@ -1186,6 +1202,27 @@ public class Credential {
 
 	public boolean isUploaded() {
 		return this.uploaded;
+	}
+
+	/**
+	 * Checks whether this credential is valid.
+	 * 
+	 * @return true - if valid; false - if not
+	 */
+	public final boolean isValid() {
+		try {
+			if (getCredential() == null) {
+				return false;
+			}
+			if (getCredential().getRemainingLifetime() <= 0) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (final GSSException e) {
+			myLogger.error(e.getLocalizedMessage(), e);
+			return false;
+		}
 	}
 
 	private void loadFromMetadataFile(String metadataFile) {
