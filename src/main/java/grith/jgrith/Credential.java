@@ -5,7 +5,7 @@ import grisu.jcommons.constants.Constants;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
-import grisu.jcommons.utils.CliHelpers;
+import grisu.jcommons.view.cli.CliHelpers;
 import grith.gsindl.SLCS;
 import grith.jgrith.control.SlcsLoginWrapper;
 import grith.jgrith.myProxy.MyProxy_light;

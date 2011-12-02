@@ -1,6 +1,6 @@
 package grith.jgrith.utils
 
-import grisu.jcommons.utils.CliHelpers
+import grisu.jcommons.view.cli.CliHelpers;
 
 class CliLogin {
 
