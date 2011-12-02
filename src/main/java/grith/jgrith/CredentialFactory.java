@@ -95,7 +95,8 @@ public class CredentialFactory {
 			cred = createFromLocalCertCommandline();
 			break;
 		case MYPROXY:
-			cred = createFromMyProxyCommandline(params);
+			cred = createFromMyProxyCommandline(params,
+					Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
 			break;
 		case SHIBBOLETH:
 			cred = createFromSlcsCommandline();
@@ -134,13 +135,18 @@ public class CredentialFactory {
 		return createFromLocalCert(pw);
 	}
 
-	public static Credential createFromMyProxy(String username, char[] password) {
-		return createFromMyProxy(username, password, null, -1);
+	public static Credential createFromMyProxy(String username,
+			char[] password, int lifetime_in_seconds) {
+		return createFromMyProxy(username, password, null, -1,
+				lifetime_in_seconds);
 	}
 
-	public static Credential createFromMyProxy(String username, char[] password, String myProxyHost, int myProxyPort) {
+	public static Credential createFromMyProxy(String username,
+			char[] password, String myProxyHost, int myProxyPort,
+			int lifetime_in_seconds) {
 
-		Credential cred = new Credential(username, password, myProxyHost, myProxyPort);
+		Credential cred = new Credential(username, password, myProxyHost,
+				myProxyPort, lifetime_in_seconds);
 		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.MYPROXY);
 
 		CommonGridProperties.getDefault().setLastMyProxyUsername(username);
@@ -148,11 +154,13 @@ public class CredentialFactory {
 		return cred;
 	}
 
-	public static Credential createFromMyProxyCommandline() {
-		return createFromMyProxyCommandline(null);
+	public static Credential createFromMyProxyCommandline(
+			int lifetime_in_seconds) {
+		return createFromMyProxyCommandline(null, lifetime_in_seconds);
 	}
 
-	public static Credential createFromMyProxyCommandline(LoginParams params) {
+	public static Credential createFromMyProxyCommandline(LoginParams params,
+			int lifetime_in_seconds) {
 
 		String username = null;
 		if ((params == null)
@@ -179,7 +187,7 @@ public class CredentialFactory {
 		CliHelpers.setIndeterminateProgress("Retrieving credential...", true);
 		try {
 			Credential cred = createFromMyProxy(username, password, MYPROXY_HOST,
-					MYPROXY_PORT);
+					MYPROXY_PORT, lifetime_in_seconds);
 			return cred;
 		} finally {
 			CliHelpers.setIndeterminateProgress(false);
