@@ -66,6 +66,13 @@ import com.google.common.collect.ImmutableSet;
  * 
  */
 public class Credential {
+	
+	public enum Type {
+		Local,
+		MyProxy,
+		SLCS,
+		Proxy
+	}
 
 	private class ExpiryReminder {
 

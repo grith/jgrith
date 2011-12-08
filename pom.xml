@@ -209,12 +209,12 @@
 							<descriptors>
 								<descriptor>simpleProxyLib.assembly.xml</descriptor>
 							</descriptors>
-							<finalName>simple-proxy</finalName>
+							<finalName>swiss-proxy</finalName>
 							<archive>
 
 								<index>true</index>
 								<manifest>
-									<mainClass>start.VomsProxyInit</mainClass>
+									<mainClass>grith.spk.SwissProxyKnife</mainClass>
 								</manifest>
 								<manifestEntries>
 									<Class-Path>bcprov.jar bcprov-jdk15-143.jar</Class-Path>
