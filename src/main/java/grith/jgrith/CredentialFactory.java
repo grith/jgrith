@@ -121,7 +121,7 @@ public class CredentialFactory {
 
 	public static Credential createFromLocalCert(char[] passphrase) {
 
-		Credential cred = new Credential(passphrase);
+		Credential cred = new X509Credential(passphrase);
 		cred.setProperty(Credential.PROPERTY.LoginType,
 				LoginType.X509_CERTIFICATE);
 		return cred;
@@ -145,7 +145,7 @@ public class CredentialFactory {
 			char[] password, String myProxyHost, int myProxyPort,
 			int lifetime_in_seconds) {
 
-		Credential cred = new Credential(username, password, myProxyHost,
+		Credential cred = new MyProxyCredential(username, password, myProxyHost,
 				myProxyPort, lifetime_in_seconds);
 		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.MYPROXY);
 
@@ -199,14 +199,11 @@ public class CredentialFactory {
 			String username,
 			char[] password) {
 
-		final GSSCredential gss = Credential.createFromSlcs(url, idp, username,
-				password);
+		final Credential c = new SLCSCredential(url, idp, username, password);
 		CommonGridProperties.getDefault().setLastShibUsername(username);
 		CommonGridProperties.getDefault().setLastShibIdp(idp);
 
-		Credential cred = new Credential(gss);
-		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.SHIBBOLETH);
-		return cred;
+		return c;
 
 	}
 
@@ -265,7 +262,7 @@ public class CredentialFactory {
 
 	public static Credential loadFromLocalProxy() {
 
-		Credential cred = new Credential();
+		Credential cred = new ProxyCredential();
 		cred.setProperty(Credential.PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 		return cred;
 

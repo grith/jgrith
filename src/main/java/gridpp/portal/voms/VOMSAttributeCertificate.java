@@ -375,11 +375,9 @@ public class VOMSAttributeCertificate {
 		return this.version.getValue();
 	}
 
-	public ArrayList<String> getVOMSFQANs() throws Exception {
+	public ArrayList<String> getVOMSFQANs()  {
 
 		ArrayList<String> theseFQANs = new ArrayList<String>();
-
-		try {
 
 			// could have more than one AC in here...
 			for (Enumeration a = this.attributes.getObjects(); a
@@ -422,10 +420,6 @@ public class VOMSAttributeCertificate {
 				}
 
 			}
-
-		} catch (Exception e) {
-			throw e;
-		}
 
 		return theseFQANs;
 

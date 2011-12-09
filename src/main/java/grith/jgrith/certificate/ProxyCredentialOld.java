@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @author Markus Binsteiner
  * 
  */
-public class ProxyCredential {
+public class ProxyCredentialOld {
 
-	static Logger myLogger = LoggerFactory.getLogger(ProxyCredential.class
+	static Logger myLogger = LoggerFactory.getLogger(ProxyCredentialOld.class
 			.getName());
 
 	// the internal "non-raw" credential data
@@ -70,7 +70,7 @@ public class ProxyCredential {
 	private final UUID uuid = UUID.randomUUID();
 
 	// For hibernate only
-	protected ProxyCredential() {
+	protected ProxyCredentialOld() {
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class ProxyCredential {
 	 * @throws Exception
 	 *             if something goes wrong
 	 */
-	public ProxyCredential(final GSSCredential proxy) throws Exception {
+	public ProxyCredentialOld(final GSSCredential proxy) throws Exception {
 
 		setCredentialData(convertFromGSSCredential(proxy));
 	}
@@ -99,7 +99,7 @@ public class ProxyCredential {
 	 * @throws Exception
 	 *             if something is wrong with the proxy
 	 */
-	public ProxyCredential(final GSSCredential proxy, final String fqan)
+	public ProxyCredentialOld(final GSSCredential proxy, final String fqan)
 			throws Exception {
 		setCredentialData(convertFromGSSCredential(proxy));
 		setFqan(fqan);
@@ -161,8 +161,8 @@ public class ProxyCredential {
 	@Override
 	public boolean equals(Object o) {
 
-		if (o instanceof ProxyCredential) {
-			final ProxyCredential pc = (ProxyCredential) o;
+		if (o instanceof ProxyCredentialOld) {
+			final ProxyCredentialOld pc = (ProxyCredentialOld) o;
 
 			return pc.getGssCredential().equals(getGssCredential());
 

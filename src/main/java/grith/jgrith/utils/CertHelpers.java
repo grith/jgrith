@@ -1,7 +1,7 @@
 package grith.jgrith.utils;
 
 import grith.jgrith.CredentialHelpers;
-import grith.jgrith.certificate.ProxyCredential;
+import grith.jgrith.certificate.ProxyCredentialOld;
 import grith.jgrith.voms.VO;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
@@ -82,8 +82,8 @@ public final class CertHelpers {
 	 *             if the communication with the voms server fails for some
 	 *             reason
 	 */
-	public static ProxyCredential getVOProxyCredential(final VO vo,
-			final String fqan, final ProxyCredential credToConnect) {
+	public static ProxyCredentialOld getVOProxyCredential(final VO vo,
+			final String fqan, final ProxyCredentialOld credToConnect) {
 		//
 		VomsProxyCredential vomsGssCred = null;
 		try {
@@ -109,9 +109,9 @@ public final class CertHelpers {
 					+ "\": " + e.getMessage());
 		}
 
-		ProxyCredential vomsProxyCred = null;
+		ProxyCredentialOld vomsProxyCred = null;
 		try {
-			vomsProxyCred = new ProxyCredential(
+			vomsProxyCred = new ProxyCredentialOld(
 					CredentialHelpers.wrapGlobusCredential(vomsGssCred
 							.getVomsProxy()), fqan);
 		} catch (final Exception e) {
