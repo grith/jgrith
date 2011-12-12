@@ -3,6 +3,7 @@ package grith.jgrith;
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
+import grith.jgrith.credential.StaticCredentialRefresher;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
@@ -33,12 +34,12 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import org.python.google.common.collect.Lists;
 import org.python.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.Ostermiller.util.RandPass;
+import com.google.common.collect.Lists;
 
 /**
  * A wrapper class that wraps a {@link GSSCredential} and provides convenience
@@ -49,16 +50,17 @@ import com.Ostermiller.util.RandPass;
  */
 public abstract class Credential {
 
-	public enum Type {
-		Local, MyProxy, SLCS, Proxy
+	public enum PROPERTY {
+		LoginType, Username, Password, MyProxyHost, MyProxyPort, VO, FQAN, EndDate, md5sum, SlcsUrl, IdP, CertFile, KeyFile
 	}
 
-	private class ExpiryReminder {
+	private class RemainingLifetimeReminder {
 
 		private final CredentialListener l;
 		private final int secondsBeforeExpiry;
 
-		public ExpiryReminder(CredentialListener l, int secondsBeforeExpiry) {
+		public RemainingLifetimeReminder(CredentialListener l,
+				int secondsBeforeExpiry) {
 			this.l = l;
 			this.secondsBeforeExpiry = secondsBeforeExpiry;
 		}
@@ -83,31 +85,8 @@ public abstract class Credential {
 
 	}
 
-	public enum PROPERTY {
-		LoginType, MyProxyUsername, MyProxyPassword, MyProxyHost, MyProxyPort, VO, FQAN, EndDate, md5sum
-	}
-
-	/**
-	 * Reads the credential and returns the (first) fqan of its attached AttributeCertificate.
-	 * 
-	 * @param gss the credential
-	 * @return the fqan
-	 * @throws CredentialException if the credential is not voms enabled
-	 */
-	public static String getFqan(GSSCredential gss) throws CredentialException {
-
-			VomsProxyCredential voms = new VomsProxyCredential(
-					CredentialHelpers.unwrapGlobusCredential(gss));
-
-			VOMSAttributeCertificate vomsac = new VOMSAttributeCertificate(
-					voms.getAttributeCertificate());
-
-			List<String> fqans = vomsac.getVOMSFQANs();
-			if ( fqans.size() == 0 ) {
-				throw new CredentialException("Credential is not voms enabled");
-			}
-			String fqan = VomsHelpers.removeRoleAndCapabilityPart(fqans.get(0));
-			return fqan;
+	public enum Type {
+		Local, MyProxy, SLCS, Proxy
 	}
 
 	static final Logger myLogger = LoggerFactory.getLogger(Credential.class
@@ -118,8 +97,8 @@ public abstract class Credential {
 
 	public final static int DEFAULT_MYPROXY_PORT = GridEnvironment
 			.getDefaultMyProxyPort();
-	public final static int DEFAULT_PROXY_LIFETIME_IN_HOURS = 12;
 
+	public final static int DEFAULT_PROXY_LIFETIME_IN_HOURS = 12;
 	public final static int MIN_REMAINING_LIFETIME = 600;
 
 	public static final String METADATA_FILE_EXTENSION = "md";
@@ -132,8 +111,38 @@ public abstract class Credential {
 				lifetime_in_hours);
 	}
 
+	/**
+	 * Reads the credential and returns the (first) fqan of its attached
+	 * AttributeCertificate.
+	 * 
+	 * @param gss
+	 *            the credential
+	 * @return the fqan
+	 * @throws CredentialException
+	 *             if the credential is not voms enabled
+	 */
+	public static String getFqan(GSSCredential gss) throws CredentialException {
 
-	private boolean myproxyCredential = false;
+		VomsProxyCredential voms = new VomsProxyCredential(
+				CredentialHelpers.unwrapGlobusCredential(gss));
+
+		VOMSAttributeCertificate vomsac = new VOMSAttributeCertificate(
+				voms.getAttributeCertificate());
+
+		List<String> fqans = vomsac.getVOMSFQANs();
+		if (fqans.size() == 0) {
+			throw new CredentialException("Credential is not voms enabled");
+		}
+		String fqan = VomsHelpers.removeRoleAndCapabilityPart(fqans.get(0));
+		return fqan;
+	}
+
+	private final StaticCredentialRefresher defaultCredentialRefresh = new StaticCredentialRefresher();
+
+	private final List<CredentialRefresher> refreshUI = Lists
+			.newArrayList((CredentialRefresher) defaultCredentialRefresh);
+
+	private final boolean myproxyCredential = false;
 
 	private boolean uploaded = false;
 
@@ -142,33 +151,66 @@ public abstract class Credential {
 	private int myProxyPort = -1;
 
 	private String myProxyUsername;
+
 	private char[] myProxyPassword;
 
 	private String localPath = null;
-
 	private final UUID uuid = UUID.randomUUID();
 
 	private Map<String, VO> fqans;
 
 	private Calendar endTime;
 
-	private final List<ExpiryReminder> expiryReminders = Lists.newLinkedList();
+	private int minLifetimeInSeconds = 3600;
 
-	private Timer timer = new Timer("credentialExpiryTimer", true);
+	private final List<RemainingLifetimeReminder> remainingLiftimeReminder = Lists
+			.newLinkedList();
+
+	private final Timer timer = new Timer("credentialExpiryTimer", true);
 
 	private final Map<PROPERTY, Object> properties = Maps.newHashMap();
 
 	private final Map<String, Credential> children = Maps.newConcurrentMap();
 
+	private boolean isSaved = false;
+	public void addCredentialRefreshIUI(CredentialRefresher ui) {
+		this.refreshUI.add(ui);
+	}
+
 	public void addProperty(PROPERTY key, Object value) {
 		this.properties.put(key, value);
 	}
 
-	public void removeProperty(PROPERTY key) {
-		this.properties.remove(key);
+
+	/**
+	 * Calls the {@link CredentialListener#credentialAboutToExpire(Credential)}
+	 * method of the listener xx seconds before this credential expires.
+	 * 
+	 * @param l
+	 *            the listener
+	 * @param secondsBeforeExpiry
+	 *            the min time until this credential expires. if this is bigger
+	 *            than the credential lifetime, the method will be called after
+	 *            1 second straight away...
+	 */
+	public void addRemainingLifetimeReminder(final CredentialListener l,
+			final int secondsBeforeExpiry) {
+
+		int remainingLifetime = getRemainingLifetime();
+		int wait = remainingLifetime - secondsBeforeExpiry;
+		if (wait <= 0) {
+			wait = 1;
+		}
+
+		RemainingLifetimeReminder er = new RemainingLifetimeReminder(l,
+				secondsBeforeExpiry);
+		remainingLiftimeReminder.add(er);
+		timer.schedule(er.getTask(), wait * 1000);
+
 	}
 
-	public abstract void destroyCredential();
+	protected abstract void createGssCredential(Map<PROPERTY, Object> config)
+			throws CredentialException;
 
 	/**
 	 * Destroys proxy and possibly metadata file
@@ -178,7 +220,7 @@ public abstract class Credential {
 		destroyCredential();
 
 		try {
-			getCredential().dispose();
+			getGSSCredential().dispose();
 		} catch (Exception e) {
 			// that's ok
 		}
@@ -195,7 +237,7 @@ public abstract class Credential {
 			myLogger.debug("Destrying uploaded proxy from host: " + myProxyHost);
 			MyProxy mp = new MyProxy(myProxyHost, myProxyPort);
 			try {
-				mp.destroy(getCredential(), myProxyUsername, new String(
+				mp.destroy(getGSSCredential(), myProxyUsername, new String(
 						myProxyPassword));
 			} catch (MyProxyException e) {
 				myLogger.error("Can't destroy myproxy credential.", e);
@@ -205,6 +247,8 @@ public abstract class Credential {
 		}
 
 	}
+
+	public abstract void destroyCredential();
 
 	@Override
 	public boolean equals(Object o) {
@@ -220,8 +264,8 @@ public abstract class Credential {
 				}
 			} else {
 				try {
-					return getCredential().equals(
-							((Credential) o).getCredential());
+					return getGSSCredential().equals(
+							((Credential) o).getGSSCredential());
 				} catch (CredentialException e) {
 					return false;
 				}
@@ -229,32 +273,6 @@ public abstract class Credential {
 		} else {
 			return false;
 		}
-
-	}
-
-	/**
-	 * Calls the {@link CredentialListener#credentialAboutToExpire(Credential)}
-	 * method of the listener xx seconds before this credential expires.
-	 * 
-	 * @param l
-	 *            the listener
-	 * @param secondsBeforeExpiry
-	 *            the min time until this credential expires. if this is bigger
-	 *            than the credential lifetime, the method will be called after
-	 *            1 second straight away...
-	 */
-	public void fireCredentialExpiryReminder(final CredentialListener l,
-			final int secondsBeforeExpiry) {
-
-		int remainingLifetime = getRemainingLifetime();
-		int wait = remainingLifetime - secondsBeforeExpiry;
-		if (wait <= 0) {
-			wait = 1;
-		}
-
-		ExpiryReminder er = new ExpiryReminder(l, secondsBeforeExpiry);
-		expiryReminders.add(er);
-		timer.schedule(er.getTask(), wait * 1000);
 
 	}
 
@@ -272,7 +290,33 @@ public abstract class Credential {
 
 	}
 
-	public abstract GSSCredential getCredential() throws CredentialException;
+	public GSSCredential getCredential() throws CredentialExpiredException {
+
+		GSSCredential c = getGSSCredential();
+
+		try {
+			if (c.getRemainingLifetime() < minLifetimeInSeconds) {
+
+				refresh();
+
+				int newLifetime = getGSSCredential().getRemainingLifetime();
+				if (newLifetime < minLifetimeInSeconds) {
+					throw new CredentialExpiredException(
+							"Credential expired and could not be refreshed.");
+				}
+
+			}
+		} catch (GSSException e) {
+			throw new RuntimeException(e);
+		}
+		return c;
+
+	}
+
+	public StaticCredentialRefresher getDefaultRefresher() {
+		return defaultCredentialRefresh;
+
+	}
 
 	public String getDn() {
 		return CertHelpers.getDnInProperFormat(getCredential());
@@ -287,12 +331,27 @@ public abstract class Credential {
 		return endTime;
 	}
 
+	public String getFqan() {
+		try {
+			return getFqan(getCredential());
+		} catch (CredentialException e) {
+			return null;
+		}
+	}
+
+	protected abstract GSSCredential getGSSCredential()
+			throws CredentialException;
+
 	public String getLocalPath() {
 
-		if ( StringUtils.isBlank(localPath) ) {
+		if (StringUtils.isBlank(localPath)) {
 			localPath = LocalProxy.PROXY_FILE;
 		}
 		return localPath;
+	}
+
+	public int getMinLifetime() {
+		return minLifetimeInSeconds;
 	}
 
 	/**
@@ -308,7 +367,7 @@ public abstract class Credential {
 	 */
 	public char[] getMyProxyPassword() {
 
-		if (myProxyPassword != null) {
+		if (myProxyPassword == null) {
 			myProxyPassword = new RandPass().getPassChars(10);
 		}
 		return myProxyPassword;
@@ -351,16 +410,16 @@ public abstract class Credential {
 			if (StringUtils.isNotBlank(myProxyUsername)) {
 				return myProxyUsername;
 			} else {
-				// try {
-				// myProxyUsername = cred.getName().toString()
-				// + UUID.randomUUID().toString();
-				// } catch (Exception e) {
 				myProxyUsername = UUID.randomUUID().toString();
 				// }
 				return myProxyUsername;
 			}
 
 		}
+	}
+
+	public Map<PROPERTY, Object> getProperties() {
+		return properties;
 	}
 
 	public Object getProperty(PROPERTY p) {
@@ -471,6 +530,10 @@ public abstract class Credential {
 				return uuid.hashCode();
 			}
 		}
+	}
+
+	public boolean isSaved() {
+		return isSaved;
 	}
 
 	// private void initProperties(Properties p, String group, boolean check) {
@@ -588,68 +651,32 @@ public abstract class Credential {
 		}
 	}
 
-	// public synchronized void refreshCredential(GSSCredential cred) {
-	// this.timer.cancel();
-	// this.cred = cred;
-	// this.endTime = null;
-	// this.timer = new Timer("credentialExpiryTimer", true);
-	// for (ExpiryReminder er : expiryReminders) {
-	//
-	// int remainingLifetime = getRemainingLifetime();
-	// int wait = remainingLifetime - er.getSecondsBeforeExpiry();
-	// if (wait <= 0) {
-	// wait = 1;
-	// }
-	// this.timer.schedule(er.getTask(), wait * 1000);
-	// }
-	//
-	// if (StringUtils.isNotBlank(this.localPath)) {
-	// saveCredential();
-	// }
-	// }
+	public boolean refresh() {
+		for (CredentialRefresher crui : refreshUI) {
+			try {
+				crui.refresh(this);
 
-	// public synchronized boolean refreshCredentialCommandline() {
-	//
-	// Object ltO = getProperty(PROPERTY.LoginType);
-	// LoginType lt = null;
-	// if (ltO == null) {
-	// lt = LoginType.UNDEFINED;
-	// } else {
-	// lt = (LoginType) ltO;
-	// }
-	// GSSCredential newCred = null;
-	// switch (lt) {
-	// case X509_CERTIFICATE:
-	// newCred = createFromCertificateAndKeyCommandline(this.certFile,
-	// this.keyFile, DEFAULT_PROXY_LIFETIME_IN_HOURS);
-	// break;
-	// case SHIBBOLETH:
-	// newCred = createFromShibIdpCommandline(CommonGridProperties
-	// .getDefault().getLastShibIdp(), CommonGridProperties
-	// .getDefault().getLastShibUsername());
-	// break;
-	// case SHIBBOLETH_LAST_IDP:
-	// newCred = createFromShibIdpCommandline(CommonGridProperties
-	// .getDefault().getLastShibIdp(), CommonGridProperties
-	// .getDefault().getLastShibUsername());
-	// break;
-	// case MYPROXY:
-	// this.cred = null;
-	// getCredential();
-	// return true;
-	// default:
-	// newCred = createFromCommandline();
-	// break;
-	// }
-	//
-	// if (newCred == null) {
-	// return false;
-	// } else {
-	// refreshCredential(newCred);
-	// return true;
-	// }
-	//
-	// }
+				if (uploaded) {
+					uploadMyProxy(null, -1);
+				}
+
+				return true;
+			} catch (CredentialException e) {
+				myLogger.error(
+						"Refreshing credential failed: "
+								+ e.getLocalizedMessage(), e);
+			}
+		}
+		return false;
+	}
+
+	public void removeCredentialRefreshIUI(CredentialRefresher ui) {
+		this.refreshUI.remove(ui);
+	}
+
+	public void removeProperty(PROPERTY key) {
+		this.properties.remove(key);
+	}
 
 	public void saveCredential() throws CredentialException {
 		saveCredential(null);
@@ -689,19 +716,6 @@ public abstract class Credential {
 		}
 	}
 
-	private boolean isSaved = false;
-	public boolean isSaved() {
-		return isSaved;
-	}
-	
-	public String getFqan() {
-		try {
-			return getFqan(getCredential());
-		} catch (CredentialException e) {
-			return null;
-		}
-	}
-
 	private void saveCredentialMetadata() {
 		if (this.localPath == null) {
 			throw new RuntimeException("No local path specified.");
@@ -710,9 +724,12 @@ public abstract class Credential {
 		File metadataFile = new File(this.localPath + "."
 				+ METADATA_FILE_EXTENSION);
 
-		getEndDate();
-
 		Properties prop = new Properties();
+
+		String thisFqan = getFqan();
+		if (StringUtils.isNotBlank(thisFqan)) {
+			properties.put(PROPERTY.FQAN, thisFqan);
+		}
 
 		if (new File(localPath).exists()) {
 			String proxy = null;
@@ -739,9 +756,9 @@ public abstract class Credential {
 			char[] myProxyPassword = child.getMyProxyPassword();
 			String myProxyHost = child.getMyProxyServer();
 			int myProxyPort = child.getMyProxyPort();
-			prop.put(CHILD_KEY + "." + fqan + "." + PROPERTY.MyProxyUsername,
+			prop.put(CHILD_KEY + "." + fqan + "." + PROPERTY.Username,
 					myProxyUsername);
-			prop.put(CHILD_KEY + "." + fqan + "." + PROPERTY.MyProxyPassword,
+			prop.put(CHILD_KEY + "." + fqan + "." + PROPERTY.Password,
 					new String(myProxyPassword));
 			prop.put(CHILD_KEY + "." + fqan + "." + PROPERTY.MyProxyHost,
 					myProxyHost);
@@ -756,6 +773,10 @@ public abstract class Credential {
 		} catch (Exception e) {
 			throw new RuntimeException("Can't store credential metadata.", e);
 		}
+	}
+
+	public void setMinimumLifetime(int minLifetimeInSeconds) {
+		this.minLifetimeInSeconds = minLifetimeInSeconds;
 	}
 
 	public void setMyProxyDelegatedPassword(char[] myProxyPassphrase) {
@@ -797,15 +818,24 @@ public abstract class Credential {
 	public synchronized void uploadMyProxy(String myProxyHostUp,
 			int myProxyPortUp) throws CredentialException {
 
-		// TODO: check whether new upload is required?
 		if (uploaded == true) {
 			return;
+		}
+
+		if (StringUtils.isNotBlank(myProxyHostUp)) {
+			this.myProxyHost = myProxyHostUp;
+		} else {
+			if (StringUtils.isBlank(this.myProxyHost)) {
+				this.myProxyHost = DEFAULT_MYPROXY_SERVER;
+			}
 		}
 
 		if (myProxyPortUp > 0) {
 			this.myProxyPort = myProxyPortUp;
 		} else {
-			this.myProxyPort = DEFAULT_MYPROXY_PORT;
+			if (this.myProxyPort < 0) {
+				this.myProxyPort = DEFAULT_MYPROXY_PORT;
+			}
 		}
 
 		myLogger.debug("Uploading credential to: " + myProxyHost);
@@ -824,8 +854,8 @@ public abstract class Credential {
 			MyProxy_light.init(mp, getCredential(), params,
 					getMyProxyPassword());
 			uploaded = true;
-			properties.put(PROPERTY.MyProxyUsername, getMyProxyUsername());
-			properties.put(PROPERTY.MyProxyPassword, new String(
+			properties.put(PROPERTY.Username, getMyProxyUsername());
+			properties.put(PROPERTY.Password, new String(
 					getMyProxyPassword()));
 			properties.put(PROPERTY.MyProxyHost, myProxyHost);
 			properties.put(PROPERTY.MyProxyPort, new Integer(myProxyPort));

@@ -2,19 +2,23 @@ package grith.jgrith;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.Credential.PROPERTY;
 import grith.jgrith.plainProxy.LocalProxy;
 
 import java.io.File;
+import java.util.Map;
 
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 
 public class ProxyCredential extends Credential {
-	
+
 	private final String localPathOrig;
-	private final GSSCredential cred;
-	
+	private GSSCredential cred;
+
+	public ProxyCredential() {
+		this(LocalProxy.PROXY_FILE);
+	}
+
 	/**
 	 * Creates a Credential object out of an existing proxy file
 	 * 
@@ -31,42 +35,53 @@ public class ProxyCredential extends Credential {
 
 		this.localPathOrig = localPath;
 
-			File proxy = new File(localPath);
-			if (!proxy.exists()) {
-				throw new CredentialException("No proxy found on: " + localPath);
-			}
+		File proxy = new File(localPath);
+		if (!proxy.exists()) {
+			throw new CredentialException("No proxy found on: " + localPath);
+		}
 
-			this.cred = CredentialHelpers.loadGssCredential(new File(localPath));
-			
-			addProperty(PROPERTY.LoginType, LoginType.LOCAL_PROXY);
+		addProperty(PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 
-	}
-	
-	public ProxyCredential() {
-		this(LocalProxy.PROXY_FILE);
+		createGssCredential(null);
+
+
 	}
 
 	@Override
-	public GSSCredential getCredential() throws CredentialException {
-		return this.cred;
+	protected void createGssCredential(Map<PROPERTY, Object> config)
+			throws CredentialException {
+
+		try {
+			this.cred = CredentialHelpers.loadGssCredential(new File(localPathOrig));
+		} catch (Exception e) {
+			throw new CredentialException("Can't load proxy file: "
+					+ e.getLocalizedMessage(), e);
+		}
 	}
 
 	@Override
 	public void destroyCredential() {
 
 		Util.destroy(localPathOrig);
-		
+
 	}
-	
-	
+
+
 	@Override
-	public boolean isSaved() {
-		return true;
+	public GSSCredential getGSSCredential() throws CredentialException {
+		return this.cred;
 	}
-	
+
 	@Override
 	public String getLocalPath() {
 		return this.localPathOrig;
 	}
+
+	@Override
+	public boolean isSaved() {
+		return true;
+	}
+
+
 
 }

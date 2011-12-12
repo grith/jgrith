@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.ietf.jgss.GSSCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,7 +198,8 @@ public class CredentialFactory {
 			String username,
 			char[] password) {
 
-		final Credential c = new SLCSCredential(url, idp, username, password);
+		final Credential c = new SLCSCredential(url, idp, username, password,
+				true);
 		CommonGridProperties.getDefault().setLastShibUsername(username);
 		CommonGridProperties.getDefault().setLastShibIdp(idp);
 
