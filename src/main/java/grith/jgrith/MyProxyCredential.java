@@ -66,7 +66,7 @@ public class MyProxyCredential extends Credential {
 
 		addProperty(PROPERTY.LoginType, LoginType.MYPROXY);
 		addProperty(PROPERTY.Username, myProxyUsername);
-		addProperty(PROPERTY.Password, new String(myProxyPassword));
+		addProperty(PROPERTY.Password, myProxyPassword);
 		addProperty(PROPERTY.MyProxyHost, myproxyHost);
 		addProperty(PROPERTY.MyProxyPort, myproxyPort);
 
