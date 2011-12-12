@@ -31,7 +31,7 @@ public class X509Credential extends Credential {
 	public X509Credential(char[] passphrase) throws CredentialException {
 		this(CoGProperties.getDefault().getUserCertFile(), CoGProperties
 				.getDefault().getUserKeyFile(), passphrase,
-				DEFAULT_PROXY_LIFETIME_IN_HOURS, true);
+				Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS, true);
 	}
 
 	/**

@@ -33,10 +33,15 @@ public class CredentialFactory {
 			.getPort();
 
 	public static Credential createFromCommandline() {
-		return createFromCommandline(null);
+		return createFromCommandline(Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS);
 	}
 
-	public static Credential createFromCommandline(LoginParams params) {
+	public static Credential createFromCommandline(int proxy_lifetime_in_hours) {
+		return createFromCommandline(null, proxy_lifetime_in_hours);
+	}
+
+	public static Credential createFromCommandline(LoginParams params,
+			int proxy_lifetime_in_hours) {
 
 		final String lastIdp = CommonGridProperties.getDefault()
 				.getGridProperty(CommonGridProperties.Property.SHIB_IDP);
@@ -54,12 +59,12 @@ public class CredentialFactory {
 
 		}
 
-		return createFromCommandline(params, temp);
+		return createFromCommandline(params, temp, proxy_lifetime_in_hours);
 
 	}
 
 	public static Credential createFromCommandline(LoginParams params,
-			Set<LoginType> types) {
+			Set<LoginType> types, int proxy_lifetime_in_hours) {
 
 		if ((types == null) || (types.size() == 0)) {
 
@@ -91,11 +96,11 @@ public class CredentialFactory {
 
 		switch (type) {
 		case X509_CERTIFICATE:
-			cred = createFromLocalCertCommandline();
+			cred = createFromLocalCertCommandline(proxy_lifetime_in_hours);
 			break;
 		case MYPROXY:
 			cred = createFromMyProxyCommandline(params,
-					Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
+					proxy_lifetime_in_hours * 3600);
 			break;
 		case SHIBBOLETH:
 			cred = createFromSlcsCommandline();
@@ -118,9 +123,10 @@ public class CredentialFactory {
 		return cred;
 	}
 
-	public static Credential createFromLocalCert(char[] passphrase) {
+	public static Credential createFromLocalCert(char[] passphrase,
+			int lifetime_in_hours) {
 
-		Credential cred = new X509Credential(passphrase);
+		Credential cred = new X509Credential(passphrase, lifetime_in_hours);
 		cred.setProperty(Credential.PROPERTY.LoginType,
 				LoginType.X509_CERTIFICATE);
 		return cred;
@@ -128,10 +134,15 @@ public class CredentialFactory {
 	}
 
 	public static Credential createFromLocalCertCommandline() {
+		return createFromLocalCertCommandline(Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS);
+	}
+
+	public static Credential createFromLocalCertCommandline(
+			int lifetime_in_hours) {
 
 		char[] pw = CliLogin
 				.askPassword("Please enter your certificate passphrase");
-		return createFromLocalCert(pw);
+		return createFromLocalCert(pw, lifetime_in_hours);
 	}
 
 	public static Credential createFromMyProxy(String username,

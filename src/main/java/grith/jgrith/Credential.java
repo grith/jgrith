@@ -98,12 +98,13 @@ public abstract class Credential {
 	public final static int DEFAULT_MYPROXY_PORT = GridEnvironment
 			.getDefaultMyProxyPort();
 
-	public final static int DEFAULT_PROXY_LIFETIME_IN_HOURS = 12;
 	public final static int MIN_REMAINING_LIFETIME = 600;
 
 	public static final String METADATA_FILE_EXTENSION = "md";
 
 	public static final String CHILD_KEY = "group";
+
+	public static final int DEFAULT_PROXY_LIFETIME_IN_HOURS = 24;
 
 	public static GSSCredential createFromCertificateAndKey(String certFile,
 			String keyFile, char[] certPassphrase, int lifetime_in_hours) {
