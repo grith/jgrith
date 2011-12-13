@@ -1,8 +1,8 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.utils.ActionPerformedListener;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.BorderLayout;
 import java.io.File;

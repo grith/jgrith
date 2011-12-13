@@ -1,10 +1,10 @@
 package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.control.UserProperty;
 import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;

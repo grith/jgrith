@@ -1,9 +1,9 @@
 package start;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
-import grith.jgrith.Credential;
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.ProxyCredential;
+import grith.jgrith.credential.Credential;
+import grith.jgrith.credential.ProxyCredential;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.vomsProxy.VomsHelpers;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
 

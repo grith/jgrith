@@ -1,4 +1,4 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.gsindl.SLCS;
@@ -38,7 +38,7 @@ public class SLCSCredential extends Credential {
 	}
 
 	@Override
-	protected void createGssCredential(Map<PROPERTY, Object> config)
+	public void createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
 		try {

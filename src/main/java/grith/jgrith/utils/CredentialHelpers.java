@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package grith.jgrith;
+package grith.jgrith.utils;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.plainProxy.LocalProxy;

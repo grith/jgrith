@@ -1,8 +1,7 @@
-package grith.jgrith.credential;
+package grith.jgrith.credential.refreshers;
 
-import grith.jgrith.Credential;
-import grith.jgrith.Credential.PROPERTY;
-import grith.jgrith.CredentialRefresher;
+import grith.jgrith.credential.Credential;
+import grith.jgrith.credential.Credential.PROPERTY;
 
 import java.util.Map;
 

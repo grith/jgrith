@@ -1,13 +1,15 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.credential.StaticCredentialRefresher;
+import grith.jgrith.credential.refreshers.CredentialRefresher;
+import grith.jgrith.credential.refreshers.StaticCredentialRefresher;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.utils.CertHelpers;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsHelpers;
@@ -210,7 +212,7 @@ public abstract class Credential {
 
 	}
 
-	protected abstract void createGssCredential(Map<PROPERTY, Object> config)
+	public abstract void createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException;
 
 	/**

@@ -19,8 +19,8 @@
 package grith.jgrith.myProxy;
 
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 

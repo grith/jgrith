@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
-import grith.jgrith.CredentialHelpers;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsException;

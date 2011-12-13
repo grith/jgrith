@@ -1,7 +1,8 @@
-package grith.jgrith;
+package grith.jgrith.credential.refreshers;
 
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.Credential.PROPERTY;
+import grith.jgrith.credential.Credential;
+import grith.jgrith.credential.Credential.PROPERTY;
 
 import java.util.Map;
 

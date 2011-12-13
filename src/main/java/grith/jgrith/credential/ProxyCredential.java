@@ -1,8 +1,9 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.plainProxy.LocalProxy;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class ProxyCredential extends Credential {
 	}
 
 	@Override
-	protected void createGssCredential(Map<PROPERTY, Object> config)
+	public void createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
 		try {

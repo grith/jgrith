@@ -1,4 +1,4 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.constants.GridEnvironment;
@@ -73,7 +73,7 @@ public class MyProxyCredential extends Credential {
 	}
 
 	@Override
-	protected void createGssCredential(Map<PROPERTY, Object> config)
+	public void createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
 		Object pw = config.get(PROPERTY.Password);

@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.LocalProxy;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.io.IOException;

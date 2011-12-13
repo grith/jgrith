@@ -1,11 +1,11 @@
 package grith.jgrith.control;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.certificate.CertificateHelper;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VO;
 import grith.jgrith.vomsProxy.VomsProxy;
 

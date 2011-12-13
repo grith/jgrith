@@ -1,8 +1,8 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

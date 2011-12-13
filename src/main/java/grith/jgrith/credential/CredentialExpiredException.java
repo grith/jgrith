@@ -1,4 +1,4 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 public class CredentialExpiredException extends RuntimeException {
 

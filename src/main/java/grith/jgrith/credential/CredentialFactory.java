@@ -1,4 +1,4 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.configuration.CommonGridProperties;
 import grisu.jcommons.constants.Enums.LoginType;
@@ -6,6 +6,7 @@ import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
 import grisu.jcommons.view.cli.CliHelpers;
 import grith.gsindl.SLCS;
+import grith.jgrith.Environment;
 import grith.jgrith.control.LoginParams;
 import grith.jgrith.control.SlcsLoginWrapper;
 import grith.jgrith.utils.CliLogin;

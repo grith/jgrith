@@ -19,7 +19,7 @@
 package grith.jgrith.plainProxy;
 
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.CredentialHelpers;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;

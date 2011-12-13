@@ -18,8 +18,8 @@
 
 package grith.jgrith.certificate;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.utils.CertHelpers;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.util.Date;
 import java.util.UUID;

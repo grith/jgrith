@@ -7,8 +7,8 @@ import grisu.jcommons.exceptions.CredentialException;
 import grisu.jcommons.interfaces.IdpListener;
 import grisu.jcommons.interfaces.SlcsListener;
 import grith.gsindl.SLCS;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.sibboleth.ShibListener;
 import grith.sibboleth.ShibLoginPanel;
 

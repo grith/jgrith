@@ -18,8 +18,8 @@
 
 package grith.jgrith.myProxy;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
+import grith.jgrith.utils.CredentialHelpers;
 
 import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.GlobusCredential;

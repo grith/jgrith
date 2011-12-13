@@ -1,6 +1,5 @@
 package grith.jgrith.utils;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.certificate.ProxyCredentialOld;
 import grith.jgrith.voms.VO;
 import grith.jgrith.vomsProxy.VomsException;

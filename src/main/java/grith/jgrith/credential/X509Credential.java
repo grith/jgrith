@@ -1,4 +1,4 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;

@@ -1,7 +1,8 @@
-package grith.jgrith;
+package grith.jgrith.credential;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VO;
 import grith.jgrith.vomsProxy.VomsProxy;
 
@@ -39,7 +40,7 @@ public class WrappedGssCredential extends Credential {
 	}
 
 	@Override
-	protected void createGssCredential(Map<PROPERTY, Object> config)
+	public void createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
 		// nothing to be done here...

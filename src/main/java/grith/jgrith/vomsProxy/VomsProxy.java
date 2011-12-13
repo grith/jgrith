@@ -20,7 +20,7 @@ package grith.jgrith.vomsProxy;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.CredentialHelpers;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VO;
 
 import java.io.File;
