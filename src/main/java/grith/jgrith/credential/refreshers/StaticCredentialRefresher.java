@@ -11,6 +11,10 @@ public class StaticCredentialRefresher extends CredentialRefresher {
 
 	private final Map<PROPERTY, Object> config = Maps.newLinkedHashMap();
 
+	public StaticCredentialRefresher(boolean enabled) {
+		setEnabled(enabled);
+	}
+
 	public void addProperty(PROPERTY key, Object value) {
 		this.config.put(key, value);
 	}

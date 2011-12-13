@@ -140,7 +140,8 @@ public abstract class Credential {
 		return fqan;
 	}
 
-	private final StaticCredentialRefresher defaultCredentialRefresh = new StaticCredentialRefresher();
+	private final StaticCredentialRefresher defaultCredentialRefresh = new StaticCredentialRefresher(
+			false);
 
 	private final List<CredentialRefresher> refreshUI = Lists
 			.newArrayList((CredentialRefresher) defaultCredentialRefresh);
@@ -209,6 +210,23 @@ public abstract class Credential {
 				secondsBeforeExpiry);
 		remainingLiftimeReminder.add(er);
 		timer.schedule(er.getTask(), wait * 1000);
+
+	}
+
+	public boolean autorefresh() {
+
+		try {
+			int oldLt = getGSSCredential().getRemainingLifetime();
+			defaultCredentialRefresh.refresh(this);
+			int newLt = getGSSCredential().getRemainingLifetime();
+			if (oldLt >= newLt) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (Exception e) {
+			return false;
+		}
 
 	}
 
@@ -293,24 +311,23 @@ public abstract class Credential {
 
 	}
 
-	public GSSCredential getCredential() throws CredentialExpiredException {
+	public GSSCredential getCredential() throws InvalidCredentialException {
 
 		GSSCredential c = getGSSCredential();
-
 		try {
-			if (c.getRemainingLifetime() < minLifetimeInSeconds) {
+			int remaining = c.getRemainingLifetime();
+			if (remaining < minLifetimeInSeconds) {
 
-				refresh();
+				autorefresh();
 
-				int newLifetime = getGSSCredential().getRemainingLifetime();
-				if (newLifetime < minLifetimeInSeconds) {
-					throw new CredentialExpiredException(
-							"Credential expired and could not be refreshed.");
+				getGSSCredential().getRemainingLifetime();
+
+				if (!isValid()) {
+					throw new InvalidCredentialException("Credential expired.");
 				}
-
 			}
 		} catch (GSSException e) {
-			throw new RuntimeException(e);
+			throw new InvalidCredentialException(e);
 		}
 		return c;
 
@@ -535,10 +552,6 @@ public abstract class Credential {
 		}
 	}
 
-	public boolean isSaved() {
-		return isSaved;
-	}
-
 	// private void initProperties(Properties p, String group, boolean check) {
 	// Map<String, Properties> childs = Maps.newHashMap();
 	//
@@ -628,6 +641,10 @@ public abstract class Credential {
 	// }
 	// }
 	// }
+
+	public boolean isSaved() {
+		return isSaved;
+	}
 
 	public boolean isUploaded() {
 		return this.uploaded;

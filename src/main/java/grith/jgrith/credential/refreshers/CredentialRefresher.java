@@ -8,12 +8,21 @@ import java.util.Map;
 
 public abstract class CredentialRefresher {
 
+	private boolean enabled = true;
+
 	public abstract Map<PROPERTY, Object> getConfig(Credential t);
 
-
 	public void refresh(Credential c) throws CredentialException {
-		Map<PROPERTY, Object> refreshConfig = getConfig(c);
-		c.createGssCredential(refreshConfig);
+		if (enabled) {
+			Map<PROPERTY, Object> refreshConfig = getConfig(c);
+			c.createGssCredential(refreshConfig);
+		} else {
+			throw new CredentialException("Refresher not enabled.");
+		}
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 }
