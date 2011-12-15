@@ -10,12 +10,12 @@ public abstract class CredentialRefresher {
 
 	private boolean enabled = true;
 
-	public abstract Map<PROPERTY, Object> getConfig(Credential t);
+	protected abstract Map<PROPERTY, Object> getConfig(Credential t);
 
-	public void refresh(Credential c) throws CredentialException {
+	public boolean refresh(Credential c) throws CredentialException {
 		if (enabled) {
 			Map<PROPERTY, Object> refreshConfig = getConfig(c);
-			c.createGssCredential(refreshConfig);
+			return c.recreateGssCredential(refreshConfig);
 		} else {
 			throw new CredentialException("Refresher not enabled.");
 		}

@@ -15,15 +15,24 @@ import org.ietf.jgss.GSSCredential;
 
 public class MyProxyCredential extends Credential {
 
-	private GSSCredential cred = null;
+	// private String myProxyHostOrig = DEFAULT_MYPROXY_SERVER;
+	// private int myProxyPortOrig = DEFAULT_MYPROXY_PORT;
+	//
+	// private String myProxyUsernameOrig = null;
+	// private char[] myProxyPasswordOrig = null;
 
-	private String myProxyHostOrig = DEFAULT_MYPROXY_SERVER;
-	private int myProxyPortOrig = DEFAULT_MYPROXY_PORT;
+	public MyProxyCredential(Map<PROPERTY, Object> config) {
+		super(config);
+	}
 
-	private String myProxyUsernameOrig = null;
-	private char[] myProxyPasswordOrig = null;
+	public MyProxyCredential(String un, char[] pw) {
+		this(un, pw, -1);
+	}
 
-	private final int myproxyLifetimeInSeconds;
+	public MyProxyCredential(String un, char[] pw, int lifetime_in_seconds) {
+		this(un, pw, GridEnvironment.getDefaultMyProxyServer(), GridEnvironment
+				.getDefaultMyProxyPort(), lifetime_in_seconds);
+	}
 
 	/**
 	 * Creates a Credential object from MyProxy login information.
@@ -48,66 +57,69 @@ public class MyProxyCredential extends Credential {
 			String myproxyHost, int myproxyPort, int lifetimeInSeconds)
 					throws CredentialException {
 
-		this.myProxyUsernameOrig = myProxyUsername;
 
-		this.myProxyPasswordOrig = myProxyPassword;
 
-		this.myproxyLifetimeInSeconds = lifetimeInSeconds;
 		if (StringUtils.isBlank(myproxyHost)) {
-			this.myProxyHostOrig = GridEnvironment.getDefaultMyProxyServer();
-		} else {
-			this.myProxyHostOrig = myproxyHost;
+			myproxyHost = GridEnvironment.getDefaultMyProxyServer();
 		}
+
 		if (myproxyPort <= 0) {
-			this.myProxyPortOrig = GridEnvironment.getDefaultMyProxyPort();
-		} else {
-			this.myProxyPortOrig = myproxyPort;
+			myproxyPort = GridEnvironment.getDefaultMyProxyPort();
+		}
+
+		if (lifetimeInSeconds <= 0) {
+			lifetimeInSeconds = DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600;
 		}
 
 		addProperty(PROPERTY.LoginType, LoginType.MYPROXY);
-		addProperty(PROPERTY.Username, myProxyUsername);
-		addProperty(PROPERTY.Password, myProxyPassword);
+		addProperty(PROPERTY.MyProxyUsername, myProxyUsername);
+		addProperty(PROPERTY.MyProxyPassword, myProxyPassword);
 		addProperty(PROPERTY.MyProxyHost, myproxyHost);
 		addProperty(PROPERTY.MyProxyPort, myproxyPort);
+		addProperty(PROPERTY.LifetimeInSeconds, lifetimeInSeconds);
 
 	}
 
 	@Override
-	public void createGssCredential(Map<PROPERTY, Object> config)
+	public Map<PROPERTY, Object> autorefreshConfig() {
+		return null;
+	}
+
+	@Override
+	public GSSCredential createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
-		Object pw = config.get(PROPERTY.Password);
+		Object pw = config.get(PROPERTY.MyProxyPassword);
 
-		String un = (String) config.get(PROPERTY.Username);
+		String un = (String) config.get(PROPERTY.MyProxyUsername);
 		String host = (String) config.get(PROPERTY.MyProxyHost);
 
 		Integer port = (Integer) config.get(PROPERTY.MyProxyPort);
 
 
-		createGssCredential(un, (char[]) pw, host, port);
+		return createGssCredential(un, (char[]) pw, host, port);
 	}
 
-	public void createGssCredential(String myproxyUsername,
+	public GSSCredential createGssCredential(String myproxyUsername,
 			char[] myproxyPassword, String myproxyhost, int myproxyPort)
 					throws CredentialException {
 
 		try {
 			if (myproxyPassword == null) {
-				myproxyPassword = myProxyPasswordOrig;
+				myproxyPassword = (char[]) getProperty(PROPERTY.MyProxyPassword);
 			}
 
 			if (StringUtils.isBlank(myproxyUsername)) {
-				myproxyUsername = myProxyUsernameOrig;
+				myproxyUsername = (String) getProperty(PROPERTY.MyProxyUsername);
 			}
 			if (StringUtils.isBlank(myproxyhost)) {
-				myproxyhost = myProxyHostOrig;
+				myproxyhost = (String) getProperty(PROPERTY.MyProxyHost);
 			}
 			if (myproxyPort <= 0) {
-				myproxyPort = myProxyPortOrig;
+				myproxyPort = (Integer) getProperty(PROPERTY.MyProxyPort);
 			}
-			cred = MyProxy_light.getDelegation(myproxyhost, myproxyPort,
-					myproxyUsername, myproxyPassword,
-					myproxyLifetimeInSeconds);
+			return MyProxy_light.getDelegation(myproxyhost, myproxyPort,
+					myproxyUsername, myproxyPassword, getInitialLifetime());
 		} catch (Exception e) {
 			myLogger.error("Can't refresh myproxy credential.", e);
 			throw new CredentialException("Can't retrieve MyProxy credential: "
@@ -115,63 +127,47 @@ public class MyProxyCredential extends Credential {
 		}
 	}
 
+
+
 	@Override
 	public void destroyCredential() {
 		myLogger.debug("Destrying original proxy from host: "
-				+ myProxyHostOrig);
+				+ getProperty(PROPERTY.MyProxyHost));
 		try {
-			MyProxy mp = new MyProxy(myProxyHostOrig, myProxyPortOrig);
-			mp.destroy(getGSSCredential(), myProxyUsernameOrig, new String(
-					myProxyPasswordOrig));
+			MyProxy mp = new MyProxy(
+					(String) getProperty(PROPERTY.MyProxyHost),
+					(Integer) getProperty(PROPERTY.MyProxyPort));
+			mp.destroy(getGSSCredential(), (String)getProperty(PROPERTY.MyProxyUsername), new String(
+					(char[]) getProperty(PROPERTY.MyProxyPassword)));
 		} catch (MyProxyException e) {
 			myLogger.error("Can't destroy myproxy credential.", e);
 		}
 
-		Arrays.fill(myProxyPasswordOrig, 'x');
+		Arrays.fill((char[]) getProperty(PROPERTY.MyProxyPassword), 'x');
 
 
 	}
 
 
-
-	/**
-	 * The underlying GSSCredential.
-	 * 
-	 * @return the credential
-	 * @throws CredentialException
-	 *             if the credential can't be retrieved from MyProxy or the
-	 *             lifetime of the credential is shorter than configured in
-	 *             {@link #MIN_REMAINING_LIFETIME}.
-	 */
-	@Override
-	public GSSCredential getGSSCredential() throws CredentialException {
-
-		if ( this.cred == null ) {
-			// means, get it from myproxy
-			createGssCredential(getProperties());
-		}
-
-		return cred;
-	}
 
 	@Override
 	public char[] getMyProxyPassword() {
-		return myProxyPasswordOrig;
+		return (char[]) getProperty(PROPERTY.MyProxyPassword);
 	}
 
 	@Override
 	public int getMyProxyPort() {
-		return myProxyPortOrig;
+		return (Integer) getProperty(PROPERTY.MyProxyPort);
 	}
 
 	@Override
 	public String getMyProxyServer() {
-		return myProxyHostOrig;
+		return (String) getProperty(PROPERTY.MyProxyHost);
 	}
 
 	@Override
 	public String getMyProxyUsername() {
-		return  myProxyUsernameOrig;
+		return (String) getProperty(PROPERTY.MyProxyUsername);
 	}
 
 	@Override
@@ -179,6 +175,9 @@ public class MyProxyCredential extends Credential {
 		return true;
 	}
 
-
+	@Override
+	protected void setGssCredential(GSSCredential cred) {
+		// TODO upload?
+	}
 
 }

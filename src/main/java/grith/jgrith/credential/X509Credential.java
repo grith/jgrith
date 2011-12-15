@@ -14,9 +14,7 @@ import org.ietf.jgss.GSSException;
 
 public class X509Credential extends Credential {
 
-	private final int lifetime_in_hours;
-
-	private GSSCredential cred;
+	private char[] passphrase;
 
 	/**
 	 * Creates a Credential object from an x509 certificate and key pair that
@@ -55,6 +53,11 @@ public class X509Credential extends Credential {
 
 
 
+	public X509Credential(Map<PROPERTY, Object> config) {
+		super(config);
+	}
+
+
 	/**
 	 * This one creates a Credential object by creating a proxy out of a local
 	 * X509 certificate & key.
@@ -71,33 +74,47 @@ public class X509Credential extends Credential {
 	 * @throws GSSException
 	 * @throws Exception
 	 */
-	public X509Credential(String certFile, String keyFile, char[] certPassphrase,
-			int lifetime_in_hours,
+	public X509Credential(String certFile, String keyFile,
+			char[] certPassphrase, int lifetime_in_hours,
 			boolean storePasspharseInMemory) throws CredentialException {
 
 		addProperty(PROPERTY.CertFile, certFile);
 		addProperty(PROPERTY.KeyFile, keyFile);
-		this.lifetime_in_hours = lifetime_in_hours;
+		addProperty(PROPERTY.LifetimeInSeconds, lifetime_in_hours * 3600);
 
 		addProperty(PROPERTY.LoginType, LoginType.X509_CERTIFICATE);
+
+		if (storePasspharseInMemory) {
+			this.passphrase = certPassphrase;
+		}
 
 		Map<PROPERTY, Object> temp = new HashMap<PROPERTY, Object>(
 				getProperties());
 		temp.put(PROPERTY.Password, certPassphrase);
 
-		createGssCredential(temp);
+		recreateGssCredential(temp);
 
 	}
 
+	@Override
+	public Map<PROPERTY, Object> autorefreshConfig() {
+
+		if (passphrase == null) {
+			return null;
+		}
+
+		Map<PROPERTY, Object> temp = new HashMap<PROPERTY, Object>(
+				getProperties());
+		temp.put(PROPERTY.Password, passphrase);
+
+		return temp;
+	}
 
 	@Override
-	public void createGssCredential(Map<PROPERTY, Object> conf)
+	public GSSCredential createGssCredential(Map<PROPERTY, Object> temp)
 			throws CredentialException {
 
 		try {
-
-			Map<PROPERTY, Object> temp = getDefaultRefresher().getConfig(this);
-			temp.putAll(conf);
 
 			char[] passphrase = (char[]) temp.get(PROPERTY.Password);
 			if (passphrase == null) {
@@ -108,8 +125,8 @@ public class X509Credential extends Credential {
 			String certFile = (String) temp.get(PROPERTY.CertFile);
 			String keyFile = (String) temp.get(PROPERTY.KeyFile);
 
-			this.cred = PlainProxy.init(certFile, keyFile, passphrase,
-					lifetime_in_hours);
+			return PlainProxy.init(certFile, keyFile, passphrase,
+					getInitialLifetime() / 3600);
 		} catch (Exception e) {
 			throw new CredentialException("Can't init certificate: "
 					+ e.getLocalizedMessage(), e);
@@ -122,8 +139,8 @@ public class X509Credential extends Credential {
 	}
 
 	@Override
-	public GSSCredential getGSSCredential() throws CredentialException {
-		return cred;
+	protected void setGssCredential(GSSCredential cred) {
+		// nothing to do here
 	}
 
 }

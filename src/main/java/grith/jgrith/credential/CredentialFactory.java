@@ -104,12 +104,12 @@ public class CredentialFactory {
 					proxy_lifetime_in_hours * 3600);
 			break;
 		case SHIBBOLETH:
-			cred = createFromSlcsCommandline();
+			cred = createFromSlcsCommandline(proxy_lifetime_in_hours * 3600);
 			break;
 		case SHIBBOLETH_LAST_IDP:
 			cred = createFromSlcsCommandline(CommonGridProperties
 					.getDefault()
-					.getLastShibIdp());
+					.getLastShibIdp(), proxy_lifetime_in_hours * 3600);
 			break;
 		default:
 			throw new IllegalArgumentException("Login type " + type
@@ -207,11 +207,10 @@ public class CredentialFactory {
 	}
 
 	public static Credential createFromSlcs(String url, String idp,
-			String username,
-			char[] password) {
+			String username, char[] password, int lifetimeInSeconds) {
 
 		final Credential c = new SLCSCredential(url, idp, username, password,
-				true);
+				true, lifetimeInSeconds);
 		CommonGridProperties.getDefault().setLastShibUsername(username);
 		CommonGridProperties.getDefault().setLastShibIdp(idp);
 
@@ -220,6 +219,10 @@ public class CredentialFactory {
 	}
 
 	public static Credential createFromSlcsCommandline() {
+		return createFromSlcsCommandline(Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
+	}
+
+	public static Credential createFromSlcsCommandline(int lifetimeInSeconds) {
 
 		List<String> idps = null;
 		try {
@@ -242,10 +245,11 @@ public class CredentialFactory {
 			System.exit(0);
 		}
 
-		return createFromSlcsCommandline(idp);
+		return createFromSlcsCommandline(idp, lifetimeInSeconds);
 	}
 
-	public static Credential createFromSlcsCommandline(String idp) {
+	public static Credential createFromSlcsCommandline(String idp,
+			int lifetimeInSeconds) {
 
 		String msg = "Your institution username";
 		String lastUsername = CommonGridProperties.getDefault()
@@ -253,18 +257,19 @@ public class CredentialFactory {
 
 		String username = CliLogin.ask(msg, lastUsername);
 
-		return createFromSlcsCommandline(username, idp);
+		return createFromSlcsCommandline(username, idp, lifetimeInSeconds);
 
 	}
 
 	public static Credential createFromSlcsCommandline(String username,
-			String idp) {
+			String idp, int lifetimeInSeconds) {
 
 		char[] pw = CliLogin.askPassword("Your institution password");
 
 		CliHelpers.setIndeterminateProgress("Logging in...", true);
 		try {
-			Credential cred = createFromSlcs(SLCS_URL, idp, username, pw);
+			Credential cred = createFromSlcs(SLCS_URL, idp, username, pw,
+					lifetimeInSeconds);
 			return cred;
 		} finally {
 			CliHelpers.setIndeterminateProgress(false);

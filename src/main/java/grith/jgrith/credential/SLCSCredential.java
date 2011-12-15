@@ -1,5 +1,6 @@
 package grith.jgrith.credential;
 
+import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.gsindl.SLCS;
 import grith.jgrith.plainProxy.PlainProxy;
@@ -16,52 +17,87 @@ import org.ietf.jgss.GSSCredential;
 
 public class SLCSCredential extends Credential {
 
-	private GSSCredential cred;
+	private char[] password = null;
+
+	public SLCSCredential(Map<PROPERTY, Object> config) {
+		super(config);
+	}
+
+	public SLCSCredential(String idp, String username, char[] pw, boolean store) {
+		this(SLCS.DEFAULT_SLCS_URL, idp, username, pw, store);
+	}
 
 	public SLCSCredential(String url, String idp, String username,
 			char[] password, boolean storeLoginInfoInMemory) {
-		myLogger.debug("SLCS login: setting idpObject and credentialManager...");
+		this(url, idp, username, password, storeLoginInfoInMemory, -1);
+	}
 
+	public SLCSCredential(String url, String idp, String username,
+			char[] password, boolean storeLoginInfoInMemory,
+			int initialLifetimeInSeconds) {
+
+		if (StringUtils.isBlank(url)) {
+			url = SLCS.DEFAULT_SLCS_URL;
+		}
+
+		if (initialLifetimeInSeconds < 0) {
+			addProperty(PROPERTY.LifetimeInSeconds,
+					DEFAULT_PROXY_LIFETIME_IN_HOURS * 3600);
+		} else {
+			addProperty(PROPERTY.LifetimeInSeconds, initialLifetimeInSeconds);
+		}
 		addProperty(PROPERTY.SlcsUrl, url);
 		addProperty(PROPERTY.IdP, idp);
 		addProperty(PROPERTY.Username, username);
+		addProperty(PROPERTY.LoginType, LoginType.SHIBBOLETH);
 
 		if (storeLoginInfoInMemory) {
-			getDefaultRefresher().addProperty(PROPERTY.Password, password);
+			this.password = password;
+		}
+
+		// we can't put password in default properties
+		Map<PROPERTY, Object> temp = new HashMap<PROPERTY, Object>(
+				getProperties());
+		temp.put(PROPERTY.Password, password);
+		recreateGssCredential(temp);
+
+	}
+
+
+	@Override
+	public Map<PROPERTY, Object> autorefreshConfig() {
+
+		if ( password == null ) {
+			return null;
 		}
 
 		Map<PROPERTY, Object> temp = new HashMap<PROPERTY, Object>(
 				getProperties());
 		temp.put(PROPERTY.Password, password);
-		createGssCredential(temp);
-
+		return temp;
 	}
 
 	@Override
-	public void createGssCredential(Map<PROPERTY, Object> config)
+	public GSSCredential createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
 		try {
 
-			Map<PROPERTY, Object> temp = new HashMap<PROPERTY, Object>(
-					getDefaultRefresher().getConfig(this));
-			temp.putAll(config);
-
-			char[] password = (char[]) temp.get(PROPERTY.Password);
+			char[] password = (char[]) config.get(PROPERTY.Password);
 			if ((password == null) || (password.length == 0)) {
 				throw new CredentialException("No password provided.");
 			}
 
-			String idp = (String) temp.get(PROPERTY.IdP);
+			String idp = (String) config.get(PROPERTY.IdP);
 			final IdpObject idpO = new StaticIdpObject(idp);
-			String username = (String) temp.get(PROPERTY.Username);
+			String username = (String) config.get(PROPERTY.Username);
 
 			final CredentialManager cm = new StaticCredentialManager(username,
 					password);
 
 			myLogger.debug("SLCS login: starting actual login...");
 
-			String url = (String) temp.get(PROPERTY.SlcsUrl);
+			String url = (String) config.get(PROPERTY.SlcsUrl);
 			if (StringUtils.isBlank(url)) {
 				url = SLCS.DEFAULT_SLCS_URL;
 			}
@@ -76,27 +112,25 @@ public class SLCSCredential extends Credential {
 			myLogger.debug("SLCS login: Login finished.");
 			myLogger.debug("SLCS login: Creating proxy from slcs credential...");
 
-			cred = PlainProxy.init(slcs.getCertificate(),
-					slcs.getPrivateKey(), 24 * 10);
+			return PlainProxy.init(slcs.getCertificate(), slcs.getPrivateKey(),
+					(getInitialLifetime() / 3600));
 		} catch (Exception e) {
 			throw new CredentialException("Could not create slcs credential: "
 					+ e.getLocalizedMessage(), e);
 		}
 	}
 
+
+
 	@Override
 	public void destroyCredential() {
 		// Arrays.fill(password, 'x');
 	}
 
-
-
 	@Override
-	public GSSCredential getGSSCredential() throws CredentialException {
-		return cred;
+	protected void setGssCredential(GSSCredential cred) {
+		// nothing to do here
 	}
-
-
 
 
 }

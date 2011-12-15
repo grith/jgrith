@@ -14,7 +14,6 @@ import org.ietf.jgss.GSSCredential;
 public class ProxyCredential extends Credential {
 
 	private final String localPathOrig;
-	private GSSCredential cred;
 
 	public ProxyCredential() {
 		this(LocalProxy.PROXY_FILE);
@@ -33,7 +32,6 @@ public class ProxyCredential extends Credential {
 	 */
 	public ProxyCredential(String localPath) {
 
-
 		this.localPathOrig = localPath;
 
 		File proxy = new File(localPath);
@@ -43,22 +41,31 @@ public class ProxyCredential extends Credential {
 
 		addProperty(PROPERTY.LoginType, LoginType.LOCAL_PROXY);
 
-		createGssCredential(null);
+		recreateGssCredential(null);
 
 
 	}
 
 	@Override
-	public void createGssCredential(Map<PROPERTY, Object> config)
+	public Map<PROPERTY, Object> autorefreshConfig() {
+		return null;
+	}
+
+	@Override
+	public GSSCredential createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
+
 		try {
-			this.cred = CredentialHelpers.loadGssCredential(new File(localPathOrig));
+			return CredentialHelpers.loadGssCredential(new File(localPathOrig));
+		} catch (CredentialException ce) {
+			throw ce;
 		} catch (Exception e) {
 			throw new CredentialException("Can't load proxy file: "
 					+ e.getLocalizedMessage(), e);
 		}
 	}
+
 
 	@Override
 	public void destroyCredential() {
@@ -67,11 +74,6 @@ public class ProxyCredential extends Credential {
 
 	}
 
-
-	@Override
-	public GSSCredential getGSSCredential() throws CredentialException {
-		return this.cred;
-	}
 
 	@Override
 	public String getLocalPath() {
@@ -83,6 +85,19 @@ public class ProxyCredential extends Credential {
 		return true;
 	}
 
+	@Override
+	protected void setGssCredential(GSSCredential cred) {
 
+		try {
+			CredentialHelpers.writeToDisk(getCredential(), new File(
+					localPathOrig));
+			int initial_lifetime = cred.getRemainingLifetime();
+			addProperty(PROPERTY.LifetimeInSeconds, initial_lifetime);
+		} catch (Exception e) {
+			throw new CredentialException("Can't load proxy file: "
+					+ e.getLocalizedMessage(), e);
+		}
+
+	}
 
 }
