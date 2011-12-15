@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -85,36 +83,6 @@ public abstract class Credential {
 		}
 	}
 
-	private class RemainingLifetimeReminder {
-
-		private final CredentialListener l;
-		private final int secondsBeforeExpiry;
-
-		public RemainingLifetimeReminder(CredentialListener l,
-				int secondsBeforeExpiry) {
-			this.l = l;
-			this.secondsBeforeExpiry = secondsBeforeExpiry;
-		}
-
-		public CredentialListener getCredentialListener() {
-			return this.l;
-		}
-
-		public int getSecondsBeforeExpiry() {
-			return this.secondsBeforeExpiry;
-		}
-
-		public TimerTask getTask() {
-			return new TimerTask() {
-
-				@Override
-				public void run() {
-					l.credentialAboutToExpire(Credential.this);
-				}
-			};
-		}
-
-	}
 
 	static final Logger myLogger = LoggerFactory.getLogger(Credential.class
 			.getName());
@@ -167,6 +135,8 @@ public abstract class Credential {
 
 	public static Credential loadFromConfig(Map<PROPERTY, Object> config) {
 
+		myLogger.debug("Loading credential from config map...");
+
 		try {
 
 			LoginType type = (LoginType)config.get(PROPERTY.LoginType);
@@ -195,19 +165,25 @@ public abstract class Credential {
 						+ " not supported.");
 			}
 
+
 			if (StringUtils.isNotBlank(localPath)
 					&& new File(localPath).exists()) {
 				c.setSaved(true);
 				try {
+					myLogger.debug("Loading gss credential from local proxy...");
 					c.createFromLocalProxy();
+					myLogger.debug("Credential loaded successfully.");
 				} catch (CredentialException ce) {
 					myLogger.error("Can't load from local proxy: "
 							+ ce.getLocalizedMessage());
 				}
 			} else {
+				myLogger.debug("Loading gss credential from MyProxy...");
 				c.createFromMyProxy();
+				myLogger.debug("Credential loaded successfully.");
 				if (StringUtils.isNotBlank(localPath)
 						&& !new File(localPath).exists()) {
+					myLogger.debug("Saving gss credential data to local disk.");
 					c.saveCredential(localPath);
 				}
 			}
@@ -225,6 +201,7 @@ public abstract class Credential {
 
 	public static Credential loadFromMetaDataFile(String metadataFile) {
 
+		myLogger.debug("Loading credential from file: " + metadataFile);
 		try {
 			Properties props = new Properties();
 			FileInputStream in = new FileInputStream(metadataFile);
@@ -316,6 +293,7 @@ public abstract class Credential {
 			Credential c = loadFromConfig(config);
 
 			for (String fqan : childs.keySet()) {
+				myLogger.debug("Adding existing and uploaded childs to credential...");
 				Map<PROPERTY, Object> childConf = childs.get(fqan);
 				childConf.put(PROPERTY.LoginType, LoginType.MYPROXY);
 				Credential child = loadFromConfig(childConf);
@@ -336,18 +314,13 @@ public abstract class Credential {
 	private Map<String, VO> fqans;
 
 	private Calendar endTime;
-	private int minLifetimeInSeconds = 120;
+	private int minLifetimeInSeconds = 300;
 
 	private final long minTimeBetweenAutoRefreshes = 300;
 
-	private Date lastCredentialAutoRefresh = new Date();
+	private volatile Date lastCredentialAutoRefresh = new Date();
 
 	private GSSCredential cred;
-
-	private final List<RemainingLifetimeReminder> remainingLiftimeReminder = Lists
-			.newLinkedList();
-
-	private final Timer timer = new Timer("credentialExpiryTimer", true);
 
 	private final Map<PROPERTY, Object> properties;
 
@@ -356,6 +329,7 @@ public abstract class Credential {
 	private boolean isSaved = false;
 
 	public Credential() {
+		myLogger.debug("Creating credential " + uuid);
 		properties = Maps.newHashMap();
 	}
 
@@ -368,6 +342,8 @@ public abstract class Credential {
 	}
 
 	public void addCredentialRefreshIUI(CredentialRefresher ui) {
+		myLogger.debug("Adding credential refresher of type "
+				+ ui.getClass().getSimpleName());
 		this.refreshUI.add(ui);
 	}
 
@@ -384,32 +360,6 @@ public abstract class Credential {
 		this.properties.put(key, value);
 	}
 
-	/**
-	 * Calls the {@link CredentialListener#credentialAboutToExpire(Credential)}
-	 * method of the listener xx seconds before this credential expires.
-	 * 
-	 * @param l
-	 *            the listener
-	 * @param secondsBeforeExpiry
-	 *            the min time until this credential expires. if this is bigger
-	 *            than the credential lifetime, the method will be called after
-	 *            1 second straight away...
-	 */
-	public void addRemainingLifetimeReminder(final CredentialListener l,
-			final int secondsBeforeExpiry) {
-
-		int remainingLifetime = getRemainingLifetime();
-		int wait = remainingLifetime - secondsBeforeExpiry;
-		if (wait <= 0) {
-			wait = 1;
-		}
-
-		RemainingLifetimeReminder er = new RemainingLifetimeReminder(l,
-				secondsBeforeExpiry);
-		remainingLiftimeReminder.add(er);
-		timer.schedule(er.getTask(), wait * 1000);
-
-	}
 
 	private void addVomsCredential(Credential child) {
 
@@ -424,13 +374,23 @@ public abstract class Credential {
 
 	public boolean autorefresh() {
 
+		myLogger.debug("Trying to autorefresh credential " + uuid);
+
 		try {
-			int ltOld = getRemainingLifetime();
+			int ltOld = 0;
+			try {
+				ltOld = this.cred.getRemainingLifetime();
+				myLogger.debug("Lifetime before autorefresh: " + ltOld);
+			} catch (Exception e) {
+			}
 
-			recreateGssCredential(autorefreshConfig());
+			if (!recreateGssCredential(autorefreshConfig())) {
+				myLogger.debug("Recreating gss credential failed. Autorefresh not successful.");
+				return false;
+			}
 
-			int ltNew = getRemainingLifetime();
-
+			int ltNew = this.cred.getRemainingLifetime();
+			myLogger.debug("Lifetime after autorefresh: " + ltNew);
 			if (ltOld < ltNew) {
 				return true;
 			} else {
@@ -516,6 +476,8 @@ public abstract class Credential {
 	 */
 	public void destroy() {
 
+		myLogger.debug("Destroying credential " + uuid);
+
 		destroyCredential();
 
 		try {
@@ -595,7 +557,6 @@ public abstract class Credential {
 					&& (remaining < minLifetimeInSeconds)) {
 
 				autorefresh();
-				lastCredentialAutoRefresh = new Date();
 
 				if ((cred == null) || (cred.getRemainingLifetime() <= 0)) {
 					throw new InvalidCredentialException("Credential expired.");
@@ -630,6 +591,7 @@ public abstract class Credential {
 
 	protected GSSCredential getGSSCredential() throws CredentialException {
 		if (this.cred == null) {
+			myLogger.debug("No credential found, creating it from the implementing class.");
 			this.cred = createGssCredential(getProperties());
 		}
 		return this.cred;
@@ -671,6 +633,7 @@ public abstract class Credential {
 	public char[] getMyProxyPassword() {
 
 		if (getProperty(PROPERTY.MyProxyPassword) == null) {
+			myLogger.debug("No myproxy password set, creating random one");
 			setProperty(PROPERTY.MyProxyPassword,
 					new RandPass().getPassChars(10));
 		}
@@ -715,6 +678,7 @@ public abstract class Credential {
 	public String getMyProxyUsername() {
 
 		if (getProperty(PROPERTY.MyProxyUsername) == null) {
+			myLogger.debug("No myproxy username set, creating random one");
 			setProperty(PROPERTY.MyProxyUsername, UUID.randomUUID().toString());
 		}
 		return (String) getProperty(PROPERTY.MyProxyUsername);
@@ -809,10 +773,14 @@ public abstract class Credential {
 	private Credential getVomsCredential(VO vo, String fqan, boolean upload)
 			throws CredentialException {
 
+
 		Credential c = children.get(fqan);
 		if (c != null) {
 			return c;
 		}
+
+		myLogger.debug("Credential " + uuid + ": no child credential for fqan "
+				+ fqan + " found, creating new one.");
 
 		Credential child = new WrappedGssCredential(getCredential(), vo, fqan);
 		children.put(fqan, child);
@@ -865,7 +833,12 @@ public abstract class Credential {
 		}
 	}
 
-	public boolean recreateGssCredential(Map<PROPERTY, Object> configNew) {
+	public synchronized boolean recreateGssCredential(
+			Map<PROPERTY, Object> configNew) {
+
+		myLogger.debug("Recreating credential " + uuid);
+
+		lastCredentialAutoRefresh = new Date();
 
 		Map<PROPERTY, Object> config = new HashMap<PROPERTY, Object>(
 				getProperties());
@@ -874,8 +847,19 @@ public abstract class Credential {
 		}
 
 		try {
+			GSSCredential cred = this.cred;
+			String dn = null;
+			if (cred != null) {
+				dn = CertHelpers.getDnInProperFormat(cred);
+			}
 
 			GSSCredential c = createGssCredential(config);
+			if (StringUtils.isNotBlank(dn)) {
+				if (!dn.equals(CertHelpers.getDnInProperFormat(c))) {
+					myLogger.error("Can't refresh credential, dns don't match.");
+					return false;
+				}
+			}
 			setCredential(c);
 
 			if (isUploaded()) {
@@ -883,6 +867,8 @@ public abstract class Credential {
 			}
 
 			for (String fqan : children.keySet()) {
+				myLogger.debug("Credential " + uuid
+						+ ": Refreshing child credential for fqan " + fqan);
 				Credential child = children.get(fqan);
 				GSSCredential vomsGSS = WrappedGssCredential
 						.createVomsCredential(c,
@@ -906,8 +892,15 @@ public abstract class Credential {
 	}
 
 	public boolean refresh() {
+
+		myLogger.debug("Refreshing credential");
+
 		boolean success = false;
 		for (CredentialRefresher crui : refreshUI) {
+			myLogger.debug("Credential "
+					+ uuid
+					+ ": Trying to refresh credential using refresher of class "
+					+ crui.getClass().getSimpleName());
 			try {
 				success = crui.refresh(this);
 				if (success) {
@@ -947,6 +940,8 @@ public abstract class Credential {
 	 */
 	public void saveCredential(String localPath) throws CredentialException {
 
+		myLogger.debug("Saving credential: " + uuid);
+
 		if (StringUtils.isBlank(localPath)) {
 			localPath = LocalProxy.PROXY_FILE;
 		}
@@ -961,6 +956,8 @@ public abstract class Credential {
 	}
 
 	private void saveCredentialMetadata() {
+
+		myLogger.debug("Saving credential metadata: " + uuid);
 
 		String localPath = (String) getProperty(PROPERTY.LocalPath);
 		if (StringUtils.isBlank(localPath)) {
@@ -1030,6 +1027,7 @@ public abstract class Credential {
 	}
 
 	private void setCredential(GSSCredential gss) {
+		myLogger.debug("Credential " + uuid + ": Setting credential.");
 		this.cred = gss;
 		setGssCredential(gss);
 	}
@@ -1091,12 +1089,16 @@ public abstract class Credential {
 	public synchronized void uploadMyProxy(String myProxyHostUp,
 			int myProxyPortUp, boolean force) throws CredentialException {
 
+		myLogger.debug("Credential " + uuid + ": uploading to my proxy...");
+
 		boolean uploadedTemp = isUploaded();
 		if (force) {
 			uploadedTemp = false;
 		}
 
 		if (uploadedTemp == true) {
+			myLogger.debug("Credential " + uuid
+					+ ": already uploaded and no force.");
 			return;
 		}
 
