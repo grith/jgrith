@@ -316,7 +316,7 @@ public abstract class Credential {
 	private Calendar endTime;
 	private int minLifetimeInSeconds = 300;
 
-	private final long minTimeBetweenAutoRefreshes = 300;
+	private long minTimeBetweenAutoRefreshes = 300;
 
 	private volatile Date lastCredentialAutoRefresh = new Date();
 
@@ -359,7 +359,6 @@ public abstract class Credential {
 
 		this.properties.put(key, value);
 	}
-
 
 	private void addVomsCredential(Credential child) {
 
@@ -405,8 +404,8 @@ public abstract class Credential {
 
 	}
 
-	public abstract Map<PROPERTY, Object> autorefreshConfig();
 
+	public abstract Map<PROPERTY, Object> autorefreshConfig();
 
 	protected void createFromLocalProxy() {
 		Map<PROPERTY, Object> config = getProperties();
@@ -445,6 +444,7 @@ public abstract class Credential {
 		}
 	}
 
+
 	protected void createFromMyProxy() {
 		Map<PROPERTY, Object> config = getProperties();
 		try {
@@ -465,11 +465,11 @@ public abstract class Credential {
 		}
 	}
 
-
-
 	protected abstract GSSCredential createGssCredential(
 			Map<PROPERTY, Object> config)
 					throws CredentialException;
+
+
 
 	/**
 	 * Destroys proxy and possibly metadata file
@@ -511,8 +511,8 @@ public abstract class Credential {
 
 	}
 
-
 	public abstract void destroyCredential();
+
 
 	@Override
 	public boolean equals(Object o) {
@@ -552,6 +552,13 @@ public abstract class Credential {
 			int remaining = c.getRemainingLifetime();
 			Date now = new Date();
 			long diff = (now.getTime() - lastCredentialAutoRefresh.getTime()) / 1000;
+
+			// System.out.println("DIFF  :\t" + diff);
+			// System.out.println("MIN   :\t" + minTimeBetweenAutoRefreshes);
+			// ;
+			// System.out.println("");
+			// System.out.println("REMAIN:\t" + remaining);
+			// System.out.println("MIN   :\t" + minLifetimeInSeconds);
 
 			if ((diff > minTimeBetweenAutoRefreshes)
 					&& (remaining < minLifetimeInSeconds)) {
@@ -1036,6 +1043,10 @@ public abstract class Credential {
 
 	public void setMinimumLifetime(int minLifetimeInSeconds) {
 		this.minLifetimeInSeconds = minLifetimeInSeconds;
+	}
+
+	public void setMinTimeBetweenAutoRefreshes(int seconds) {
+		this.minTimeBetweenAutoRefreshes = seconds;
 	}
 
 	public void setMyProxyDelegatedPassword(char[] myProxyPassphrase) {

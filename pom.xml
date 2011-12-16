@@ -220,7 +220,7 @@
 
 								<index>true</index>
 								<manifest>
-									<mainClass>grith.spk.SwissProxyKnife</mainClass>
+									<mainClass>grith.SwissProxyKnife</mainClass>
 								</manifest>
 								<manifestEntries>
 									<Class-Path>bcprov.jar bcprov-jdk15-143.jar</Class-Path>
