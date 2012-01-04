@@ -96,22 +96,32 @@ public class CliCredentialRefresher extends CredentialRefresher {
 	}
 
 	private Map<PROPERTY, Object> createFromCommandline(
-			int proxy_lifetime_in_hours) {
+			Credential t) {
+
+		int proxy_lifetime_in_hours = t.getInitialLifetime();
 
 		final String lastIdp = CommonGridProperties.getDefault()
 				.getGridProperty(CommonGridProperties.Property.SHIB_IDP);
 
 		final ImmutableSet<LoginType> temp;
 
-		if (StringUtils.isBlank(lastIdp)) {
-			temp = ImmutableSet.of(LoginType.SHIBBOLETH, LoginType.MYPROXY,
-					LoginType.X509_CERTIFICATE);
+		LoginType type = (LoginType) t.getProperty(PROPERTY.LoginType);
+		if (type.equals(LoginType.UNDEFINED)
+				|| type.equals(LoginType.LOCAL_PROXY)
+				|| type.equals(LoginType.WRAPPED)) {
 
+			if (StringUtils.isBlank(lastIdp)) {
+				temp = ImmutableSet.of(LoginType.SHIBBOLETH, LoginType.MYPROXY,
+						LoginType.X509_CERTIFICATE);
+
+			} else {
+				temp = ImmutableSet.of(LoginType.SHIBBOLETH,
+						LoginType.SHIBBOLETH_LAST_IDP, LoginType.MYPROXY,
+						LoginType.X509_CERTIFICATE);
+
+			}
 		} else {
-			temp = ImmutableSet.of(LoginType.SHIBBOLETH,
-					LoginType.SHIBBOLETH_LAST_IDP, LoginType.MYPROXY,
-					LoginType.X509_CERTIFICATE);
-
+			temp = ImmutableSet.of(type);
 		}
 
 		return createFromCommandline(temp, proxy_lifetime_in_hours);
@@ -124,27 +134,33 @@ public class CliCredentialRefresher extends CredentialRefresher {
 			throw new IllegalArgumentException("No login type specified.");
 		}
 
-		String msg = "Please select your preferred login method:";
+		LoginType type = null;
+		if (types.size() == 1) {
+			type = types.iterator().next();
+		} else {
 
-		final ImmutableList<LoginType> temp = ImmutableList.copyOf(types);
-		List<String> typeStrings = new LinkedList<String>();
-		for (int i = 0; i < temp.size(); i++) {
-			if (temp.get(i).equals(LoginType.SHIBBOLETH_LAST_IDP)) {
-				final String lastIdp = CommonGridProperties.getDefault()
-						.getLastShibIdp();
-				typeStrings.add(temp.get(i).getPrettyName() + " (using: "
-						+ lastIdp + ")");
-			} else {
-				typeStrings.add(temp.get(i).getPrettyName());
+			String msg = "Please select your preferred login method:";
+
+			final ImmutableList<LoginType> temp = ImmutableList.copyOf(types);
+			List<String> typeStrings = new LinkedList<String>();
+			for (int i = 0; i < temp.size(); i++) {
+				if (temp.get(i).equals(LoginType.SHIBBOLETH_LAST_IDP)) {
+					final String lastIdp = CommonGridProperties.getDefault()
+							.getLastShibIdp();
+					typeStrings.add(temp.get(i).getPrettyName() + " (using: "
+							+ lastIdp + ")");
+				} else {
+					typeStrings.add(temp.get(i).getPrettyName());
+				}
 			}
+
+			String choice = CliLogin.ask("Login method", null, typeStrings, msg,
+					true);
+
+			int index = typeStrings.indexOf(choice);
+
+			type = temp.get(index);
 		}
-
-		String choice = CliLogin.ask("Login method", null, typeStrings, msg,
-				true);
-
-		int index = typeStrings.indexOf(choice);
-
-		LoginType type = temp.get(index);
 
 		Map<PROPERTY, Object> config = null;
 
@@ -156,8 +172,13 @@ public class CliCredentialRefresher extends CredentialRefresher {
 			config = createFromMyProxyCommandline();
 			break;
 		case SHIBBOLETH:
-			config = createFromSlcsCommandline();
-			break;
+			if (StringUtils.isBlank(CommonGridProperties.getDefault()
+					.getLastShibIdp())
+					|| StringUtils.isBlank(CommonGridProperties.getDefault()
+							.getLastShibUsername())) {
+				config = createFromSlcsCommandline();
+				break;
+			}
 		case SHIBBOLETH_LAST_IDP:
 			config = createFromSlcsCommandline(CommonGridProperties
 					.getDefault()
@@ -179,7 +200,7 @@ public class CliCredentialRefresher extends CredentialRefresher {
 	@Override
 	protected Map<PROPERTY, Object> getConfig(Credential t) {
 
-		return createFromCommandline(t.getInitialLifetime());
+		return createFromCommandline(t);
 
 	}
 

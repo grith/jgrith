@@ -2,6 +2,7 @@ package grith.jgrith.view.swing;
 
 import grith.jgrith.control.UserProperty;
 import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -240,7 +241,7 @@ public class MyProxyUploadDialog extends JDialog {
 
 							params.setLifetime((int) proxy.getTimeLeft());
 							try {
-								MyProxy_light.init(myproxy, proxy, params,
+								MyProxy_light.init(myproxy,CredentialHelpers.wrapGlobusCredential(proxy), params,
 										passphrase);
 							} catch (Exception e1) {
 								setCursor(Cursor

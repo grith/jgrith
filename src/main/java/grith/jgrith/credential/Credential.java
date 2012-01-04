@@ -15,6 +15,8 @@ import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsHelpers;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,6 +33,7 @@ import java.util.UUID;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.globus.common.CoGProperties;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
@@ -70,7 +73,8 @@ public abstract class Credential {
 						MyProxyPassword(char[].class),
 						MyProxyUsername(String.class),
 						LifetimeInSeconds(
-								Integer.class), LocalPath(String.class), Uploaded(Boolean.class);
+								Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
+										Boolean.class);
 
 		private Class valueClass;
 
@@ -133,20 +137,34 @@ public abstract class Credential {
 		return fqan;
 	}
 
+	public static Credential load() {
+		return load(CoGProperties.getDefault().getProxyFile());
+	}
+
+	public static Credential load(String location) {
+		String mdFilePath = location + "." + METADATA_FILE_EXTENSION;
+		File mdFile = new File(mdFilePath);
+		if ( ! mdFile.exists() || ! mdFile.canRead() ) {
+			ProxyCredential c = new ProxyCredential(location);
+			return c;
+		}
+
+		return loadFromMetaDataFile(mdFilePath);
+	}
+
 	public static Credential loadFromConfig(Map<PROPERTY, Object> config) {
 
 		myLogger.debug("Loading credential from config map...");
 
 		try {
 
-			LoginType type = (LoginType)config.get(PROPERTY.LoginType);
+			LoginType type = (LoginType) config.get(PROPERTY.LoginType);
 
-			if ( type == null ) {
+			if (type == null) {
 				throw new CredentialException("No credential type specified.");
 			}
 
-
-			String localPath = (String)config.get(PROPERTY.LocalPath);
+			String localPath = (String) config.get(PROPERTY.LocalPath);
 
 			Credential c = null;
 			switch (type) {
@@ -164,7 +182,6 @@ public abstract class Credential {
 				throw new CredentialException("Login type " + type.toString()
 						+ " not supported.");
 			}
-
 
 			if (StringUtils.isNotBlank(localPath)
 					&& new File(localPath).exists()) {
@@ -187,7 +204,6 @@ public abstract class Credential {
 					c.saveCredential(localPath);
 				}
 			}
-
 
 			return c;
 		} catch (CredentialException ce) {
@@ -280,6 +296,7 @@ public abstract class Credential {
 						config.put(p, LoginType.fromString(value));
 						break;
 					case Uploaded:
+					case StorePasswordInMemory:
 						config.put(p, Boolean.valueOf(value));
 						break;
 					default:
@@ -307,6 +324,31 @@ public abstract class Credential {
 
 	}
 
+	public static boolean validCredentialExists(int minTimesInMinutes) {
+
+		String location = CoGProperties.getDefault().getProxyFile();
+		return validCredentialExists(location, minTimesInMinutes);
+	}
+
+	public static boolean validCredentialExists(String location,
+			int minTimeInMinutes) {
+
+		String mdFilePath = location + "." + METADATA_FILE_EXTENSION;
+		File mdFile = new File(mdFilePath);
+		if ( ! mdFile.exists() || ! mdFile.canRead() ) {
+			return LocalProxy.validGridProxyExists(minTimeInMinutes);
+		}
+
+		Credential c = loadFromMetaDataFile(mdFilePath);
+
+		int remaining = c.getRemainingLifetime();
+
+		return (remaining * 60) >= minTimeInMinutes;
+
+	}
+
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
 	private final List<CredentialRefresher> refreshUI = Lists.newArrayList();
 
 	private final UUID uuid = UUID.randomUUID();
@@ -314,12 +356,12 @@ public abstract class Credential {
 	private Map<String, VO> fqans;
 
 	private Calendar endTime;
+
 	private int minLifetimeInSeconds = 300;
 
 	private long minTimeBetweenAutoRefreshes = 300;
 
 	private volatile Date lastCredentialAutoRefresh = new Date();
-
 	private GSSCredential cred;
 
 	private final Map<PROPERTY, Object> properties;
@@ -360,6 +402,10 @@ public abstract class Credential {
 		this.properties.put(key, value);
 	}
 
+	public void addPropertyChangeListener(PropertyChangeListener l) {
+		pcs.addPropertyChangeListener(l);
+	}
+
 	private void addVomsCredential(Credential child) {
 
 		String fqan = child.getFqan();
@@ -369,7 +415,6 @@ public abstract class Credential {
 		children.put(fqan, child);
 
 	}
-
 
 	public boolean autorefresh() {
 
@@ -404,8 +449,8 @@ public abstract class Credential {
 
 	}
 
-
 	public abstract Map<PROPERTY, Object> autorefreshConfig();
+
 
 	protected void createFromLocalProxy() {
 		Map<PROPERTY, Object> config = getProperties();
@@ -470,7 +515,6 @@ public abstract class Credential {
 					throws CredentialException;
 
 
-
 	/**
 	 * Destroys proxy and possibly metadata file
 	 */
@@ -494,6 +538,14 @@ public abstract class Credential {
 			}
 		}
 
+		String localPathmd = localPath + "." + METADATA_FILE_EXTENSION;
+		if (StringUtils.isNotBlank(localPathmd)) {
+			if (new File(localPathmd).exists()) {
+				myLogger.debug("Deleting proxy metadata file " + localPathmd);
+				Util.destroy(localPathmd);
+			}
+		}
+
 		if (isUploaded()) {
 
 			myLogger.debug("Destrying uploaded proxy from host: "
@@ -511,7 +563,8 @@ public abstract class Credential {
 
 	}
 
-	public abstract void destroyCredential();
+	protected abstract void destroyCredential();
+
 
 
 	@Override
@@ -544,6 +597,7 @@ public abstract class Credential {
 		return fqans;
 
 	}
+
 
 	public GSSCredential getCredential() throws InvalidCredentialException {
 
@@ -807,6 +861,8 @@ public abstract class Credential {
 		}
 	}
 
+	public abstract boolean isAutoRenewable();
+
 	public boolean isSaved() {
 		return isSaved;
 	}
@@ -930,6 +986,10 @@ public abstract class Credential {
 
 	public void removeProperty(PROPERTY key) {
 		this.properties.remove(key);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener l) {
+		pcs.addPropertyChangeListener(l);
 	}
 
 	public void saveCredential() throws CredentialException {

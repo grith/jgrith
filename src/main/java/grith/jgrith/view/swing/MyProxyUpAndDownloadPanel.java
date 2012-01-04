@@ -290,7 +290,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					params.setLifetime((int) currentCredential.getTimeLeft());
 					try {
-						MyProxy_light.init(getMyproxy(), currentCredential,
+						MyProxy_light.init(getMyproxy(), CredentialHelpers.wrapGlobusCredential(currentCredential),
 								params, passphrase);
 						getPasswordField().setText("");
 					} catch (Exception e1) {

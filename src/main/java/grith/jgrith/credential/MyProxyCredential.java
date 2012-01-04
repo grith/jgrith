@@ -130,7 +130,7 @@ public class MyProxyCredential extends Credential {
 
 
 	@Override
-	public void destroyCredential() {
+	protected void destroyCredential() {
 		myLogger.debug("Destrying original proxy from host: "
 				+ getProperty(PROPERTY.MyProxyHost));
 		try {
@@ -168,6 +168,11 @@ public class MyProxyCredential extends Credential {
 	@Override
 	public String getMyProxyUsername() {
 		return (String) getProperty(PROPERTY.MyProxyUsername);
+	}
+
+	@Override
+	public boolean isAutoRenewable() {
+		return true;
 	}
 
 	@Override

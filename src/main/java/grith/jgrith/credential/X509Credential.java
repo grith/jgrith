@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.globus.common.CoGProperties;
+import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 
@@ -81,6 +82,7 @@ public class X509Credential extends Credential {
 		addProperty(PROPERTY.CertFile, certFile);
 		addProperty(PROPERTY.KeyFile, keyFile);
 		addProperty(PROPERTY.LifetimeInSeconds, lifetime_in_hours * 3600);
+		addProperty(PROPERTY.StorePasswordInMemory, storePasspharseInMemory);
 
 		addProperty(PROPERTY.LoginType, LoginType.X509_CERTIFICATE);
 
@@ -121,6 +123,12 @@ public class X509Credential extends Credential {
 				throw new CredentialException("No passphrase provided.");
 			}
 
+			Object store = getProperty(PROPERTY.StorePasswordInMemory);
+
+			if ((store != null) && (Boolean) store) {
+				this.passphrase = passphrase;
+			}
+			
 
 			String certFile = (String) temp.get(PROPERTY.CertFile);
 			String keyFile = (String) temp.get(PROPERTY.KeyFile);
@@ -136,6 +144,15 @@ public class X509Credential extends Credential {
 
 	@Override
 	public void destroyCredential() {
+	}
+
+	@Override
+	public boolean isAutoRenewable() {
+		if ( passphrase == null) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	@Override

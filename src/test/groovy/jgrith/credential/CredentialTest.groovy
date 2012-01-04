@@ -32,7 +32,7 @@ class CredentialTest {
 		cred = new X509Credential('/home/markus/certs/test2.ceres.auckland.ac.nz_cert.pem', '/home/markus/certs/test2.ceres.auckland.ac.nz_key.pem', 'xxx'.toCharArray(), 1, true)
 		originalLt = cred.getRemainingLifetime()
 		StaticCredentialRefresher cr = new StaticCredentialRefresher()
-		cr.addProperty(PROPERTY.Password, 'WrB0orUO'.toCharArray())
+		cr.addProperty(PROPERTY.Password, 'xxx'.toCharArray())
 		cred.addCredentialRefreshIUI(cr)
 
 		cred.setMyProxyDelegatedUsername(un1)

@@ -69,6 +69,11 @@ public class WrappedGssCredential extends Credential {
 
 
 	@Override
+	public boolean isAutoRenewable() {
+		return false;
+	}
+
+	@Override
 	protected void setGssCredential(GSSCredential cred) {
 		this.wrappedCred = cred;
 		try {

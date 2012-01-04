@@ -139,36 +139,6 @@ public class MyProxy_light {
 		}
 	}
 
-	/**
-	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
-	 * the specified proxy_paramters. Use the prepareProxyParameters() method to
-	 * actually prepare them.
-	 * 
-	 * @param myproxy
-	 *            the myproxy server to upload the credential to (create with
-	 *            new MyProxy("server", port) - port is usually 7512)
-	 * @param credential
-	 *            the credential you want to delegate to the server (this uses a
-	 *            {@link GlobusCredential}) instead of a {@link GSSCredential}
-	 * @param proxy_parameters
-	 *            the parameters for the credential on the myproxy server. See
-	 *            the prepareProxyParameters() method.
-	 * @param myProxyPassphrase
-	 *            the passphrase for the credentials on the myproxy server.
-	 * @throws GSSException
-	 *             if the credential can't be used (or destroyed after the
-	 *             upload)
-	 * @throws MyProxyException
-	 *             if the delegation process fails
-	 */
-	public static void init(MyProxy myproxy, GlobusCredential credential,
-			InitParams proxy_parameters, char[] myProxyPassphraseboolean)
-					throws MyProxyException, GSSException {
-
-		init(myproxy, credential, proxy_parameters, myProxyPassphraseboolean,
-				false);
-
-	}
 
 	/**
 	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
@@ -195,15 +165,15 @@ public class MyProxy_light {
 	 * @throws MyProxyException
 	 *             if the delegation process fails
 	 */
-	public static void init(MyProxy myproxy, GlobusCredential credential,
+	public static void init(MyProxy myproxy, GSSCredential newCredential,
 			InitParams proxy_parameters, char[] myProxyPassphrase,
 			boolean storeMyProxyCredsLocally)
 					throws GSSException, MyProxyException {
 
-		GSSCredential newCredential = null;
-
-		newCredential = new GlobusGSSCredentialImpl(credential,
-				GSSCredential.INITIATE_AND_ACCEPT);
+//		GSSCredential newCredential = null;
+//		
+//		newCredential = new GlobusGSSCredentialImpl(credential,
+//				GSSCredential.INITIATE_AND_ACCEPT);
 		myLogger.debug("Created gss_credentials.");
 
 		// I don't use the InitParams from the method signature for
@@ -214,10 +184,6 @@ public class MyProxy_light {
 
 		myproxy.put(newCredential, proxy_parameters);
 		myLogger.debug("Put myproxy credentials on server.");
-
-		// very important to dispose the long-live credential after storage!
-		newCredential.dispose();
-		myLogger.debug("Disposed gss_credentials.");
 
 		if (storeMyProxyCredsLocally) {
 			storeMyProxyDetailsLocally(proxy_parameters.getUserName(),
@@ -251,7 +217,7 @@ public class MyProxy_light {
 			InitParams proxy_parameters, char[] myProxyPassphrase)
 					throws GSSException, MyProxyException {
 
-		init(myproxy, CredentialHelpers.unwrapGlobusCredential(credential),
+		init(myproxy, credential,
 				proxy_parameters, myProxyPassphrase, false);
 	}
 

@@ -81,6 +81,11 @@ public class ProxyCredential extends Credential {
 	}
 
 	@Override
+	public boolean isAutoRenewable() {
+		return false;
+	}
+
+	@Override
 	public boolean isSaved() {
 		return true;
 	}

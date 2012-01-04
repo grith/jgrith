@@ -50,6 +50,7 @@ public class SLCSCredential extends Credential {
 		addProperty(PROPERTY.IdP, idp);
 		addProperty(PROPERTY.Username, username);
 		addProperty(PROPERTY.LoginType, LoginType.SHIBBOLETH);
+		addProperty(PROPERTY.StorePasswordInMemory, storeLoginInfoInMemory);
 
 		if (storeLoginInfoInMemory) {
 			this.password = password;
@@ -86,6 +87,12 @@ public class SLCSCredential extends Credential {
 			char[] password = (char[]) config.get(PROPERTY.Password);
 			if ((password == null) || (password.length == 0)) {
 				throw new CredentialException("No password provided.");
+			}
+
+			Object store = getProperty(PROPERTY.StorePasswordInMemory);
+
+			if ((store != null) && (Boolean) store) {
+				this.password = password;
 			}
 
 			String idp = (String) config.get(PROPERTY.IdP);
@@ -128,9 +135,17 @@ public class SLCSCredential extends Credential {
 	}
 
 	@Override
+	public boolean isAutoRenewable() {
+		if ( password == null ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
 	protected void setGssCredential(GSSCredential cred) {
 		// nothing to do here
 	}
-
 
 }

@@ -202,10 +202,11 @@ public class LocalProxy {
 	 */
 	public static boolean validGridProxyExists(int minTimeInMinutes) {
 
+		String location = CoGProperties.getDefault().getProxyFile();
+
 		GlobusCredential globusCredential = null;
 		try {
-			globusCredential = new GlobusCredential(CoGProperties.getDefault()
-					.getProxyFile());
+			globusCredential = new GlobusCredential(location);
 			globusCredential.verify();
 
 			if ((globusCredential.getTimeLeft() / 60) < minTimeInMinutes) {
