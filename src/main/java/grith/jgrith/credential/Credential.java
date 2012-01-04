@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -56,25 +58,31 @@ import com.google.common.collect.Lists;
  */
 public abstract class Credential {
 
+	class CredentialInvalid extends TimerTask {
+
+		@Override
+		public void run() {
+			pcs.firePropertyChange("valid", true, false);
+		}
+	}
+
+	class CredentialMinThreshold extends TimerTask {
+
+		@Override
+		public void run() {
+			pcs.firePropertyChange("belowMinLifetime", false, true);
+		}
+	}
+
 	public enum PROPERTY {
-		LoginType(LoginType.class),
-		Username(String.class),
-		Password(
-				char[].class),
-				MyProxyHost(String.class),
-				MyProxyPort(
-						Integer.class), VO(VO.class),
-						FQAN(String.class),
-						md5sum(String.class),
-						SlcsUrl(String.class),
-						IdP(String.class),
-						CertFile(String.class),
-						KeyFile(String.class),
-						MyProxyPassword(char[].class),
-						MyProxyUsername(String.class),
-						LifetimeInSeconds(
-								Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
-										Boolean.class);
+		LoginType(LoginType.class), Username(String.class), Password(
+				char[].class), MyProxyHost(String.class), MyProxyPort(
+						Integer.class), VO(VO.class), FQAN(String.class), md5sum(
+								String.class), SlcsUrl(String.class), IdP(String.class), CertFile(
+										String.class), KeyFile(String.class), MyProxyPassword(
+												char[].class), MyProxyUsername(String.class), LifetimeInSeconds(
+														Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
+																Boolean.class);
 
 		private Class valueClass;
 
@@ -86,6 +94,10 @@ public abstract class Credential {
 			return valueClass;
 		}
 	}
+
+	private CredentialInvalid invalidTask = null;
+
+	private CredentialMinThreshold minThresholdTask = null;
 
 
 	static final Logger myLogger = LoggerFactory.getLogger(Credential.class
@@ -370,6 +382,8 @@ public abstract class Credential {
 
 	private boolean isSaved = false;
 
+	private final static Timer timer = new Timer();
+
 	public Credential() {
 		myLogger.debug("Creating credential " + uuid);
 		properties = Maps.newHashMap();
@@ -449,6 +463,7 @@ public abstract class Credential {
 
 	}
 
+
 	public abstract Map<PROPERTY, Object> autorefreshConfig();
 
 
@@ -489,7 +504,6 @@ public abstract class Credential {
 		}
 	}
 
-
 	protected void createFromMyProxy() {
 		Map<PROPERTY, Object> config = getProperties();
 		try {
@@ -510,10 +524,10 @@ public abstract class Credential {
 		}
 	}
 
+
 	protected abstract GSSCredential createGssCredential(
 			Map<PROPERTY, Object> config)
 					throws CredentialException;
-
 
 	/**
 	 * Destroys proxy and possibly metadata file
@@ -563,9 +577,9 @@ public abstract class Credential {
 
 	}
 
+
+
 	protected abstract void destroyCredential();
-
-
 
 	@Override
 	public boolean equals(Object o) {
@@ -584,6 +598,7 @@ public abstract class Credential {
 
 	}
 
+
 	/**
 	 * Get a map of all Fqans (and VOs) the user has access to.
 	 * 
@@ -597,7 +612,6 @@ public abstract class Credential {
 		return fqans;
 
 	}
-
 
 	public GSSCredential getCredential() throws InvalidCredentialException {
 
@@ -622,6 +636,7 @@ public abstract class Credential {
 				if ((cred == null) || (cred.getRemainingLifetime() <= 0)) {
 					throw new InvalidCredentialException("Credential expired.");
 				}
+
 			}
 		} catch (GSSException e) {
 			throw new InvalidCredentialException(e);
@@ -863,6 +878,24 @@ public abstract class Credential {
 
 	public abstract boolean isAutoRenewable();
 
+	/**
+	 * Returns whether this credential is below the set min lifetime or not.
+	 * 
+	 * Mainly used for propertychange.
+	 * 
+	 * @return whether this credential has a lifetime smaller than configured
+	 *         min lifetime (at: {@link #setMinimumLifetime(int)}).
+	 */
+	public boolean isBelowMinLifetime() {
+
+		if (getRemainingLifetime() < minLifetimeInSeconds) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
 	public boolean isSaved() {
 		return isSaved;
 	}
@@ -1095,14 +1128,57 @@ public abstract class Credential {
 
 	private void setCredential(GSSCredential gss) {
 		myLogger.debug("Credential " + uuid + ": Setting credential.");
+
 		this.cred = gss;
+
+		if (invalidTask != null) {
+			invalidTask.cancel();
+		}
+
+		if (minThresholdTask != null) {
+			invalidTask.cancel();
+		}
+
 		setGssCredential(gss);
+
+		int remaining = -1;
+		try {
+			remaining = gss.getRemainingLifetime();
+		} catch (GSSException e) {
+			throw new CredentialException("Can't get remaining lifetime.", e);
+		}
+
+		invalidTask = new CredentialInvalid();
+		timer.schedule(invalidTask, remaining * 1000);
+		minThresholdTask = new CredentialMinThreshold();
+		int delay = remaining - getMinLifetime();
+		if (delay < 0) {
+			delay = 0;
+		}
+
+		if (delay > 0) {
+			timer.schedule(minThresholdTask, delay * 1000);
+		}
+
+
 	}
 
 	protected abstract void setGssCredential(GSSCredential cred);
 
 	public void setMinimumLifetime(int minLifetimeInSeconds) {
+		if (minThresholdTask != null) {
+			minThresholdTask.cancel();
+		}
 		this.minLifetimeInSeconds = minLifetimeInSeconds;
+
+		minThresholdTask = new CredentialMinThreshold();
+		int delay = getRemainingLifetime() - this.minLifetimeInSeconds;
+		if (delay < 0) {
+			delay = 0;
+		}
+
+		timer.schedule(minThresholdTask, delay * 1000);
+
 	}
 
 	public void setMinTimeBetweenAutoRefreshes(int seconds) {
@@ -1115,6 +1191,12 @@ public abstract class Credential {
 
 	public void setMyProxyDelegatedUsername(String myProxyUsername2) {
 		setProperty(PROPERTY.MyProxyUsername, myProxyUsername2);
+	}
+
+	private void setOffTimerForRemainingThreshold(int remaining) {
+
+
+
 	}
 
 	public void setProperty(PROPERTY p, Object value) {
