@@ -7,10 +7,10 @@ import grith.jgrith.vomsProxy.VomsProxyCredential;
 
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroupManagement {
 
@@ -35,7 +35,7 @@ public class GroupManagement {
 		GlobusCredential globusCredential = null;
 		try {
 			globusCredential = CredentialHelpers
-			.unwrapGlobusCredential(gssCred);
+					.unwrapGlobusCredential(gssCred);
 
 			// create a temporary VomsProxyCredential to contact the voms server
 			// and ask about all it knows about the user
@@ -59,8 +59,7 @@ public class GroupManagement {
 
 		} catch (Exception e1) {
 			// e1.printStackTrace();
-			// myLogger.error(e1);
-			// e1.printStackTrace();
+			myLogger.debug("Error getting fqans: " + e1.getLocalizedMessage());
 			status = VOManagement.NO_MEMBER;
 			return null;
 		}
