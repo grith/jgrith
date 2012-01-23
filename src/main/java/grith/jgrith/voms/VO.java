@@ -94,6 +94,7 @@ public class VO implements Comparable<VO> {
 
 	}
 
+	@Override
 	public boolean equals(Object otherObject) {
 		if (otherObject instanceof VO) {
 			VO other = (VO) otherObject;
@@ -130,10 +131,12 @@ public class VO implements Comparable<VO> {
 		return voName;
 	}
 
+	@Override
 	public int hashCode() {
 		return voName.hashCode() + host.hashCode() + port + hostDN.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return getVoName();
 	}
