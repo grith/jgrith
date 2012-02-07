@@ -2,8 +2,8 @@ package grith.jgrith.credential;
 
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsProxy;
 

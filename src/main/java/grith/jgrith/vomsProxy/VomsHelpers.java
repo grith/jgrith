@@ -19,9 +19,9 @@
 package grith.jgrith.vomsProxy;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 
 import java.util.ArrayList;

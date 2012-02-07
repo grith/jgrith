@@ -1,12 +1,12 @@
 package grith.jgrith.control;
 
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.Environment;
 import grith.jgrith.certificate.CertificateHelper;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 import grith.jgrith.vomsProxy.VomsProxy;
 
 import java.net.URL;
@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -26,6 +24,8 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.Ostermiller.util.RandPass;
 

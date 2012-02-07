@@ -14,7 +14,7 @@ package grith.jgrith.vomsProxy;
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import gridpp.portal.voms.VincenzoBase64;
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.voms.VO;
+import grisu.jcommons.model.info.VO;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -174,10 +174,10 @@ public class VomsProxyCredential {
 			throw new CredentialException("Credential is not voms enabled.");
 		}
 		ac = acs.get(0);
-//		if (ac == null) {
-//			throw new Exception(
-//					"Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
-//		}
+		//		if (ac == null) {
+		//			throw new Exception(
+		//					"Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
+		//		}
 
 		vomsac = new VOMSAttributeCertificate(ac);
 	}

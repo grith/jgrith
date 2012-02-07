@@ -1,8 +1,8 @@
 package grith.jgrith.voms.VOManagement;
 
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -334,7 +334,7 @@ public class VOManagement {
 
 		myLogger.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
 
-		return new VO(name, host, port, hostDN, vomrsUrl);
+		return new VO(name, host, port, hostDN);
 	}
 
 	/**

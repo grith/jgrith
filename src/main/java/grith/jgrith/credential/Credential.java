@@ -1,16 +1,17 @@
 package grith.jgrith.credential;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
+import grisu.jcommons.constants.Constants;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.credential.refreshers.CredentialRefresher;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsHelpers;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
@@ -824,6 +825,10 @@ public abstract class Credential {
 	public Credential getVomsCredential(String fqan, boolean upload)
 			throws CredentialException {
 
+		if (StringUtils.isBlank(fqan) || Constants.NON_VO_FQAN.equals(fqan)) {
+			return this;
+		}
+
 		VO vo = getAvailableFqans().get(fqan);
 		if (vo == null) {
 			throw new CredentialException("Can't find VO for fqan: " + fqan);
@@ -848,6 +853,10 @@ public abstract class Credential {
 	 */
 	private Credential getVomsCredential(VO vo, String fqan, boolean upload)
 			throws CredentialException {
+
+		if (VO.NON_VO.equals(vo)) {
+			return this;
+		}
 
 
 		Credential c = children.get(fqan);

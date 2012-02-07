@@ -19,9 +19,9 @@
 package grith.jgrith.vomsProxy;
 
 import grisu.jcommons.exceptions.CredentialException;
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 
 import java.io.File;
 import java.io.IOException;

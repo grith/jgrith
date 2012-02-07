@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing;
 
+import grisu.jcommons.model.info.VO;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VO;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxy;
