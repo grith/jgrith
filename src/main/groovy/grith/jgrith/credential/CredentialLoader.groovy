@@ -1,10 +1,6 @@
 package grith.jgrith.credential
 
 import grisu.jcommons.utils.MyProxyServerParams
-import grith.jgrith.credential.Credential
-import grith.jgrith.credential.CredentialFactory
-import grith.jgrith.credential.ProxyCredential
-import grith.jgrith.credential.X509Credential
 import grith.jgrith.plainProxy.LocalProxy
 import grith.jgrith.utils.CliLogin
 
@@ -70,7 +66,7 @@ class CredentialLoader {
 			port = MyProxyServerParams.DEFAULT_MYPROXY_PORT
 		}
 
-		Credential c = CredentialFactory.createFromMyProxy(username, password, myproxy, port, lifetime*3600)
+		Credential c = CredentialFactory.createFromMyProxy(username, password.getChars(), myproxy, port, lifetime*3600)
 		return c
 	}
 
