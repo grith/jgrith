@@ -4,9 +4,9 @@ import grisu.jcommons.configuration.CommonGridProperties;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
+import grisu.jcommons.utils.MyProxyServerParams;
 import grisu.jcommons.view.cli.CliHelpers;
 import grith.gsindl.SLCS;
-import grith.jgrith.Environment;
 import grith.jgrith.control.LoginParams;
 import grith.jgrith.control.SlcsLoginWrapper;
 import grith.jgrith.utils.CliLogin;
@@ -28,10 +28,11 @@ public class CredentialFactory {
 			.getLogger(CredentialFactory.class.getName());
 
 	public static String SLCS_URL = SLCS.DEFAULT_SLCS_URL;
-	public static String MYPROXY_HOST = Environment.getDefaultMyProxy()
-			.getHost();
-	public static int MYPROXY_PORT = Environment.getDefaultMyProxy()
-			.getPort();
+
+	// public static String MYPROXY_HOST = Environment.getDefaultMyProxy()
+	// .getHost();
+	// public static int MYPROXY_PORT = Environment.getDefaultMyProxy()
+	// .getPort();
 
 	public static Credential createFromCommandline() {
 		return createFromCommandline(Credential.DEFAULT_PROXY_LIFETIME_IN_HOURS);
@@ -100,6 +101,7 @@ public class CredentialFactory {
 			cred = createFromLocalCertCommandline(proxy_lifetime_in_hours);
 			break;
 		case MYPROXY:
+
 			cred = createFromMyProxyCommandline(params,
 					proxy_lifetime_in_hours * 3600);
 			break;
@@ -174,6 +176,9 @@ public class CredentialFactory {
 			int lifetime_in_seconds) {
 
 		String username = null;
+		String host = null;
+		int port = -1;
+
 		if ((params == null)
 				|| StringUtils.isBlank(params.getMyProxyUsername())) {
 			username = CliLogin.ask("MyProxy username", CommonGridProperties
@@ -183,6 +188,8 @@ public class CredentialFactory {
 			}
 		} else {
 			username = params.getMyProxyUsername();
+			host = params.getMyProxyServer();
+			port = Integer.parseInt(params.getMyProxyPort());
 		}
 
 		char[] password = null;
@@ -196,9 +203,23 @@ public class CredentialFactory {
 		}
 
 		CliHelpers.setIndeterminateProgress("Retrieving credential...", true);
+
+		if ((params == null) || StringUtils.isBlank(params.getMyProxyServer())) {
+			host = MyProxyServerParams.DEFAULT_MYPROXY_SERVER;
+		} else {
+			host = params.getMyProxyServer();
+			int tempPort = Integer.parseInt(params.getMyProxyPort());
+			if (tempPort > 0) {
+				port = tempPort;
+			}
+		}
+		if ( port <= 0 ) {
+			port = MyProxyServerParams.DEFAULT_MYPROXY_PORT;
+		}
+
 		try {
-			Credential cred = createFromMyProxy(username, password, MYPROXY_HOST,
-					MYPROXY_PORT, lifetime_in_seconds);
+			Credential cred = createFromMyProxy(username, password, host, port,
+					lifetime_in_seconds);
 			return cred;
 		} finally {
 			CliHelpers.setIndeterminateProgress(false);
