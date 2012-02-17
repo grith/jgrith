@@ -1098,7 +1098,11 @@ public abstract class Credential {
 
 			switch (p) {
 			case MyProxyPassword:
-				prop.put(p.toString(), new String((char[]) properties.get(p)));
+				Object pw = properties.get(p);
+				if (pw == null) {
+					break;
+				}
+				prop.put(p.toString(), new String((char[]) pw));
 				break;
 			default:
 				prop.put(p.toString(), properties.get(p).toString());
