@@ -1,6 +1,6 @@
 package grith.jgrith.control;
 
-import grisu.jcommons.utils.MyProxyServerParams;
+import grisu.jcommons.constants.GridEnvironment;
 
 import java.util.Arrays;
 
@@ -82,8 +82,9 @@ public class LoginParams {
 	public LoginParams(final String url,
 			final String myProxyUsername, final char[] myProxyPassphrase) {
 		this(url, myProxyUsername, myProxyPassphrase,
-				MyProxyServerParams.DEFAULT_MYPROXY_SERVER, new Integer(
-						MyProxyServerParams.DEFAULT_MYPROXY_PORT).toString());
+ GridEnvironment
+				.getDefaultMyProxyServer(), new Integer(
+				GridEnvironment.getDefaultMyProxyPort()).toString());
 	}
 
 	/**

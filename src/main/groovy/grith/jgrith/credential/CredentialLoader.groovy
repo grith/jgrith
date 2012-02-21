@@ -1,6 +1,6 @@
 package grith.jgrith.credential
 
-import grisu.jcommons.utils.MyProxyServerParams
+import grisu.jcommons.constants.GridEnvironment
 import grith.jgrith.plainProxy.LocalProxy
 import grith.jgrith.utils.CliLogin
 
@@ -60,10 +60,10 @@ class CredentialLoader {
 			lifetime = 12
 		}
 		if ( ! myproxy ) {
-			myproxy = MyProxyServerParams.DEFAULT_MYPROXY_SERVER
+			myproxy = GridEnvironment.getDefaultMyProxyServer()
 		}
 		if ( ! port ) {
-			port = MyProxyServerParams.DEFAULT_MYPROXY_PORT
+			port = GridEnvironment.getDefaultMyProxyPort()
 		}
 
 		Credential c = CredentialFactory.createFromMyProxy(username, password.getChars(), myproxy, port, lifetime*3600)

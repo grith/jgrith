@@ -2,9 +2,9 @@ package grith.jgrith.credential;
 
 import grisu.jcommons.configuration.CommonGridProperties;
 import grisu.jcommons.constants.Enums.LoginType;
+import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
-import grisu.jcommons.utils.MyProxyServerParams;
 import grisu.jcommons.view.cli.CliHelpers;
 import grith.gsindl.SLCS;
 import grith.jgrith.control.LoginParams;
@@ -205,7 +205,7 @@ public class CredentialFactory {
 		CliHelpers.setIndeterminateProgress("Retrieving credential...", true);
 
 		if ((params == null) || StringUtils.isBlank(params.getMyProxyServer())) {
-			host = MyProxyServerParams.DEFAULT_MYPROXY_SERVER;
+			host = GridEnvironment.getDefaultMyProxyServer();
 		} else {
 			host = params.getMyProxyServer();
 			int tempPort = Integer.parseInt(params.getMyProxyPort());
@@ -214,7 +214,7 @@ public class CredentialFactory {
 			}
 		}
 		if ( port <= 0 ) {
-			port = MyProxyServerParams.DEFAULT_MYPROXY_PORT;
+			port = GridEnvironment.getDefaultMyProxyPort();
 		}
 
 		try {
