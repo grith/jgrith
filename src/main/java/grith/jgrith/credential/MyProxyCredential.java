@@ -185,4 +185,10 @@ public class MyProxyCredential extends Credential {
 		// TODO upload?
 	}
 
+	@Override
+	public synchronized void uploadMyProxy(String myProxyHostUp,
+			int myProxyPortUp, boolean force) throws CredentialException {
+		myLogger.debug("Not uploading this because it is a myproxy credential already...");
+	}
+
 }

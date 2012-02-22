@@ -992,6 +992,9 @@ public abstract class Credential {
 
 			return true;
 		} catch (Exception e) {
+			myLogger.debug(
+					"Error recreating credential: " + e.getLocalizedMessage(),
+					e);
 			return false;
 		}
 	}

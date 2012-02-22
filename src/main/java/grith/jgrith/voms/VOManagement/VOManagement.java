@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -337,15 +338,9 @@ public class VOManagement {
 		return new VO(name, host, port, hostDN);
 	}
 
-	/**
-	 * Reads the vomses directories again to check whether something has
-	 * changed.
-	 * 
-	 * @return all available VOs
-	 */
-	public static Vector<VO> refreshAllVOs() {
-		allVOs = null;
-		return getAllVOs();
+
+	public static void setVOsToUse(Collection<VO> vos) {
+		allVOs = new Vector<VO>(vos);
 	}
 
 }
