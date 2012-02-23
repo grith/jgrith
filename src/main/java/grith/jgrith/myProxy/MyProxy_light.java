@@ -19,11 +19,9 @@
 package grith.jgrith.myProxy;
 
 import grith.jgrith.Environment;
-import grith.jgrith.utils.CredentialHelpers;
 
 import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.GlobusCredential;
-import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
@@ -133,12 +131,41 @@ public class MyProxy_light {
 				|| "myproxy2.arcs.org.au".equals(myproxyserver)
 				|| "202.158.218.205".equals(myproxyserver)) {
 
-			return Environment.getDefaultMyProxy();
+			return Environment.getARCSMyProxy();
 		} else {
 			return new MyProxy(myproxyserver, myproxyPort);
 		}
 	}
 
+
+	/**
+	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
+	 * the specified proxy_paramters. Use the prepareProxyParameters() method to
+	 * actually prepare them.
+	 * 
+	 * @param myproxy
+	 *            the myproxy server to upload the credential to (create with
+	 *            new MyProxy("server", port) - port is usually 7512)
+	 * @param credential
+	 *            the credential you want to delegate to the server
+	 * @param proxy_parameters
+	 *            the parameters for the credential on the myproxy server. See
+	 *            the prepareProxyParameters() method.
+	 * @param myProxyPassphrase
+	 *            the passphrase for the credentials on the myproxy server.
+	 * @throws GSSException
+	 *             if the credential can't be used (or destroyed after the
+	 *             upload)
+	 * @throws MyProxyException
+	 *             if the delegation process fails
+	 */
+	public static void init(MyProxy myproxy, GSSCredential credential,
+			InitParams proxy_parameters, char[] myProxyPassphrase)
+					throws GSSException, MyProxyException {
+
+		init(myproxy, credential,
+				proxy_parameters, myProxyPassphrase, false);
+	}
 
 	/**
 	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
@@ -170,11 +197,11 @@ public class MyProxy_light {
 			boolean storeMyProxyCredsLocally)
 					throws GSSException, MyProxyException {
 
-//		GSSCredential newCredential = null;
-//		
-//		newCredential = new GlobusGSSCredentialImpl(credential,
-//				GSSCredential.INITIATE_AND_ACCEPT);
-		myLogger.debug("Created gss_credentials.");
+		//		GSSCredential newCredential = null;
+		//
+		//		newCredential = new GlobusGSSCredentialImpl(credential,
+		//				GSSCredential.INITIATE_AND_ACCEPT);
+		myLogger.debug("Init myproxy: username={} host={}", proxy_parameters.getUserName(), myproxy.getHost());
 
 		// I don't use the InitParams from the method signature for
 		// username/password because it uses a String for the passphrase instead
@@ -190,35 +217,6 @@ public class MyProxy_light {
 					myProxyPassphrase);
 		}
 
-	}
-
-	/**
-	 * Delegates (uploads) a {@link GSSCredential} to the myproxy server with
-	 * the specified proxy_paramters. Use the prepareProxyParameters() method to
-	 * actually prepare them.
-	 * 
-	 * @param myproxy
-	 *            the myproxy server to upload the credential to (create with
-	 *            new MyProxy("server", port) - port is usually 7512)
-	 * @param credential
-	 *            the credential you want to delegate to the server
-	 * @param proxy_parameters
-	 *            the parameters for the credential on the myproxy server. See
-	 *            the prepareProxyParameters() method.
-	 * @param myProxyPassphrase
-	 *            the passphrase for the credentials on the myproxy server.
-	 * @throws GSSException
-	 *             if the credential can't be used (or destroyed after the
-	 *             upload)
-	 * @throws MyProxyException
-	 *             if the delegation process fails
-	 */
-	public static void init(MyProxy myproxy, GSSCredential credential,
-			InitParams proxy_parameters, char[] myProxyPassphrase)
-					throws GSSException, MyProxyException {
-
-		init(myproxy, credential,
-				proxy_parameters, myProxyPassphrase, false);
 	}
 
 	/**

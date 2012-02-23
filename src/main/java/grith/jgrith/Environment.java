@@ -20,14 +20,14 @@ public class Environment {
 
 	private static MyProxy myproxy = null;
 
-	public static MyProxy getDefaultMyProxy() {
+	public static MyProxy getARCSMyProxy() {
 
 		myLogger.debug("Using default myproxy...");
 
 		if (myproxy == null) {
 
-			int port = GridEnvironment.getDefaultMyProxyPort();
-			String server = GridEnvironment.getDefaultMyProxyServer();
+			int port = 7512;
+			String server = "myproxy.arcs.org.au";
 			myLogger.debug("Creating default MyProxy object: " + server + " / "
 					+ port);
 
@@ -45,6 +45,7 @@ public class Environment {
 						throws AuthorizationException {
 					myLogger.debug("actual host: " + host);
 					try {
+						// TODO make this configurable?
 						InetAddress addr = InetAddress.getByName(host);
 						String hostname = addr.getHostName();
 						if (!"myproxy.arcs.org.au".equals(hostname)
@@ -63,5 +64,11 @@ public class Environment {
 			});
 		}
 		return myproxy;
+	}
+
+	public static MyProxy getDefaultMyProxy() {
+		MyProxy mp = new MyProxy(GridEnvironment.getDefaultMyProxyServer(),
+				GridEnvironment.getDefaultMyProxyPort());
+		return mp;
 	}
 }
