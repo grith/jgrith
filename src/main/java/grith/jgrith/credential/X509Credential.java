@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
-import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 
@@ -128,10 +128,17 @@ public class X509Credential extends Credential {
 			if ((store != null) && (Boolean) store) {
 				this.passphrase = passphrase;
 			}
-			
+
 
 			String certFile = (String) temp.get(PROPERTY.CertFile);
 			String keyFile = (String) temp.get(PROPERTY.KeyFile);
+
+			if (StringUtils.isBlank(certFile)) {
+				certFile = CoGProperties.getDefault().getUserCertFile();
+			}
+			if (StringUtils.isBlank(keyFile)) {
+				keyFile = CoGProperties.getDefault().getUserKeyFile();
+			}
 
 			return PlainProxy.init(certFile, keyFile, passphrase,
 					getInitialLifetime() / 3600);

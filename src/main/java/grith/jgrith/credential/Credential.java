@@ -151,10 +151,13 @@ public abstract class Credential {
 	}
 
 	public static Credential load() {
-		return load(CoGProperties.getDefault().getProxyFile());
+		return load(null);
 	}
 
 	public static Credential load(String location) {
+		if (StringUtils.isBlank(location)) {
+			location = CoGProperties.getDefault().getProxyFile();
+		}
 		String mdFilePath = location + "." + METADATA_FILE_EXTENSION;
 		File mdFile = new File(mdFilePath);
 		if ( ! mdFile.exists() || ! mdFile.canRead() ) {
@@ -165,7 +168,8 @@ public abstract class Credential {
 		return loadFromMetaDataFile(mdFilePath);
 	}
 
-	public static Credential loadFromConfig(Map<PROPERTY, Object> config) {
+	public static Credential loadFromConfig(Map<PROPERTY, Object> config,
+			boolean neverLoadFromMyproxy) {
 
 		myLogger.debug("Loading credential from config map...");
 
@@ -196,6 +200,11 @@ public abstract class Credential {
 						+ " not supported.");
 			}
 
+			if (neverLoadFromMyproxy) {
+				c.getCredential();
+				return c;
+			}
+
 			if (StringUtils.isNotBlank(localPath)
 					&& new File(localPath).exists()) {
 				c.setSaved(true);
@@ -218,10 +227,12 @@ public abstract class Credential {
 				}
 			}
 
+
 			return c;
 		} catch (CredentialException ce) {
 			throw ce;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new CredentialException("Can't create credential: "
 					+ e.getLocalizedMessage(), e);
 		}
@@ -320,19 +331,21 @@ public abstract class Credential {
 
 			}
 
-			Credential c = loadFromConfig(config);
+			Credential c = loadFromConfig(config, false);
 
 			for (String fqan : childs.keySet()) {
 				myLogger.debug("Adding existing and uploaded childs to credential...");
 				Map<PROPERTY, Object> childConf = childs.get(fqan);
 				childConf.put(PROPERTY.LoginType, LoginType.MYPROXY);
-				Credential child = loadFromConfig(childConf);
+				Credential child = loadFromConfig(childConf, false);
 				c.addVomsCredential(child);
 			}
 
 			return c;
 		} catch (Exception e) {
-			throw new CredentialException("Can't create credential from metadata file: "+metadataFile);
+			throw new CredentialException(
+					"Can't create credential from metadata file "
+							+ metadataFile + ": " + e.getLocalizedMessage());
 		}
 
 	}
@@ -1106,6 +1119,8 @@ public abstract class Credential {
 					break;
 				}
 				prop.put(p.toString(), new String((char[]) pw));
+				break;
+			case Password:
 				break;
 			default:
 				prop.put(p.toString(), properties.get(p).toString());

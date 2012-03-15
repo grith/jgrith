@@ -89,7 +89,7 @@ public class MyProxyCredential extends Credential {
 	public GSSCredential createGssCredential(Map<PROPERTY, Object> config)
 			throws CredentialException {
 
-		Object pw = config.get(PROPERTY.MyProxyPassword);
+		char[] pw = (char[]) config.get(PROPERTY.MyProxyPassword);
 
 		String un = (String) config.get(PROPERTY.MyProxyUsername);
 		String host = (String) config.get(PROPERTY.MyProxyHost);
@@ -97,11 +97,11 @@ public class MyProxyCredential extends Credential {
 		Integer port = (Integer) config.get(PROPERTY.MyProxyPort);
 
 
-		return createGssCredential(un, (char[]) pw, host, port);
+		return createGssCredential(un, pw, host, port);
 	}
 
 	public GSSCredential createGssCredential(String myproxyUsername,
-			char[] myproxyPassword, String myproxyhost, int myproxyPort)
+			char[] myproxyPassword, String myproxyhost, Integer myproxyPort)
 					throws CredentialException {
 
 		try {
@@ -115,8 +115,14 @@ public class MyProxyCredential extends Credential {
 			if (StringUtils.isBlank(myproxyhost)) {
 				myproxyhost = (String) getProperty(PROPERTY.MyProxyHost);
 			}
-			if (myproxyPort <= 0) {
+			if (StringUtils.isBlank(myproxyhost)) {
+				myproxyhost = GridEnvironment.getDefaultMyProxyServer();
+			}
+			if ((myproxyPort == null) || (myproxyPort <= 0)) {
 				myproxyPort = (Integer) getProperty(PROPERTY.MyProxyPort);
+			}
+			if ((myproxyPort == null) || (myproxyPort <= 0)) {
+				myproxyPort = GridEnvironment.getDefaultMyProxyPort();
 			}
 			return MyProxy_light.getDelegation(myproxyhost, myproxyPort,
 					myproxyUsername, myproxyPassword, getInitialLifetime());

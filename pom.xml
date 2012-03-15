@@ -187,6 +187,8 @@
 			<version>0.8.1</version>
 			<scope>test</scope>
 		</dependency>
+
+
 	</dependencies>
 
 	<name>SimpleProxyLib</name>
@@ -299,6 +301,6 @@
 	<parent>
 		<groupId>nz.org.nesi</groupId>
 		<artifactId>nesi</artifactId>
-		<version>0.10</version>
+		<version>0.11-SNAPSHOT</version>
 	</parent>
 </project>

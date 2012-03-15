@@ -28,7 +28,7 @@ public class SlcsLoginWrapper {
 
 	private static List<String> cachedIdps = null;
 
-	public static List<String> getAllIdps() throws Throwable {
+	public synchronized static List<String> getAllIdps() throws Throwable {
 		if (cachedIdps == null) {
 			final String id = UUID.randomUUID().toString();
 			final IdpObject idpObj = new DummyIdpObject();
@@ -56,7 +56,7 @@ public class SlcsLoginWrapper {
 
 	public static GSSCredential slcsMyProxyInit(String username,
 			char[] password, String idp, LoginParams params, String shibUrl)
-			throws Exception {
+					throws Exception {
 
 		myLogger.debug("SLCS login: starting slcs/myproxy login...");
 		final String id = UUID.randomUUID().toString();

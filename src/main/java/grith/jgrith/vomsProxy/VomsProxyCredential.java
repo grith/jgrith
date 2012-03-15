@@ -379,7 +379,9 @@ public class VomsProxyCredential {
 			ac = new org.bouncycastle.asn1.x509.AttributeCertificate(acseq);
 
 		} catch (Exception e) {
-			myLogger.error("Could not get AttributeCertificate.", e);
+			myLogger.info(
+					"Could not get AttributeCertificate: {}. Probably means the user is not member of the VO.",
+					e.getLocalizedMessage());
 			throw new IOException(e);
 		}
 

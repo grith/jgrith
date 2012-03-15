@@ -1,5 +1,5 @@
 <assembly>
-	<id>knife</id>
+	<id>bin</id>
 	<formats>
 <!--				<format>dir</format>-->
 		<!--		<format>zip</format>-->
