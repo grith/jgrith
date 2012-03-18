@@ -1167,7 +1167,7 @@ public abstract class Credential {
 		}
 
 		if (minThresholdTask != null) {
-			invalidTask.cancel();
+			minThresholdTask.cancel();
 		}
 
 		setGssCredential(gss);
@@ -1222,12 +1222,6 @@ public abstract class Credential {
 
 	public void setMyProxyDelegatedUsername(String myProxyUsername2) {
 		setProperty(PROPERTY.MyProxyUsername, myProxyUsername2);
-	}
-
-	private void setOffTimerForRemainingThreshold(int remaining) {
-
-
-
 	}
 
 	public void setProperty(PROPERTY p, Object value) {
