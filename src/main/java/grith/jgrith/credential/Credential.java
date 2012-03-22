@@ -43,12 +43,12 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import org.python.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.Ostermiller.util.RandPass;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * A wrapper class that wraps a {@link GSSCredential} and provides convenience

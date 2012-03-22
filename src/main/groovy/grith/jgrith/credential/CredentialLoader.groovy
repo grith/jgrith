@@ -1,16 +1,24 @@
 package grith.jgrith.credential
 
+import grith.jgrith.plainProxy.LocalProxy
 import grisu.jcommons.constants.GridEnvironment
 import grith.jgrith.plainProxy.LocalProxy
 import grith.jgrith.utils.CliLogin
+
+import org.globus.common.CoGProperties
 
 
 class CredentialLoader {
 
 	static Map loadCredentials(String pathToCredentialConfigFile) {
 
-		def credConfig = new ConfigSlurper().parse(new File(pathToCredentialConfigFile).toURL())
+		File configFile = new File(pathToCredentialConfigFile)
+		String configPath = configFile.getParent()
+
+		def credConfig = new ConfigSlurper().parse(configFile.toURL())
 		def credentials = [:]
+
+
 		for ( def name in credConfig.keySet() ) {
 
 			ConfigObject config = credConfig.getProperty(name)
@@ -18,7 +26,7 @@ class CredentialLoader {
 
 			switch (type) {
 				case 'x509':
-					Credential c = loadLocal(config)
+					Credential c = loadLocal(config, configPath)
 					credentials.put(name, c)
 					break
 				case 'shib':
@@ -30,7 +38,7 @@ class CredentialLoader {
 					credentials.put(name, c)
 					break
 				case 'proxy':
-					Credential c = loadLocalProxy(config)
+					Credential c = loadLocalProxy(config, configPath)
 					credentials.put(name, c)
 					break
 				default:
@@ -40,12 +48,21 @@ class CredentialLoader {
 		return credentials
 	}
 
-	static Credential loadLocalProxy(ConfigObject co) {
+	static Credential loadLocalProxy(ConfigObject co, configPath) {
 		def path = co.get('path')
 		if ( ! path ) {
 			path = LocalProxy.PROXY_FILE
 		}
-		Credential c = new ProxyCredential(path)
+
+		File file = new File(path)
+		if (! file.exists() ) {
+			file = new File(configPath, file.getName())
+			if ( file.exists() ) {
+				throw new RuntimeException("Proxy file "+file.getAbsolutePath()+" does not exist")
+			}
+		}
+
+		Credential c = new ProxyCredential(file.getAbsolutePath())
 		return c
 	}
 
@@ -85,10 +102,32 @@ class CredentialLoader {
 		return c
 	}
 
-	static Credential loadLocal(ConfigObject co) {
+	static Credential loadLocal(ConfigObject co, String configPath) {
 
 		def cert = co.get('certificate')
+		if ( ! cert ) {
+			cert = CoGProperties.getDefault().getUserCertFile()
+		}
+
 		def key = co.get('key')
+		if ( ! key ) {
+			key = CoGProperties.getDefault().getUserKeyFile()
+		}
+
+		File certFile = new File(cert)
+		if ( ! certFile.exists() ) {
+			certFile = new File(configPath, certFile.getName())
+			if (! certFile.exists() ) {
+				throw new RuntimeException("Can't find certificate "+certFile.getAbsolutePath())
+			}
+			cert = certFile.getAbsolutePath()
+			File keyFile = new File(configPath, new File(key).getName())
+			if ( ! keyFile.exists() ) {
+				throw new RuntimeException("Can't find key "+keyFile.getAbsolutePath())
+			}
+			key = keyFile.getAbsolutePath()
+		}
+
 		def passphrase = co.get('passphrase')
 
 		def lifetime = co.get('lifetime')
