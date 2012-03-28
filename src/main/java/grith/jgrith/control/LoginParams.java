@@ -1,12 +1,14 @@
 package grith.jgrith.control;
 
 import grisu.jcommons.constants.GridEnvironment;
+import grisu.jcommons.utils.FileSystemHelpers;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 /**
  * A class that holds all information that is needed to login to a Grisu web
  * service.
@@ -29,6 +31,7 @@ public class LoginParams {
 	private char[] httpProxyPassphrase = null;
 
 	private ImmutableBiMap<String, String> aliasMap = null;
+	private ImmutableMap<String, String> myProxyMap = null;
 
 	/**
 	 * This one allows you to specify everything: myproxy server & port, http
@@ -81,10 +84,7 @@ public class LoginParams {
 	 */
 	public LoginParams(final String url,
 			final String myProxyUsername, final char[] myProxyPassphrase) {
-		this(url, myProxyUsername, myProxyPassphrase,
- GridEnvironment
-				.getDefaultMyProxyServer(), new Integer(
-				GridEnvironment.getDefaultMyProxyPort()).toString());
+		this(url, myProxyUsername, myProxyPassphrase, null, null);
 	}
 
 	/**
@@ -224,7 +224,27 @@ public class LoginParams {
 	 * @return the myproxy server port
 	 */
 	public final String getMyProxyPort() {
-		return myProxyPort;
+		if (StringUtils.isNotBlank(myProxyPort)) {
+			return myProxyPort;
+		}
+		String loginUrl = getLoginUrl();
+		String myproxy = null;
+		if (StringUtils.isNotBlank(loginUrl)) {
+			myproxy = myProxyMap.get(loginUrl);
+			if (StringUtils.isNotBlank(myproxy)) {
+
+				Integer port = FileSystemHelpers.getPort(myproxy);
+				if ((port != null) && (port > 0)) {
+					myproxy = port.toString();
+				}
+			}
+		}
+
+		if (StringUtils.isBlank(myproxy)) {
+			myproxy = Integer.toString(GridEnvironment.getDefaultMyProxyPort());
+		}
+
+		return myproxy;
 	}
 
 	/**
@@ -233,7 +253,24 @@ public class LoginParams {
 	 * @return the myproxy server hostname
 	 */
 	public final String getMyProxyServer() {
-		return myProxyServer;
+
+		if (StringUtils.isNotBlank(myProxyServer)) {
+			return myProxyServer;
+		}
+
+		String loginUrl = getLoginUrl();
+		String myproxy = null;
+		if (StringUtils.isNotBlank(loginUrl)) {
+			myproxy = myProxyMap.get(loginUrl);
+			if (StringUtils.isNotBlank(myproxy)) {
+				myproxy = FileSystemHelpers.getHost(myproxy);
+				if (StringUtils.isBlank(myproxy)) {
+					myproxy = GridEnvironment.getDefaultMyProxyServer();
+				}
+			}
+		}
+
+		return myproxy;
 	}
 
 	/**
@@ -300,6 +337,22 @@ public class LoginParams {
 
 		this.loginUrl = url;
 
+	}
+
+	/**
+	 * Sets a map that helps to choose myproxy servers depending on the login
+	 * url.
+	 * 
+	 * This map is used if no myproxy server is explicitely set.
+	 * 
+	 * The key of the map would be the loginurl, the value the myproxy server in
+	 * the format myproxyHost[:myproxyPort]
+	 * 
+	 * @param map
+	 *            the translation map.
+	 */
+	public void setMyProxyMap(ImmutableMap<String, String> map) {
+		this.myProxyMap = map;
 	}
 
 	/**
