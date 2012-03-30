@@ -230,12 +230,14 @@ public class LoginParams {
 		String loginUrl = getLoginUrl();
 		String myproxy = null;
 		if (StringUtils.isNotBlank(loginUrl)) {
-			myproxy = myProxyMap.get(loginUrl);
-			if (StringUtils.isNotBlank(myproxy)) {
+			if (myProxyMap != null) {
+				myproxy = myProxyMap.get(loginUrl);
+				if (StringUtils.isNotBlank(myproxy)) {
 
-				Integer port = FileSystemHelpers.getPort(myproxy);
-				if ((port != null) && (port > 0)) {
-					myproxy = port.toString();
+					Integer port = FileSystemHelpers.getPort(myproxy);
+					if ((port != null) && (port > 0)) {
+						myproxy = port.toString();
+					}
 				}
 			}
 		}
@@ -261,11 +263,13 @@ public class LoginParams {
 		String loginUrl = getLoginUrl();
 		String myproxy = null;
 		if (StringUtils.isNotBlank(loginUrl)) {
-			myproxy = myProxyMap.get(loginUrl);
-			if (StringUtils.isNotBlank(myproxy)) {
-				myproxy = FileSystemHelpers.getHost(myproxy);
-				if (StringUtils.isBlank(myproxy)) {
-					myproxy = GridEnvironment.getDefaultMyProxyServer();
+			if (myProxyMap != null) {
+				myproxy = myProxyMap.get(loginUrl);
+				if (StringUtils.isNotBlank(myproxy)) {
+					myproxy = FileSystemHelpers.getHost(myproxy);
+					if (StringUtils.isBlank(myproxy)) {
+						myproxy = GridEnvironment.getDefaultMyProxyServer();
+					}
 				}
 			}
 		}
