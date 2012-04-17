@@ -195,6 +195,9 @@ public abstract class Credential {
 			case X509_CERTIFICATE:
 				c = new X509Credential(config);
 				break;
+			case LOCAL_PROXY:
+				c = new ProxyCredential(localPath);
+				break;
 			default:
 				throw new CredentialException("Login type " + type.toString()
 						+ " not supported.");
@@ -343,6 +346,7 @@ public abstract class Credential {
 
 			return c;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new CredentialException(
 					"Can't create credential from metadata file "
 							+ metadataFile + ": " + e.getLocalizedMessage());
