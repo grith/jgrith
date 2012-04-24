@@ -1,6 +1,6 @@
 package grith.jgrith.voms.VOManagement;
 
-import grisu.jcommons.model.info.VO;
+import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
 

@@ -1,6 +1,6 @@
 package grith.jgrith.control;
 
-import grisu.jcommons.model.info.VO;
+import grisu.model.info.dto.VO;
 import grith.jgrith.Environment;
 import grith.jgrith.certificate.CertificateHelper;
 import grith.jgrith.myProxy.MyProxy_light;

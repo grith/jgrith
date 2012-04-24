@@ -14,7 +14,7 @@ package grith.jgrith.vomsProxy;
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import gridpp.portal.voms.VincenzoBase64;
 import grisu.jcommons.exceptions.CredentialException;
-import grisu.jcommons.model.info.VO;
+import grisu.model.info.dto.VO;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

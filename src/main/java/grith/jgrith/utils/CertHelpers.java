@@ -1,6 +1,6 @@
 package grith.jgrith.utils;
 
-import grisu.jcommons.model.info.VO;
+import grisu.model.info.dto.VO;
 import grith.jgrith.certificate.ProxyCredentialOld;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
