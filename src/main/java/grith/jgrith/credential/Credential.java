@@ -736,7 +736,8 @@ public abstract class Credential {
 
 	public int getMyProxyPort() {
 		if (getProperty(PROPERTY.MyProxyPort) == null) {
-			setProperty(PROPERTY.MyProxyPort, DEFAULT_MYPROXY_PORT);
+			setProperty(PROPERTY.MyProxyPort,
+					GridEnvironment.getDefaultMyProxyPort());
 		}
 		return (Integer) getProperty(PROPERTY.MyProxyPort);
 	}
@@ -753,7 +754,8 @@ public abstract class Credential {
 	 */
 	public String getMyProxyServer() {
 		if (getProperty(PROPERTY.MyProxyHost) == null) {
-			setProperty(PROPERTY.MyProxyHost, DEFAULT_MYPROXY_SERVER);
+			setProperty(PROPERTY.MyProxyHost,
+					GridEnvironment.getDefaultMyProxyServer());
 		}
 		return (String) getProperty(PROPERTY.MyProxyHost);
 	}
