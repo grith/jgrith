@@ -120,6 +120,7 @@ public class VOManagement {
 							+ " ms.");
 				}
 			};
+			t.setName(vo.getVoName() + "_lookup");
 			executor.execute(t);
 		}
 

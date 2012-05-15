@@ -1074,7 +1074,10 @@ public abstract class Credential {
 		myLogger.debug("Saving credential: " + uuid);
 
 		if (StringUtils.isBlank(localPath)) {
-			localPath = LocalProxy.PROXY_FILE;
+			localPath = getLocalPath();
+			if (StringUtils.isBlank(localPath)) {
+				localPath = LocalProxy.PROXY_FILE;
+			}
 		}
 		addProperty(PROPERTY.LocalPath, localPath);
 
