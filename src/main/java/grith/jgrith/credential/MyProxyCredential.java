@@ -21,6 +21,28 @@ public class MyProxyCredential extends Credential {
 	// private String myProxyUsernameOrig = null;
 	// private char[] myProxyPasswordOrig = null;
 
+	private static String extractMyProxyServerFromUsername(String un) {
+
+		int index = un.lastIndexOf('@');
+		if (index <= 0) {
+			return GridEnvironment.getDefaultMyProxyServer();
+		}
+
+		return un.substring(index);
+
+	}
+
+	private static String extractUsernameFromUsername(String un) {
+
+		int index = un.lastIndexOf('@');
+		if (index <= 0) {
+			return un;
+		}
+
+		return un.substring(0, index);
+
+	}
+
 	public MyProxyCredential(Map<PROPERTY, Object> config) {
 		super(config);
 	}
@@ -30,7 +52,8 @@ public class MyProxyCredential extends Credential {
 	}
 
 	public MyProxyCredential(String un, char[] pw, int lifetime_in_seconds) {
-		this(un, pw, GridEnvironment.getDefaultMyProxyServer(), GridEnvironment
+		this(extractUsernameFromUsername(un), pw,
+				extractMyProxyServerFromUsername(un), GridEnvironment
 				.getDefaultMyProxyPort(), lifetime_in_seconds);
 	}
 

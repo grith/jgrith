@@ -10,7 +10,7 @@ import org.globus.common.CoGProperties
 
 class CredentialLoader {
 
-	static Map loadCredentials(String pathToCredentialConfigFile) {
+	static Map<String, Credential> loadCredentials(String pathToCredentialConfigFile) {
 
 		File configFile = new File(pathToCredentialConfigFile)
 		String configPath = configFile.getParent()
