@@ -196,7 +196,7 @@ public abstract class Credential {
 				c = new X509Credential(config);
 				break;
 			case LOCAL_PROXY:
-				c = new ProxyCredential(localPath);
+				c = new ProxyCredential(config);
 				break;
 			default:
 				throw new CredentialException("Login type " + type.toString()
@@ -323,6 +323,9 @@ public abstract class Credential {
 						config.put(p, LoginType.fromString(value));
 						break;
 					case Uploaded:
+						config.put(PROPERTY.Uploaded,
+								Boolean.parseBoolean(value));
+						break;
 					case StorePasswordInMemory:
 						config.put(p, Boolean.valueOf(value));
 						break;
@@ -986,9 +989,9 @@ public abstract class Credential {
 			}
 			setCredential(c);
 
-			if (isUploaded()) {
-				uploadMyProxy(null, -1, true);
-			}
+			// if (isUploaded()) {
+			// uploadMyProxy(null, -1, true);
+			// }
 
 			for (String fqan : children.keySet()) {
 				myLogger.debug("Credential " + uuid
