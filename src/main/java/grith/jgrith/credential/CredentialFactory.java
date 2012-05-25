@@ -118,7 +118,7 @@ public class CredentialFactory {
 					+ " not supported");
 		}
 
-		if (params != null) {
+		if ((params != null) && !type.equals(LoginType.MYPROXY)) {
 			cred.setMyProxyDelegatedUsername(params.getMyProxyUsername());
 			cred.setMyProxyDelegatedPassword(params.getMyProxyPassphrase());
 		}
@@ -185,6 +185,7 @@ public class CredentialFactory {
 					.getDefault().getLastMyProxyUsername());
 			if (params != null) {
 				params.setMyProxyUsername(username);
+				// if ( )
 			}
 		} else {
 			username = params.getMyProxyUsername();

@@ -1,0 +1,661 @@
+package grith.jgrith.cred;
+
+import grisu.jcommons.constants.Constants;
+import grisu.jcommons.constants.Enums.LoginType;
+import grisu.jcommons.exceptions.CredentialException;
+import grisu.model.info.dto.VO;
+import grith.jgrith.cred.callbacks.AbstractCallback;
+import grith.jgrith.cred.callbacks.CliCallback;
+import grith.jgrith.cred.details.CredDetail;
+import grith.jgrith.credential.Credential.PROPERTY;
+import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CertHelpers;
+import grith.jgrith.utils.CredentialHelpers;
+import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.vomsProxy.VomsProxy;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.lang.StringUtils;
+import org.globus.common.CoGProperties;
+import org.globus.myproxy.InitParams;
+import org.globus.myproxy.MyProxy;
+import org.globus.myproxy.MyProxyException;
+import org.globus.util.Util;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.python.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbstractCred extends BaseCred {
+
+	class CredentialInvalid extends TimerTask {
+
+		@Override
+		public void run() {
+			myLogger.debug("Credential invalid now");
+			pcs.firePropertyChange("valid", true, false);
+		}
+	}
+
+	class CredentialMinThreshold extends TimerTask {
+
+		@Override
+		public void run() {
+			myLogger.debug("Min threshold reached");
+			pcs.firePropertyChange("belowMinLifetime", false, true);
+		}
+	}
+
+	class CredentialRenewTask extends TimerTask {
+		@Override
+		public void run() {
+			myLogger.debug("Auto renew task started.");
+			refresh();
+		}
+	}
+
+	static final Logger myLogger = LoggerFactory.getLogger(AbstractCred.class
+			.getName());
+
+	public static AbstractCred loadFromConfig(Map<PROPERTY, Object> config) {
+
+		myLogger.debug("Loading credential from config map...");
+
+		try {
+
+			LoginType type = (LoginType) config.get(PROPERTY.LoginType);
+
+			if (type == null) {
+				throw new CredentialException("No credential type specified.");
+			}
+
+			AbstractCred c = null;
+			switch (type) {
+			case MYPROXY:
+				c = MyProxyCred.createFromConfig(config);
+				break;
+			case SHIBBOLETH:
+			case SHIBBOLETH_LAST_IDP:
+				c = SLCSCred.createFromConfig(config);
+				break;
+			case X509_CERTIFICATE:
+				c = X509Cred.createFromConfig(config);
+				break;
+			default:
+				throw new CredentialException("Login type " + type.toString()
+						+ " not supported.");
+			}
+			return c;
+		} catch (CredentialException ce) {
+			throw ce;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CredentialException("Can't create credential: "
+					+ e.getLocalizedMessage(), e);
+		}
+
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		SLCSCred x = new SLCSCred();
+		x.setCallback(new CliCallback());
+		x.populate();
+
+		System.out.println(x.getGSSCredential().getName().toString());
+
+		x.uploadMyProxy(false);
+
+		x.saveMyProxy();
+
+		MyProxyCred mp = MyProxyCred.loadFromFile();
+
+		System.out.println(mp.getRemainingLifetimeMyProxy());
+
+	}
+
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+	private long minTimeBetweenAutoRefreshes = 100;
+
+	protected boolean isUploaded = false;
+
+	protected boolean isPopulated = false;
+
+	protected int proxyLifetimeInSeconds = 864000;
+
+	protected AbstractCallback credCallback = null;
+
+	private GSSCredential cachedCredential = null;
+
+	private String localPath;
+
+	private Map<String, GSSCredential> groupCache = Maps.newHashMap();
+
+	private Map<String, String> groupPathCache = Maps.newHashMap();
+
+	private Map<String, VO> fqans;
+	private int minProxyLifetime = DEFAULT_MIN_LIFETIME_IN_SECONDS;
+
+	private CredentialInvalid invalidTask = null;
+
+	private CredentialMinThreshold minThresholdTask = null;
+
+	private CredentialRenewTask renewTask = null;
+
+	private final Timer timer = new Timer(true);
+
+	private volatile Date lastCredentialAutoRefresh = new Date();
+
+	public AbstractCred() {
+		super();
+	}
+
+	public AbstractCred(String username, char[] password, String host, int port) {
+		super(username, password, host, port);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener l) {
+		pcs.addPropertyChangeListener(l);
+	}
+
+	public synchronized void createGSSCredential() {
+
+		cachedCredential = createGSSCredentialInstance();
+
+		lastCredentialAutoRefresh = new Date();
+
+		groupCache.clear();
+
+		Thread t1 = new Thread() {
+			@Override
+			public void run() {
+
+				if (isUploaded) {
+					uploadMyProxy(true);
+				}
+			}
+		};
+		t1.setName("MyProxy update thread");
+		t1.start();
+
+		Thread t2 = new Thread() {
+			@Override
+			public void run() {
+
+				if (StringUtils.isNotBlank(localPath)) {
+					saveProxy(localPath);
+				}
+
+				for (String group : groupPathCache.keySet()) {
+					String path = groupPathCache.get(group);
+					saveGroupProxy(group, path);
+				}
+			}
+		};
+		t2.setName("Proxy save thread");
+		t2.start();
+
+		int remaining = -1;
+		try {
+			remaining = cachedCredential.getRemainingLifetime();
+		} catch (GSSException e) {
+			throw new CredentialException("Can't get remaining lifetime.", e);
+		}
+		if (invalidTask != null) {
+			invalidTask.cancel();
+		}
+
+		if (minThresholdTask != null) {
+			minThresholdTask.cancel();
+		}
+
+		if (renewTask != null) {
+			renewTask.cancel();
+		}
+
+		invalidTask = new CredentialInvalid();
+		timer.schedule(invalidTask, remaining * 1000);
+		minThresholdTask = new CredentialMinThreshold();
+		int delay = remaining - getMinimumLifetime();
+		if (delay < 0) {
+			delay = 0;
+		}
+
+		if (delay > 0) {
+			timer.schedule(minThresholdTask, delay * 1000);
+		}
+
+		// try to renew before minThreshold is there
+		renewTask = new CredentialRenewTask();
+		delay = delay - 20;
+		if (delay > 0) {
+			timer.schedule(renewTask, delay * 1000);
+		}
+
+	}
+
+	abstract public GSSCredential createGSSCredentialInstance();
+
+	public void destroy() {
+		if ( cachedCredential != null ) {
+
+			new Thread() {
+				@Override
+				public void run() {
+
+					if (cachedCredential != null) {
+
+						if (isUploaded) {
+							try {
+								myLogger.debug("Destrying uploaded proxy from host: "
+										+ getMyProxyHost());
+								MyProxy mp = new MyProxy(getMyProxyHost(),
+										getMyProxyPort());
+								try {
+									mp.destroy(cachedCredential,
+											getMyProxyUsername(), new String(
+													getMyProxyPassword()));
+								} catch (MyProxyException e) {
+									myLogger.error(
+											"Can't destroy myproxy credential.",
+											e);
+								}
+							} catch (Exception e) {
+								myLogger.debug(
+										"Error when trying to destroy myproxy cred.",
+										e);
+							}
+						}
+						try {
+							cachedCredential.dispose();
+						} catch (GSSException e) {
+							myLogger.debug(
+									"Error when disposing gsscredential.", e);
+						}
+
+					}
+				}
+			}.start();
+
+		}
+
+		for (GSSCredential cred : groupCache.values()) {
+			try {
+				cred.dispose();
+			} catch (Exception e) {
+				myLogger.debug("Error when disposing group gss credential.");
+			}
+		}
+
+		if (StringUtils.isNotBlank(this.localPath)) {
+			if (new File(localPath).exists()) {
+				myLogger.debug("Deleting proxy file " + localPath);
+				Util.destroy(localPath);
+			}
+		}
+
+		destroyMyProxy();
+	}
+
+	/**
+	 * Get a map of all Fqans (and VOs) the user has access to.
+	 *
+	 * @return the Fqans of the user
+	 */
+	public synchronized Map<String, VO> getAvailableFqans() {
+
+		if (fqans == null) {
+			fqans = VOManagement.getAllFqans(getGSSCredential());
+		}
+		return fqans;
+
+	}
+
+	private AbstractCallback getCallback() {
+		if (credCallback == null) {
+			throw new CredentialException(
+					"No callback configured for credential.");
+		}
+		return credCallback;
+	}
+
+	public String getDN() {
+		return CertHelpers.getDnInProperFormat(getGSSCredential());
+	}
+
+	public GSSCredential getGroupCredential(String fqan) {
+
+		if (StringUtils.isBlank(fqan) || Constants.NON_VO_FQAN.equals(fqan)) {
+			return getGSSCredential();
+		}
+
+		GSSCredential temp = groupCache.get(fqan);
+		if (temp == null) {
+			VO vo = getAvailableFqans().get(fqan);
+			if (vo == null) {
+				throw new CredentialException("Can't find VO for fqan: " + fqan);
+			} else {
+				GSSCredential groupCred = getGroupCredential(vo, fqan);
+				groupCache.put(fqan, groupCred);
+			}
+		}
+
+		return groupCache.get(fqan);
+
+	}
+
+	/**
+	 * Creates a new, voms-enabled Credential object from an arbitrary VO.
+	 *
+	 * @param vo
+	 *            the VO
+	 * @param fqan
+	 *            the fqan
+	 * @param upload
+	 *            whether to upload the voms proxy to myproxy
+	 * @return the Credential
+	 * @throws CredentialException
+	 *             if the Credential can't be created (e.g. voms error).
+	 */
+	private GSSCredential getGroupCredential(VO vo, String fqan)
+			throws CredentialException {
+
+		if (VO.NON_VO.equals(vo)) {
+			return getGSSCredential();
+		}
+
+		try {
+			GSSCredential base = getGSSCredential();
+			VomsProxy vp = new VomsProxy(vo, fqan,
+					CredentialHelpers.unwrapGlobusCredential(base), new Long(
+							base.getRemainingLifetime()) * 1000);
+
+			return CredentialHelpers.wrapGlobusCredential(vp
+					.getVomsProxyCredential());
+		} catch (Exception e) {
+			throw new CredentialException("Can't create VOMS proxy: "
+					+ e.getLocalizedMessage(), e);
+		}
+
+
+	}
+
+	public String getGroupProxyPath(String group) {
+		return groupPathCache.get(group);
+	}
+
+	public synchronized GSSCredential getGSSCredential() {
+
+		try {
+			if ((cachedCredential == null) ) {
+				if (!isPopulated) {
+					throw new CredentialException(
+							"Credential not populated (yet).");
+				}
+				createGSSCredential();
+				return cachedCredential;
+			} else if (cachedCredential.getRemainingLifetime() < minProxyLifetime) {
+
+				myLogger.debug("Credential below min lifetime. Trying to refresh...");
+
+				if (!isPopulated) {
+					throw new CredentialException(
+							"Credential not populated (yet).");
+				}
+
+				Date now = new Date();
+				long diff = (now.getTime() - lastCredentialAutoRefresh
+						.getTime()) / 1000;
+
+				if ((diff > minTimeBetweenAutoRefreshes)) {
+					refresh();
+				} else {
+					myLogger.debug(
+							"Not refreshing credential since only {} secs since last refresh.",
+							diff);
+				}
+				return cachedCredential;
+			} else {
+				return cachedCredential;
+			}
+		} catch (GSSException e) {
+			throw new CredentialException(
+					"Could not get remaining lifetime of credential.", e);
+		}
+	}
+
+	public int getMinimumLifetime() {
+		return this.minProxyLifetime;
+	}
+
+	protected int getProxyLifetimeInSeconds() {
+		return proxyLifetimeInSeconds;
+	}
+
+	public String getProxyPath() {
+
+		if (StringUtils.isNotBlank(this.localPath)
+				&& new File(this.localPath).exists()) {
+			return this.localPath;
+		}
+		return null;
+
+	}
+
+	public int getRemainingLifetime() {
+		try {
+			return getGSSCredential().getRemainingLifetime();
+		} catch (GSSException e) {
+			throw new CredentialException("Can't get remaining lifetime.", e);
+		} catch (CredentialException ce) {
+			myLogger.debug("Can't get gsscredential.", ce);
+			return 0;
+		}
+	}
+
+	public boolean isUploaded() {
+		return isUploaded;
+	}
+
+	public boolean isValid() {
+		return (getRemainingLifetime() > 0);
+	}
+
+	public void populate() {
+
+		if (!isPopulated) {
+
+			for (Field f : this.getClass().getDeclaredFields()) {
+				myLogger.debug("populating field: {}", f);
+				try {
+					Class c = f.get(this).getClass().getSuperclass();
+					if (CredDetail.class.equals(c)) {
+						CredDetail d = (CredDetail) f.get(this);
+						if (d.isSet()) {
+							myLogger.debug("field {} already set", f);
+						} else {
+							myLogger.debug(
+									"field {} not set, calling callback...",
+									f.toString());
+							getCallback().fill(d);
+							if (!d.isSet()) {
+								myLogger.debug(
+										"field {} still not set, callback failed...",
+										f);
+								throw new CredentialException(d.toString()
+										+ " not filled");
+							}
+						}
+					}
+				} catch (Exception e) {
+					myLogger.debug("Error when trying to get field: {}, {}", f,
+							e.getLocalizedMessage());
+				}
+			}
+
+			createGSSCredential();
+
+			isPopulated = true;
+		}
+		return;
+
+	}
+
+	public synchronized void refresh() {
+
+		createGSSCredential();
+
+
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener l) {
+		pcs.addPropertyChangeListener(l);
+	}
+
+	public void saveGroupProxy(String group) {
+		saveGroupProxy(group, null);
+	}
+
+	public void saveGroupProxy(String group, String path) {
+		synchronized (group) {
+			if (StringUtils.isBlank(path)) {
+				String temp = getProxyPath();
+				if (StringUtils.isBlank(getProxyPath())) {
+					temp = CoGProperties.getDefault().getProxyFile();
+				}
+				path = temp + group.replaceAll("/", "_");
+			}
+
+			if (StringUtils.equals(path, getProxyPath())) {
+				this.localPath = null;
+			}
+
+			GSSCredential temp = getGroupCredential(group);
+
+			CredentialHelpers.writeToDisk(temp, new File(path));
+			groupPathCache.put(group, path);
+		}
+	}
+
+	public void saveProxy() {
+		saveProxy(null);
+	}
+
+	public void saveProxy(String path) {
+
+		synchronized (path) {
+			if (StringUtils.isBlank(path)) {
+				path = CoGProperties.getDefault().getProxyFile();
+			}
+
+			this.localPath = path;
+
+			CredentialHelpers.writeToDisk(getGSSCredential(), new File(localPath));
+		}
+
+	}
+
+	public void setCallback(AbstractCallback callback) {
+		this.credCallback = callback;
+	}
+
+	public void setMinimumLifetime(int m) {
+		this.minProxyLifetime = m;
+
+		if (minThresholdTask != null) {
+			minThresholdTask.cancel();
+		}
+
+		if (renewTask != null) {
+			renewTask.cancel();
+		}
+
+		minThresholdTask = new CredentialMinThreshold();
+		int delay = getRemainingLifetime() - this.minProxyLifetime;
+		if (delay < 0) {
+			delay = 0;
+		}
+
+		timer.schedule(minThresholdTask, delay * 1000);
+
+		// try to renew before minThreshold is there
+		renewTask = new CredentialRenewTask();
+		delay = delay - 20;
+		if (delay > 0) {
+			timer.schedule(renewTask, delay * 1000);
+		}
+
+	}
+
+	public void setProxyLifetimeInSeconds(int p) {
+		this.proxyLifetimeInSeconds = p;
+	}
+
+	public void uploadMyProxy(boolean force) {
+
+		if (!isPopulated || (cachedCredential == null)) {
+			throw new CredentialException("Credential not populated (yet).");
+		}
+
+		myLogger.debug("Credential " + super.getMyProxyUsername()
+				+ ": uploading to my proxy host '" + super.getMyProxyHost()
+				+ "'...");
+
+		if (force) {
+			isUploaded = false;
+		}
+
+		// try {
+		// if (cachedCredential.getRemainingLifetime() < minProxyLifetime) {
+		// createGSSCredential();
+		// groupCache.clear();
+		// groupPathCache.clear();
+		// isUploaded = false;
+		// }
+		// } catch (GSSException e1) {
+		// throw new CredentialException(
+		// "Can't get lifetime when trying to upload proxy.", e1);
+		// }
+
+		if (isUploaded == true) {
+			myLogger.debug("Credential " + super.getMyProxyUsername()
+					+ ": already uploaded and no force.");
+			return;
+		}
+
+		MyProxy mp = MyProxy_light.getMyProxy(super.getMyProxyHost(),
+				super.getMyProxyPort());
+
+		InitParams params = null;
+		try {
+			params = MyProxy_light.prepareProxyParameters(getMyProxyUsername(),
+					null, null, null, null,
+					cachedCredential.getRemainingLifetime());
+		} catch (MyProxyException e) {
+			throw new CredentialException("Can't prepare myproxy parameters", e);
+		} catch (GSSException e) {
+			throw new CredentialException("Can't set proxy lifetime", e);
+		}
+
+		try {
+			MyProxy_light.init(mp, cachedCredential, params,
+					getMyProxyPassword());
+			isUploaded = true;
+			invalidateCachedCredential();
+
+		} catch (Exception e) {
+			throw new CredentialException("Can't upload MyProxy", e);
+		}
+	}
+
+}

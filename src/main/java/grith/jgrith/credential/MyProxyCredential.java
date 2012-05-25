@@ -25,10 +25,10 @@ public class MyProxyCredential extends Credential {
 
 		int index = un.lastIndexOf('@');
 		if (index <= 0) {
-			return GridEnvironment.getDefaultMyProxyServer();
+			return "";
 		}
 
-		return un.substring(index);
+		return un.substring(index + 1);
 
 	}
 
@@ -60,6 +60,9 @@ public class MyProxyCredential extends Credential {
 	/**
 	 * Creates a Credential object from MyProxy login information.
 	 * 
+	 * If the myproxyusername is specified like <username>@<host>, the host
+	 * parameter will be ignored.
+	 * 
 	 * @param myProxyUsername
 	 *            the MyProxy username
 	 * @param myProxyPassword
@@ -80,6 +83,11 @@ public class MyProxyCredential extends Credential {
 			String myproxyHost, int myproxyPort, int lifetimeInSeconds)
 					throws CredentialException {
 
+		String temp = extractMyProxyServerFromUsername(myProxyUsername);
+		if (StringUtils.isNotBlank(temp)) {
+			myproxyHost = temp;
+			myProxyUsername = extractUsernameFromUsername(myProxyUsername);
+		}
 
 
 		if (StringUtils.isBlank(myproxyHost)) {
