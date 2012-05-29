@@ -3,6 +3,7 @@ package grith.jgrith.cred;
 import grisu.jcommons.configuration.CommonGridProperties.Property;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.gsindl.SLCS;
+import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
@@ -19,21 +20,6 @@ import org.ietf.jgss.GSSCredential;
 
 public class SLCSCred extends AbstractCred {
 
-	public static AbstractCred createFromConfig(Map<PROPERTY, Object> config) {
-		String idp = (String) config.get(PROPERTY.IdP);
-		char[] pw = (char[]) config.get(PROPERTY.Password);
-		String un = (String) config.get(PROPERTY.Username);
-
-		SLCSCred c = new SLCSCred();
-		c.idp.set(idp);
-		c.username.set(un);
-		c.pw.set(pw);
-
-		c.populate();
-
-		return c;
-	}
-
 	protected StringDetail slcs_url = new StringDetail("SLCS url",
 			"Please provide the url for the SLCS server");
 
@@ -46,7 +32,16 @@ public class SLCSCred extends AbstractCred {
 			"Please enter your institution passphrase");
 
 	public SLCSCred() {
+		super();
 		username.assignGridProperty(Property.SHIB_USERNAME);
+		idp.assignGridProperty(Property.SHIB_IDP);
+		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
+	}
+
+	public SLCSCred(AbstractCallback callback) {
+		super(callback);
+		username.assignGridProperty(Property.SHIB_USERNAME);
+		idp.assignGridProperty(Property.SHIB_IDP);
 		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
 	}
 
@@ -88,6 +83,19 @@ public class SLCSCred extends AbstractCred {
 			throw new CredentialException("Could not create slcs credential: "
 					+ e.getLocalizedMessage(), e);
 		}
+	}
+
+	@Override
+	protected void initCred(Map<PROPERTY, Object> config) {
+		String idpTemp = (String) config.get(PROPERTY.IdP);
+		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
+		String unTemp = (String) config.get(PROPERTY.Username);
+
+
+		idp.set(idpTemp);
+		username.set(unTemp);
+		pw.set(pwTemp);
+
 	}
 
 }

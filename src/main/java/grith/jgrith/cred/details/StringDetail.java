@@ -8,6 +8,7 @@ public class StringDetail extends CredDetail<String> {
 
 	private String value = null;
 
+
 	private boolean store = true;
 
 	public StringDetail(String name, String msg) {
@@ -25,7 +26,7 @@ public class StringDetail extends CredDetail<String> {
 	}
 
 	@Override
-	public List getChoices() {
+	public List<String> getChoices() {
 		return choices;
 	}
 
@@ -34,10 +35,15 @@ public class StringDetail extends CredDetail<String> {
 		return value;
 	}
 
+	public void setChoices(List<String> choices) {
+		this.choices = choices;
+	}
+
 	@Override
 	protected void setValue(String value) {
 		this.value = value;
 	}
+
 
 	@Override
 	protected boolean storeLastValue() {

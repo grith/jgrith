@@ -56,16 +56,20 @@ public abstract class CredDetail<T> {
 
 	public void set(T value) {
 		setValue(value);
-		if (storeLastValue()) {
+		if (storeLastValue() && (value != null)) {
 			if (gridProperty != null) {
+
 				CommonGridProperties.getDefault().setGridProperty(gridProperty,
 						value.toString());
 			}
 			CommonGridProperties.getDefault().setOtherGridProperty(storeKey,
 					value.toString());
 		}
-		isSet = true;
+		if (value != null) {
+			isSet = true;
+		}
 	}
+
 	protected abstract void setValue(T value);
 
 	protected abstract boolean storeLastValue();

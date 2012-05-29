@@ -8,6 +8,7 @@ import grith.jgrith.myProxy.MyProxy_light;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.python.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,11 @@ public class BaseCred {
 		this(null, null, null, -1);
 	}
 
+	public BaseCred(Map<PROPERTY, Object> config) {
+
+		initMyProxy(config);
+	}
+
 	public BaseCred(String un, char[] pw) {
 		this(un, pw, null, -1);
 	}
@@ -79,36 +86,15 @@ public class BaseCred {
 		this(un, pw, host, -1);
 	}
 
-	public BaseCred(String un, char[] pw, String host, int port) {
-		if (StringUtils.isBlank(un)) {
-			this.myProxyUsername = UUID.randomUUID().toString();
-		} else {
-			String temp = extractMyProxyServerFromUsername(un);
-			if (StringUtils.isBlank(temp)) {
-				this.myProxyUsername = un;
-				this.myProxyHost = host;
-			} else {
-				this.myProxyUsername = extractMyProxyServerFromUsername(un);
-				this.myProxyHost = temp;
-			}
-		}
+	public BaseCred(String un, char[] pw, String host, Integer port) {
 
-		if (StringUtils.isBlank(this.myProxyHost)) {
-			this.myProxyHost = GridEnvironment.getDefaultMyProxyServer();
-		}
+		Map<PROPERTY, Object> config = Maps.newHashMap();
+		config.put(PROPERTY.MyProxyUsername, un);
+		config.put(PROPERTY.MyProxyPassword, pw);
+		config.put(PROPERTY.MyProxyHost, host);
+		config.put(PROPERTY.MyProxyPort, port);
 
-		if ((pw == null) || (pw.length == 0)) {
-			this.myProxyPassword = new RandPass().getPassChars(10);
-
-		} else {
-			this.myProxyPassword = pw;
-		}
-
-		if (port <= 0) {
-			port = GridEnvironment.getDefaultMyProxyPort();
-		} else {
-			this.myProxyPort = port;
-		}
+		initMyProxy(config);
 
 	}
 
@@ -194,6 +180,49 @@ public class BaseCred {
 		} catch (CredentialException ce) {
 			myLogger.debug("Can't get base gsscredential.", ce);
 			return 0;
+		}
+	}
+
+	protected void initMyProxy(Map<PROPERTY, Object> config) {
+
+		String un = (String) config.get(PROPERTY.MyProxyUsername);
+		char[] pw = (char[]) config.get(PROPERTY.MyProxyPassword);
+		String host = (String) config.get(PROPERTY.MyProxyHost);
+		int port = -1;
+		try {
+			port = (Integer) config.get(PROPERTY.MyProxyPort);
+		} catch (Exception e) {
+			port = GridEnvironment.getDefaultMyProxyPort();
+		}
+
+		if (StringUtils.isBlank(un)) {
+			this.myProxyUsername = UUID.randomUUID().toString();
+		} else {
+			String temp = extractMyProxyServerFromUsername(un);
+			if (StringUtils.isBlank(temp)) {
+				this.myProxyUsername = un;
+				this.myProxyHost = host;
+			} else {
+				this.myProxyUsername = extractMyProxyServerFromUsername(un);
+				this.myProxyHost = temp;
+			}
+		}
+
+		if (StringUtils.isBlank(this.myProxyHost)) {
+			this.myProxyHost = GridEnvironment.getDefaultMyProxyServer();
+		}
+
+		if ((pw == null) || (pw.length == 0)) {
+			this.myProxyPassword = new RandPass().getPassChars(10);
+
+		} else {
+			this.myProxyPassword = pw;
+		}
+
+		if (port <= 0) {
+			port = GridEnvironment.getDefaultMyProxyPort();
+		} else {
+			this.myProxyPort = port;
 		}
 	}
 

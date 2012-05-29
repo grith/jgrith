@@ -6,12 +6,16 @@ public class PasswordDetail extends CredDetail<char[]> {
 
 	private char[] password;
 
+	public PasswordDetail() {
+		this("password", "Please enter password");
+	}
+
 	public PasswordDetail(String name) {
 		this(name, "Please enter password for '" + name + "'");
 	}
 
-	public PasswordDetail(String name, String pw) {
-		super(name, pw);
+	public PasswordDetail(String name, String msg) {
+		super(name, msg);
 	}
 
 

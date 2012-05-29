@@ -82,11 +82,8 @@ public class MyProxyInitPanel extends JPanel {
 		//
 		// System.out.println("Classpath: "+classpath.toString());
 
-		try {
-			BouncyCastleTool.initBouncyCastle();
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		BouncyCastleTool.initBouncyCastle();
+
 		if (!CertificateHelper.globusCredentialsReady()) {
 			throw new RuntimeException(
 					"No certificate & private key available to create a proxy.");

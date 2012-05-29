@@ -6,6 +6,7 @@ import grisu.jcommons.exceptions.CredentialException;
 import grisu.model.info.dto.VO;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.callbacks.CliCallback;
+import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.CredDetail;
 import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
@@ -19,6 +20,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,7 +37,7 @@ import org.python.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractCred extends BaseCred {
+public abstract class AbstractCred extends BaseCred implements Cred {
 
 	class CredentialInvalid extends TimerTask {
 
@@ -81,19 +83,20 @@ public abstract class AbstractCred extends BaseCred {
 			AbstractCred c = null;
 			switch (type) {
 			case MYPROXY:
-				c = MyProxyCred.createFromConfig(config);
+				c = new MyProxyCred();
 				break;
 			case SHIBBOLETH:
 			case SHIBBOLETH_LAST_IDP:
-				c = SLCSCred.createFromConfig(config);
+				c = new SLCSCred();
 				break;
 			case X509_CERTIFICATE:
-				c = X509Cred.createFromConfig(config);
+				c = new X509Cred();
 				break;
 			default:
 				throw new CredentialException("Login type " + type.toString()
 						+ " not supported.");
 			}
+			c.init(config);
 			return c;
 		} catch (CredentialException ce) {
 			throw ce;
@@ -109,7 +112,7 @@ public abstract class AbstractCred extends BaseCred {
 
 		SLCSCred x = new SLCSCred();
 		x.setCallback(new CliCallback());
-		x.populate();
+		x.init();
 
 		System.out.println(x.getGSSCredential().getName().toString());
 
@@ -117,7 +120,8 @@ public abstract class AbstractCred extends BaseCred {
 
 		x.saveMyProxy();
 
-		MyProxyCred mp = MyProxyCred.loadFromFile();
+		MyProxyCred mp = new MyProxyCred();
+		mp.initFromFile();
 
 		System.out.println(mp.getRemainingLifetimeMyProxy());
 
@@ -133,7 +137,7 @@ public abstract class AbstractCred extends BaseCred {
 
 	protected int proxyLifetimeInSeconds = 864000;
 
-	protected AbstractCallback credCallback = null;
+	protected AbstractCallback credCallback = new NoCallback();
 
 	private GSSCredential cachedCredential = null;
 
@@ -160,8 +164,33 @@ public abstract class AbstractCred extends BaseCred {
 		super();
 	}
 
-	public AbstractCred(String username, char[] password, String host, int port) {
-		super(username, password, host, port);
+	public AbstractCred(AbstractCallback callback) {
+		super();
+		setCallback(callback);
+	}
+
+	public AbstractCred(AbstractCallback callback, Map<PROPERTY, Object> config) {
+		super(config);
+		init(callback, config);
+	}
+
+	/**
+	 * Constructor to create a credential out of a provided config map.
+	 *
+	 * All credential properties need to be set, otherwise an error will be
+	 * thrown. No Callback is set.
+	 *
+	 * @param config
+	 *            the credential properties
+	 */
+	public AbstractCred(Map<PROPERTY, Object> config) {
+		super(config);
+		init(config);
+	}
+
+	public AbstractCred(String mpUsername, char[] mpPassword, String mpHost,
+			int mpPort) {
+		super(mpUsername, mpPassword, mpHost, mpPort);
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -246,6 +275,9 @@ public abstract class AbstractCred extends BaseCred {
 
 	abstract public GSSCredential createGSSCredentialInstance();
 
+	/* (non-Javadoc)
+	 * @see grith.jgrith.cred.Cred#destroy()
+	 */
 	public void destroy() {
 		if ( cachedCredential != null ) {
 
@@ -329,6 +361,9 @@ public abstract class AbstractCred extends BaseCred {
 		return credCallback;
 	}
 
+	/* (non-Javadoc)
+	 * @see grith.jgrith.cred.Cred#getDN()
+	 */
 	public String getDN() {
 		return CertHelpers.getDnInProperFormat(getGSSCredential());
 	}
@@ -452,6 +487,9 @@ public abstract class AbstractCred extends BaseCred {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see grith.jgrith.cred.Cred#getRemainingLifetime()
+	 */
 	public int getRemainingLifetime() {
 		try {
 			return getGSSCredential().getRemainingLifetime();
@@ -463,15 +501,63 @@ public abstract class AbstractCred extends BaseCred {
 		}
 	}
 
+	public synchronized void init() {
+		init(new HashMap<PROPERTY, Object>());
+	}
+
+	public synchronized void init(AbstractCallback callback) {
+		setCallback(callback);
+		init();
+	}
+
+	public synchronized void init(AbstractCallback callback, Map<PROPERTY, Object> config) {
+		setCallback(callback);
+		init(config);
+	}
+
+	public synchronized void init(Map<PROPERTY, Object> config) {
+		isPopulated = false;
+		isUploaded = false;
+
+		cachedCredential = null;
+
+		groupCache.clear();
+		groupPathCache.clear();
+		fqans = null;
+		localPath = null;
+
+		if (invalidTask != null) {
+			invalidTask.cancel();
+		}
+
+		if (minThresholdTask != null) {
+			minThresholdTask.cancel();
+		}
+
+		if (renewTask != null) {
+			renewTask.cancel();
+		}
+
+		initCred(config);
+
+		populate();
+
+	}
+
+	protected abstract void initCred(Map<PROPERTY, Object> config);
+
 	public boolean isUploaded() {
 		return isUploaded;
 	}
 
+	/* (non-Javadoc)
+	 * @see grith.jgrith.cred.Cred#isValid()
+	 */
 	public boolean isValid() {
 		return (getRemainingLifetime() > 0);
 	}
 
-	public void populate() {
+	private void populate() {
 
 		if (!isPopulated) {
 
@@ -511,10 +597,15 @@ public abstract class AbstractCred extends BaseCred {
 
 	}
 
-	public synchronized void refresh() {
+	public synchronized boolean refresh() {
+
+		int lt = getRemainingLifetime();
 
 		createGSSCredential();
 
+		int newLt = getRemainingLifetime();
+
+		return (newLt > lt);
 
 	}
 
@@ -553,10 +644,10 @@ public abstract class AbstractCred extends BaseCred {
 
 	public void saveProxy(String path) {
 
+		if (StringUtils.isBlank(path)) {
+			path = CoGProperties.getDefault().getProxyFile();
+		}
 		synchronized (path) {
-			if (StringUtils.isBlank(path)) {
-				path = CoGProperties.getDefault().getProxyFile();
-			}
 
 			this.localPath = path;
 
@@ -601,6 +692,13 @@ public abstract class AbstractCred extends BaseCred {
 		this.proxyLifetimeInSeconds = p;
 	}
 
+	public void uploadMyProxy() {
+		uploadMyProxy(false);
+	}
+
+	/* (non-Javadoc)
+	 * @see grith.jgrith.cred.Cred#uploadMyProxy(boolean)
+	 */
 	public void uploadMyProxy(boolean force) {
 
 		if (!isPopulated || (cachedCredential == null)) {
@@ -651,7 +749,7 @@ public abstract class AbstractCred extends BaseCred {
 			MyProxy_light.init(mp, cachedCredential, params,
 					getMyProxyPassword());
 			isUploaded = true;
-			invalidateCachedCredential();
+			// invalidateCachedCredential();
 
 		} catch (Exception e) {
 			throw new CredentialException("Can't upload MyProxy", e);
