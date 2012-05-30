@@ -21,7 +21,7 @@ public abstract class CredDetail<T> {
 	public CredDetail(String name, String msg) {
 		this.name = name;
 		this.msg = msg;
-		this.storeKey = name.replaceAll("\\s", "_");
+		this.storeKey = name.replaceAll("\\s", "_").toUpperCase();
 	}
 
 	public void assignGridProperty(Property prop) {
@@ -61,9 +61,10 @@ public abstract class CredDetail<T> {
 
 				CommonGridProperties.getDefault().setGridProperty(gridProperty,
 						value.toString());
+			} else {
+				CommonGridProperties.getDefault().setOtherGridProperty(storeKey,
+						value.toString());
 			}
-			CommonGridProperties.getDefault().setOtherGridProperty(storeKey,
-					value.toString());
 		}
 		if (value != null) {
 			isSet = true;

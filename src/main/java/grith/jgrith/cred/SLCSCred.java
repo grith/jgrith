@@ -21,7 +21,7 @@ import org.ietf.jgss.GSSCredential;
 public class SLCSCred extends AbstractCred {
 
 	protected StringDetail slcs_url = new StringDetail("SLCS url",
-			"Please provide the url for the SLCS server");
+			"Please provide the url for the SLCS server", false);
 
 	protected IdPDetail idp = new IdPDetail();
 	protected StringDetail username = new StringDetail("IdP username",
