@@ -752,7 +752,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			// invalidateCachedCredential();
 
 		} catch (Exception e) {
-			throw new CredentialException("Can't upload MyProxy", e);
+			throw new CredentialException("Can't upload MyProxy: "
+					+ e.getLocalizedMessage(), e);
 		}
 	}
 
