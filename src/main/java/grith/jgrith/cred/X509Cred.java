@@ -9,6 +9,7 @@ import grith.jgrith.plainProxy.PlainProxy;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
 
@@ -42,6 +43,7 @@ public class X509Cred extends AbstractCred {
 		this.keyFile.set(keyFile);
 	}
 
+
 	@Override
 	public GSSCredential createGSSCredentialInstance() {
 
@@ -52,7 +54,10 @@ public class X509Cred extends AbstractCred {
 				throw new CredentialException("No passphrase provided.");
 			}
 
-			return PlainProxy.init(certFile.getValue(), keyFile.getValue(),
+			String cert = certFile.getValue();
+			String key = keyFile.getValue();
+
+			return PlainProxy.init(cert, key,
 					passphrase, getProxyLifetimeInSeconds() / 3600);
 		} catch (Exception e) {
 			throw new CredentialException("Can't init certificate: "
@@ -79,18 +84,18 @@ public class X509Cred extends AbstractCred {
 		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
 
 		Object certTemp = config.get(PROPERTY.CertFile);
-		if (certTemp == null) {
+		if ((certTemp == null) && StringUtils.isBlank(certFile.getValue())) {
 			certTemp = CoGProperties.getDefault().getUserCertFile();
+			certFile.set((String) certTemp);
 		}
 
 		Object keyTemp = config.get(PROPERTY.KeyFile);
-		if (keyTemp == null) {
+		if ((keyTemp == null) && StringUtils.isBlank(keyFile.getValue())) {
 			keyTemp = CoGProperties.getDefault().getUserKeyFile();
+			keyFile.set((String) keyTemp);
 		}
 
 		password.set(pwTemp);
-		certFile.set((String) certTemp);
-		keyFile.set((String) keyTemp);
 
 	}
 }

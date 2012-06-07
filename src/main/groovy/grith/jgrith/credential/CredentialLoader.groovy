@@ -2,15 +2,21 @@ package grith.jgrith.credential
 
 import grith.jgrith.plainProxy.LocalProxy
 import grisu.jcommons.constants.GridEnvironment
+import grisu.jcommons.constants.Enums.LoginType;
+import grith.jgrith.cred.AbstractCred
+import grith.jgrith.cred.MyProxyCred;
+import grith.jgrith.cred.SLCSCred;
+import grith.jgrith.cred.X509Cred;
+import grith.jgrith.cred.callbacks.CliCallback;
+import grith.jgrith.cred.callbacks.StaticCallback;
 import grith.jgrith.plainProxy.LocalProxy
-import grith.jgrith.utils.CliLogin
 
 import org.globus.common.CoGProperties
 
 
 class CredentialLoader {
 
-	static Map<String, Credential> loadCredentials(String pathToCredentialConfigFile) {
+	static Map<String, AbstractCred> loadCredentials(String pathToCredentialConfigFile) {
 
 		File configFile = new File(pathToCredentialConfigFile)
 		String configPath = configFile.getParent()
@@ -22,33 +28,39 @@ class CredentialLoader {
 		for ( def name in credConfig.keySet() ) {
 
 			ConfigObject config = credConfig.getProperty(name)
-			def type = config.get('login_type')
+			def typeOrig = config.get('type')
+			def type = typeOrig
+			if ( type instanceof String) {
+				type = type.toUpperCase()
+
+				type = LoginType.fromString(type)
+			}
 
 			switch (type) {
-				case 'x509':
-					Credential c = loadLocal(config, configPath)
+				case LoginType.X509_CERTIFICATE:
+					AbstractCred c = loadLocal(config, configPath)
 					credentials.put(name, c)
 					break
-				case 'shib':
-					Credential c = createSlcs(config)
+				case LoginType.SHIBBOLETH:
+					AbstractCred c = createSlcs(config)
 					credentials.put(name, c)
 					break
-				case 'myproxy':
-					Credential c = loadMyProxy(config)
+				case LoginType.MYPROXY:
+					AbstractCred c = loadMyProxy(config)
 					credentials.put(name, c)
 					break
-				case 'proxy':
-					Credential c = loadLocalProxy(config, configPath)
+				case LoginType.LOCAL_PROXY:
+					AbstractCred c = loadLocalProxy(config, configPath)
 					credentials.put(name, c)
 					break
 				default:
-					print 'default'
+					throw new RuntimeException("Type: "+typeOrig+" not available")
 			}
 		}
 		return credentials
 	}
 
-	static Credential loadLocalProxy(ConfigObject co, configPath) {
+	static AbstractCred loadLocalProxy(ConfigObject co, configPath) {
 		def path = co.get('path')
 		if ( ! path ) {
 			path = LocalProxy.PROXY_FILE
@@ -66,7 +78,7 @@ class CredentialLoader {
 		return c
 	}
 
-	static Credential loadMyProxy(ConfigObject co) {
+	static AbstractCred loadMyProxy(ConfigObject co) {
 
 		def username = co.get('username')
 		def password = co.get('password')
@@ -83,26 +95,36 @@ class CredentialLoader {
 			port = GridEnvironment.getDefaultMyProxyPort()
 		}
 
-		Credential c = CredentialFactory.createFromMyProxy(username, password.getChars(), myproxy, port, lifetime*3600)
+		MyProxyCred c = new MyProxyCred(username, password.getChars(), myproxy, port)
+		c.setProxyLifetimeInSeconds(lifetime*3600)
+
+		c.init();
 		return c
 	}
 
-	static Credential createSlcs(ConfigObject co) {
+	static AbstractCred createSlcs(ConfigObject co) {
 
 		def idp = co.get('idp')
 		def username = co.get('username')
 
-		println "Using user '"+username+"' at '"+idp+"'..."
+		def callback = co.getAt('callback')
 
-		char[] pw = CliLogin
-				.askPassword("Please enter institution password")
+		SLCSCred c = new SLCSCred()
+		c.setUsername(username)
+		c.setIdp(idp)
+		if ( ! callback ) {
+			c.setCallback(new CliCallback())
+		} else {
+			c.setCallback(callback)
+		}
 
-		Credential c = CredentialFactory.createFromSlcs(null, idp, username, pw, -1)
+		c.init()
+
 
 		return c
 	}
 
-	static Credential loadLocal(ConfigObject co, String configPath) {
+	static AbstractCred loadLocal(ConfigObject co, String configPath) {
 
 		def cert = co.get('certificate')
 		if ( ! cert ) {
@@ -128,11 +150,30 @@ class CredentialLoader {
 			key = keyFile.getAbsolutePath()
 		}
 
-		def passphrase = co.get('passphrase')
 
+
+		X509Cred c = new X509Cred(cert, key)
 		def lifetime = co.get('lifetime')
+		if ( lifetime) {
+			c.setProxyLifetimeInSeconds(lifetime*3600)
+		}
 
-		Credential c = new X509Credential(cert, key, passphrase.toCharArray(), lifetime, true)
+		def no_password = co.get('no_password')
+		if ( no_password ) {
+			char[] empty = new char[0]
+			c.setCallback(new StaticCallback(empty))
+		} else {
+
+			def callback = co.get('callback')
+
+			if (! callback ) {
+				callback = new CliCallback()
+			}
+
+			c.setCallback(callback)
+		}
+
+		c.init()
 
 		return c
 	}
@@ -142,8 +183,8 @@ class CredentialLoader {
 
 		def creds = loadCredentials('/home/markus/src/jgrith/src/main/resources/exampleCredConfig.groovy')
 
-		for ( c in creds ) {
-			print c.getDn()
+		for ( c in creds.values() ) {
+			print c.getDN()
 			println '\t'+c.getRemainingLifetime()
 		}
 	}

@@ -16,6 +16,7 @@ import grith.sibboleth.StaticIdpObject;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.ietf.jgss.GSSCredential;
 
 public class SLCSCred extends AbstractCred {
@@ -84,18 +85,32 @@ public class SLCSCred extends AbstractCred {
 					+ e.getLocalizedMessage(), e);
 		}
 	}
-
 	@Override
 	protected void initCred(Map<PROPERTY, Object> config) {
 		String idpTemp = (String) config.get(PROPERTY.IdP);
 		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
 		String unTemp = (String) config.get(PROPERTY.Username);
 
-
-		idp.set(idpTemp);
-		username.set(unTemp);
+		if (StringUtils.isNotBlank(idpTemp)) {
+			idp.set(idpTemp);
+		}
+		if (StringUtils.isNotBlank(unTemp)) {
+			username.set(unTemp);
+		}
 		pw.set(pwTemp);
 
+	}
+
+	public void setIdp(String idp) {
+		this.idp.set(idp);
+	}
+
+	public void setSLCSurl(String url) {
+		slcs_url.set(url);
+	}
+
+	public void setUsername(String un) {
+		this.username.set(un);
 	}
 
 }
