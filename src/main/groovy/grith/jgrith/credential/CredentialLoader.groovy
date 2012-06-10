@@ -98,7 +98,7 @@ class CredentialLoader {
 		MyProxyCred c = new MyProxyCred(username, password.getChars(), myproxy, port)
 		c.setProxyLifetimeInSeconds(lifetime*3600)
 
-		c.init();
+		//		c.init();
 		return c
 	}
 

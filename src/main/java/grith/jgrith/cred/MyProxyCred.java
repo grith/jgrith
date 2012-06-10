@@ -55,6 +55,7 @@ public class MyProxyCred extends AbstractCred {
 	public MyProxyCred(String username, char[] password, String host, int port) {
 		super(username, password, host, port);
 
+
 		Map<PROPERTY, Object> config = Maps.newHashMap();
 		config.put(PROPERTY.MyProxyUsername, username);
 		config.put(PROPERTY.MyProxyPassword, password);
@@ -91,10 +92,27 @@ public class MyProxyCred extends AbstractCred {
 	protected void initCred(Map<PROPERTY, Object> config) {
 
 		try {
-			String unTemp = (String) config.get(PROPERTY.MyProxyUsername);
-			char[] passwordTemp = (char[]) config.get(PROPERTY.MyProxyPassword);
-			String hostTemp = (String) config.get(PROPERTY.MyProxyHost);
-			int portTemp = (Integer) config.get(PROPERTY.MyProxyPort);
+
+			String unTemp = null;
+			try {
+				unTemp = (String) config.get(PROPERTY.MyProxyUsername);
+			} catch (NullPointerException npe) {
+			}
+			char[] passwordTemp = null;
+			try {
+				passwordTemp = (char[]) config.get(PROPERTY.MyProxyPassword);
+			} catch (NullPointerException e) {
+			}
+			String hostTemp = null;
+			try {
+				hostTemp = (String) config.get(PROPERTY.MyProxyHost);
+			} catch (NullPointerException npe) {
+			}
+			int portTemp = -1;
+			try {
+				portTemp = (Integer) config.get(PROPERTY.MyProxyPort);
+			} catch (NullPointerException npe) {
+			}
 
 			this.username.assignGridProperty(Property.MYPROXY_USERNAME);
 			this.host.assignGridProperty(Property.MYPROXY_HOST);
@@ -177,6 +195,11 @@ public class MyProxyCred extends AbstractCred {
 							+ e.getLocalizedMessage());
 		}
 
+	}
+
+	@Override
+	public void uploadMyProxy(boolean force) {
+		myLogger.debug("Not uploading, already myproxy...");
 	}
 
 }
