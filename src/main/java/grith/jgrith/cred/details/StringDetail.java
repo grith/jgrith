@@ -6,7 +6,7 @@ public class StringDetail extends CredDetail<String> {
 
 	private List<String> choices = null;
 
-	private String value = null;
+	protected String value = null;
 
 
 	private boolean store = true;

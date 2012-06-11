@@ -1,5 +1,6 @@
 package grith.jgrith.cred;
 
+import grisu.jcommons.configuration.CommonGridProperties;
 import grisu.jcommons.constants.Constants;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
@@ -8,6 +9,7 @@ import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.callbacks.CliCallback;
 import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.CredDetail;
+import grith.jgrith.cred.details.LoginTypeDetail;
 import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.utils.CertHelpers;
@@ -68,13 +70,50 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	static final Logger myLogger = LoggerFactory.getLogger(AbstractCred.class
 			.getName());
 
+	public static AbstractCred create(AbstractCallback callback) {
+		return loadFromConfig(null, callback);
+	}
+
 	public static AbstractCred loadFromConfig(Map<PROPERTY, Object> config) {
+		return loadFromConfig(config, null);
+	}
+
+	public static AbstractCred loadFromConfig(Map<PROPERTY, Object> config,
+			AbstractCallback callback) {
+
+		if (config == null) {
+			config = Maps.newHashMap();
+		}
 
 		myLogger.debug("Loading credential from config map...");
 
 		try {
+			LoginType type = null;
+			try {
+				type = (LoginType) config.get(PROPERTY.LoginType);
+			} catch (Exception e) {
+				myLogger.debug("Can't get login type...");
+			}
 
-			LoginType type = (LoginType) config.get(PROPERTY.LoginType);
+			if ((type == null) && (callback != null)) {
+				CredDetail<String> lt = new LoginTypeDetail();
+				callback.fill(lt);
+				String input = lt.getValue();
+				if (StringUtils.isBlank(input)) {
+					throw new CredentialException("No login type specified.");
+				} else if (input.contains("Institution login")) {
+					if (input.contains("using:")) {
+						type = LoginType.SHIBBOLETH_LAST_IDP;
+					} else {
+						type = LoginType.SHIBBOLETH;
+					}
+				} else if (input.equals("Certificate login")) {
+					type = LoginType.X509_CERTIFICATE;
+				} else if (input.equals("MyProxy login")) {
+					type = LoginType.MYPROXY;
+				}
+
+			}
 
 			if (type == null) {
 				throw new CredentialException("No credential type specified.");
@@ -85,8 +124,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			case MYPROXY:
 				c = new MyProxyCred();
 				break;
-			case SHIBBOLETH:
 			case SHIBBOLETH_LAST_IDP:
+				String idp = CommonGridProperties.getDefault().getLastShibIdp();
+				config.put(PROPERTY.IdP, idp);
+			case SHIBBOLETH:
 				c = new SLCSCred();
 				break;
 			case X509_CERTIFICATE:
@@ -95,6 +136,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			default:
 				throw new CredentialException("Login type " + type.toString()
 						+ " not supported.");
+			}
+			if (callback != null) {
+				c.setCallback(callback);
 			}
 			c.init(config);
 			return c;
