@@ -83,6 +83,10 @@ public class GridLoginParameters {
 				if (StringUtils.isNotBlank(myProxyHost)) {
 					glp.setMyproxyHost(myProxyHost);
 				}
+
+				boolean forceAuth = settings.getForce();
+				glp.setForceAuthenticate(forceAuth);
+
 			}
 		} catch (ParameterException pe) {
 			throw new CredentialException("Can't parse cli parameters: "
@@ -107,16 +111,18 @@ public class GridLoginParameters {
 
 	}
 
-	private StringDetail backend = new StringDetail("backend",
-			"Please specify the grisu backend to login to");
+	// private StringDetail backend = new StringDetail("backend",
+	// "Please specify the grisu backend to login to");
 	private boolean nologin = false;
+
 	private boolean logout = false;
+	private boolean forceAuthenticate = false;
 	private StringDetail username = new StringDetail("username",
 			"Please enter your username");
+
 	private IdPDetail institution = new IdPDetail();
 	private StringDetail myproxyHost = new StringDetail("myproxy_host",
 			"Please enter the MyProxy host");
-
 	private PasswordDetail password = new PasswordDetail();
 
 	private StringDetail loginType = new StringDetail("login_type",
@@ -124,17 +130,12 @@ public class GridLoginParameters {
 
 	private AbstractCallback callback = new NoCallback();
 
-
-
 	public GridLoginParameters() {
 
 		institution.assignGridProperty(Property.SHIB_IDP);
 		myproxyHost.assignGridProperty(Property.MYPROXY_HOST);
 	}
 
-	public String getBackend() {
-		return backend.getValue();
-	}
 
 	public Map<PROPERTY, Object> getCredProperties() {
 		Map<PROPERTY, Object> result = Maps.newHashMap();
@@ -161,6 +162,7 @@ public class GridLoginParameters {
 		return result;
 	}
 
+
 	public String getInstitution() {
 		return institution.getValue();
 	}
@@ -182,6 +184,10 @@ public class GridLoginParameters {
 
 	public String getUsername() {
 		return username.getValue();
+	}
+
+	public boolean isForceAuthenticate() {
+		return forceAuthenticate;
 	}
 
 	public boolean isLogout() {
@@ -217,7 +223,11 @@ public class GridLoginParameters {
 			callback.fill(loginType);
 
 			String ltString = loginType.getValue();
-			if ("Institution login".equals(ltString)) {
+
+			if (StringUtils.isBlank(ltString)) {
+				myLogger.debug("User selected to exit.");
+				System.exit(0);
+			} else if ("Institution login".equals(ltString)) {
 				lt = LoginType.SHIBBOLETH;
 				username.assignGridProperty(Property.SHIB_USERNAME);
 			} else if (ltString.startsWith("Institution login (using")) {
@@ -287,12 +297,16 @@ public class GridLoginParameters {
 
 	}
 
-	public void setBackend(String backend) {
-		this.backend.set(backend);
-	}
-
 	public void setCallback(AbstractCallback c) {
 		this.callback =c;
+	}
+
+	// public void setBackend(String backend) {
+	// this.backend.set(backend);
+	// }
+
+	private void setForceAuthenticate(boolean forceAuth) {
+		this.forceAuthenticate = forceAuth;
 	}
 
 	public void setInstitution(String institution) {

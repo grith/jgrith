@@ -21,6 +21,9 @@ public class GridCliParameters {
 	@Parameter(names = "--nologin", description = "skip logging in")
 	private boolean nologin = false;
 
+	@Parameter(names = { "-l", "--login" }, description = "force new authentication, even if valid grid session exists")
+	private boolean force = false;
+
 	@Parameter(names = "--logout", description = "destroys a possible grid session and exits straight away")
 	private boolean logout = false;
 
@@ -38,6 +41,10 @@ public class GridCliParameters {
 
 	private char[] password;
 
+	public boolean getForce() {
+		return force;
+	}
+
 	public String getInstitution() {
 		return institution;
 	}
@@ -45,7 +52,6 @@ public class GridCliParameters {
 	public String getMyproxy_host() {
 		return myproxy_host;
 	}
-
 
 	public char[] getPassword() {
 
