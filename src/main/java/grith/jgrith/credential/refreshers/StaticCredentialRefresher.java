@@ -6,7 +6,7 @@ import grith.jgrith.credential.Credential.PROPERTY;
 
 import java.util.Map;
 
-import org.python.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class StaticCredentialRefresher extends CredentialRefresher {
 

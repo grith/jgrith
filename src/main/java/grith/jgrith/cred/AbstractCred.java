@@ -35,7 +35,7 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import org.python.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -473,7 +473,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return groupPathCache.get(group);
 	}
 
-	public synchronized GSSCredential getGSSCredential() {
+	public GSSCredential getGSSCredential() {
 
 		try {
 			if ((cachedCredential == null) ) {
@@ -485,7 +485,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				return cachedCredential;
 			} else if (cachedCredential.getRemainingLifetime() < minProxyLifetime) {
 
-				myLogger.debug("Credential below min lifetime. Trying to refresh...");
+				myLogger.debug(
+						"Credential ({}) below min lifetime ({}). Trying to refresh...",
+						cachedCredential.getRemainingLifetime(),
+						minProxyLifetime);
 
 				if (!isPopulated) {
 					throw new CredentialException(
@@ -498,6 +501,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 				if ((diff > minTimeBetweenAutoRefreshes)) {
 					refresh();
+					lastCredentialAutoRefresh = new Date();
 				} else {
 					myLogger.debug(
 							"Not refreshing credential since only {} secs since last refresh.",

@@ -16,7 +16,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.ietf.jgss.GSSCredential;
-import org.python.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class MyProxyCred extends AbstractCred {
 

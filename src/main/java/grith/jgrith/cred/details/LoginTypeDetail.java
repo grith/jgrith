@@ -6,7 +6,7 @@ import grith.jgrith.certificate.CertificateHelper;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.python.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 public class LoginTypeDetail extends StringDetail {
 

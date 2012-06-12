@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.python.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
