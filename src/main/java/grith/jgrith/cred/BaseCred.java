@@ -18,11 +18,11 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.Ostermiller.util.RandPass;
+import com.google.common.collect.Maps;
 
 public class BaseCred {
 
@@ -203,7 +203,7 @@ public class BaseCred {
 				this.myProxyUsername = un;
 				this.myProxyHost = host;
 			} else {
-				this.myProxyUsername = extractMyProxyServerFromUsername(un);
+				this.myProxyUsername = extractUsernameFromUsername(un);
 				this.myProxyHost = temp;
 			}
 		}
