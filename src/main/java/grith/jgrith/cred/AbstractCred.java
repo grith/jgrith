@@ -15,7 +15,6 @@ import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VOManagement.VOManagement;
-import grith.jgrith.vomsProxy.VomsProxy;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -24,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,9 +35,10 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 
 public abstract class AbstractCred extends BaseCred implements Cred {
 
@@ -187,7 +188,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	private String localPath;
 
-	private Map<String, GSSCredential> groupCache = Maps.newHashMap();
+	private Map<String, AbstractCred> groupCache = Maps.newHashMap();
 
 	private Map<String, String> groupPathCache = Maps.newHashMap();
 
@@ -258,7 +259,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				}
 			}
 		};
-		t1.setName("MyProxy update thread");
+		t1.setName("MyProxyUpdateThread");
 		t1.start();
 
 		Thread t2 = new Thread() {
@@ -277,6 +278,26 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		};
 		t2.setName("Proxy save thread");
 		t2.start();
+
+		Thread t3 = new Thread() {
+			@Override
+			public void run() {
+				for (String group : groupCache.keySet()) {
+
+					AbstractCred cred = groupCache.get(group);
+					if ( cred instanceof GroupCred ) {
+						myLogger.debug("not updating myproxy for group "+group);
+						return;
+					}
+					myLogger.debug("updating group cred: " + group);
+					GroupCred gc = (GroupCred)cred;
+					gc.setBaseCred(AbstractCred.this);
+
+				}
+			}
+		};
+		t3.setName("MyProxyGroupUpdateThread");
+		t3.start();
 
 		int remaining = -1;
 		try {
@@ -365,9 +386,12 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 		}
 
-		for (GSSCredential cred : groupCache.values()) {
+		for (AbstractCred cred : groupCache.values()) {
 			try {
-				cred.dispose();
+				// for non-vo cred this would result in a loop otherwise
+				if (cred instanceof GroupCred) {
+					cred.destroy();
+				}
 			} catch (Exception e) {
 				myLogger.debug("Error when disposing group gss credential.");
 			}
@@ -412,20 +436,30 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return CertHelpers.getDnInProperFormat(getGSSCredential());
 	}
 
-	public GSSCredential getGroupCredential(String fqan) {
+	public AbstractCred getGroupCredential(String fqan) {
 
-		if (StringUtils.isBlank(fqan) || Constants.NON_VO_FQAN.equals(fqan)) {
-			return getGSSCredential();
-		}
+		synchronized (fqan) {
 
-		GSSCredential temp = groupCache.get(fqan);
-		if (temp == null) {
-			VO vo = getAvailableFqans().get(fqan);
-			if (vo == null) {
-				throw new CredentialException("Can't find VO for fqan: " + fqan);
-			} else {
-				GSSCredential groupCred = getGroupCredential(vo, fqan);
-				groupCache.put(fqan, groupCred);
+			if (StringUtils.isBlank(fqan)) {
+				fqan = Constants.NON_VO_FQAN;
+			}
+
+			AbstractCred temp = groupCache.get(fqan);
+			if (temp == null) {
+				myLogger.debug("creating GroupCred for: " + fqan);
+				if (StringUtils.isBlank(fqan) || Constants.NON_VO_FQAN.equals(fqan)) {
+					AbstractCred groupCred = this;
+					groupCache.put(fqan, groupCred);
+				} else {
+
+					VO vo = getAvailableFqans().get(fqan);
+					if (vo == null) {
+						throw new CredentialException("Can't find VO for fqan: " + fqan);
+					} else {
+						GroupCred groupCred = getGroupCredential(vo, fqan);
+						groupCache.put(fqan, groupCred);
+					}
+				}
 			}
 		}
 
@@ -446,31 +480,31 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	 * @throws CredentialException
 	 *             if the Credential can't be created (e.g. voms error).
 	 */
-	private GSSCredential getGroupCredential(VO vo, String fqan)
+	private GroupCred getGroupCredential(VO vo, String fqan)
 			throws CredentialException {
 
 		if (VO.NON_VO.equals(vo)) {
-			return getGSSCredential();
+			throw new CredentialException("No valid VO specified.");
 		}
 
 		try {
-			GSSCredential base = getGSSCredential();
-			VomsProxy vp = new VomsProxy(vo, fqan,
-					CredentialHelpers.unwrapGlobusCredential(base), new Long(
-							base.getRemainingLifetime()) * 1000);
-
-			return CredentialHelpers.wrapGlobusCredential(vp
-					.getVomsProxyCredential());
+			GroupCred gc = new GroupCred(this, vo, fqan);
+			return gc;
 		} catch (Exception e) {
 			throw new CredentialException("Can't create VOMS proxy: "
 					+ e.getLocalizedMessage(), e);
 		}
 
-
 	}
 
 	public String getGroupProxyPath(String group) {
 		return groupPathCache.get(group);
+	}
+
+	public Set<String> getGroups() {
+
+		return getAvailableFqans().keySet();
+
 	}
 
 	public GSSCredential getGSSCredential() {
@@ -679,9 +713,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				this.localPath = null;
 			}
 
-			GSSCredential temp = getGroupCredential(group);
+			AbstractCred temp = getGroupCredential(group);
 
-			CredentialHelpers.writeToDisk(temp, new File(path));
+			CredentialHelpers.writeToDisk(temp.getGSSCredential(), new File(
+					path));
 			groupPathCache.put(group, path);
 		}
 	}
@@ -749,7 +784,11 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	 */
 	public void uploadMyProxy(boolean force) {
 
-		if (!isPopulated || (cachedCredential == null)) {
+		if (!isPopulated) {
+			init();
+		}
+
+		if ((cachedCredential == null)) {
 			throw new CredentialException("Credential not populated (yet).");
 		}
 

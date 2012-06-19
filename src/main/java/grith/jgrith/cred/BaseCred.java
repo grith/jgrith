@@ -152,6 +152,10 @@ public class BaseCred {
 	}
 
 	public char[] getMyProxyPassword() {
+		if ((this.myProxyPassword == null)
+				|| (this.myProxyPassword.length == 0)) {
+			this.myProxyPassword = new RandPass().getPassChars(10);
+		}
 		return myProxyPassword;
 	}
 
@@ -169,6 +173,9 @@ public class BaseCred {
 	}
 
 	public String getMyProxyUsername() {
+		if (StringUtils.isBlank(myProxyUsername)) {
+			this.myProxyUsername = UUID.randomUUID().toString();
+		}
 		return myProxyUsername;
 	}
 
