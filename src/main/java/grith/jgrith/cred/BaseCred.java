@@ -148,6 +148,9 @@ public class BaseCred {
 	}
 
 	public String getMyProxyHost() {
+		if (StringUtils.isBlank(myProxyHost)) {
+			return GridEnvironment.getDefaultMyProxyServer();
+		}
 		return myProxyHost;
 	}
 
@@ -169,6 +172,9 @@ public class BaseCred {
 	}
 
 	public int getMyProxyPort() {
+		if (myProxyPort <= 0) {
+			return GridEnvironment.getDefaultMyProxyPort();
+		}
 		return myProxyPort;
 	}
 

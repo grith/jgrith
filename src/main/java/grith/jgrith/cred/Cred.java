@@ -22,6 +22,8 @@ public interface Cred {
 
 	public abstract void init(Map<PROPERTY, Object> config);
 
+	public abstract boolean isRenewable();
+
 	public abstract boolean isValid();
 
 	public abstract boolean refresh();

@@ -186,7 +186,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	private GSSCredential cachedCredential = null;
 
-	private String localPath;
+	protected String localPath;
 
 	private Map<String, AbstractCred> groupCache = Maps.newHashMap();
 
@@ -517,7 +517,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				}
 				createGSSCredential();
 				return cachedCredential;
-			} else if (cachedCredential.getRemainingLifetime() < minProxyLifetime) {
+			} else if ((cachedCredential.getRemainingLifetime() < minProxyLifetime)
+					&& isRenewable()) {
 
 				myLogger.debug(
 						"Credential ({}) below min lifetime ({}). Trying to refresh...",
@@ -628,6 +629,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	protected abstract void initCred(Map<PROPERTY, Object> config);
 
+	abstract public boolean isRenewable();
+
 	public boolean isUploaded() {
 		return isUploaded;
 	}
@@ -680,6 +683,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	}
 
 	public synchronized boolean refresh() {
+
+		if (!isRenewable()) {
+			return false;
+		}
 
 		int lt = getRemainingLifetime();
 

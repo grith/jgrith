@@ -84,18 +84,32 @@ public class X509Cred extends AbstractCred {
 		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
 
 		Object certTemp = config.get(PROPERTY.CertFile);
-		if ((certTemp == null) && StringUtils.isBlank(certFile.getValue())) {
-			certTemp = CoGProperties.getDefault().getUserCertFile();
+		if ((certTemp == null) || StringUtils.isBlank((String) certTemp)) {
+			if (StringUtils.isBlank(certFile.getValue())) {
+				certTemp = CoGProperties.getDefault().getUserCertFile();
+				certFile.set((String) certTemp);
+			}
+		} else {
 			certFile.set((String) certTemp);
 		}
 
 		Object keyTemp = config.get(PROPERTY.KeyFile);
-		if ((keyTemp == null) && StringUtils.isBlank(keyFile.getValue())) {
-			keyTemp = CoGProperties.getDefault().getUserKeyFile();
+		if ((keyTemp == null) || StringUtils.isBlank((String) keyTemp)) {
+			if (StringUtils.isBlank(keyFile.getValue())) {
+				keyTemp = CoGProperties.getDefault().getUserKeyFile();
+				keyFile.set((String) keyTemp);
+			}
+		} else {
 			keyFile.set((String) keyTemp);
 		}
 
+
 		password.set(pwTemp);
 
+	}
+
+	@Override
+	public boolean isRenewable() {
+		return true;
 	}
 }

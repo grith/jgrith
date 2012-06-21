@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.ietf.jgss.GSSCredential;
+
 import com.google.common.collect.Maps;
 
 public class MyProxyCred extends AbstractCred {
@@ -195,6 +196,11 @@ public class MyProxyCred extends AbstractCred {
 							+ e.getLocalizedMessage());
 		}
 
+	}
+
+	@Override
+	public boolean isRenewable() {
+		return false;
 	}
 
 	@Override

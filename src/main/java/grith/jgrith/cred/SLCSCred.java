@@ -101,6 +101,11 @@ public class SLCSCred extends AbstractCred {
 
 	}
 
+	@Override
+	public boolean isRenewable() {
+		return true;
+	}
+
 	public void setIdp(String idp) {
 		this.idp.set(idp);
 	}

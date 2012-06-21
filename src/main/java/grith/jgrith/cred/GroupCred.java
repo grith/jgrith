@@ -59,6 +59,11 @@ public class GroupCred extends AbstractCred {
 
 	}
 
+	@Override
+	public boolean isRenewable() {
+		return false;
+	}
+
 	public void setBaseCred(AbstractCred cred) {
 		this.baseCred = cred;
 

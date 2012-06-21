@@ -6,10 +6,9 @@ class CliLogin {
 
 	static char[] askPassword(String prompt) {
 		def password
-		while (!password) {
-			password = CliHelpers.getConsoleReader().readLine(
-					prompt+': ','*'.toCharArray()[0])
-		}
+		password = CliHelpers.getConsoleReader().readLine(
+				prompt+': ','*'.toCharArray()[0])
+
 		return password.toCharArray();
 	}
 
