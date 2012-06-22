@@ -195,18 +195,19 @@
 		</dependency>
 	</dependencies>
 
-	<name>SimpleProxyLib</name>
+	<name>JGrith</name>
 	<description>Library which provides relatively easy-to-use security objects/methods</description>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.2.2</version>
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<pushChanges>false</pushChanges>
+					<pushChanges>true</pushChanges>
 					<localCheckout>true</localCheckout>
+					<tagNameFormat>@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
 
