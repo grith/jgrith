@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>jgrith</artifactId>
 	<groupId>grith</groupId>
-	<version>0.7-rc1</version>
+	<version>0.7-rc2-SNAPSHOT</version>
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
