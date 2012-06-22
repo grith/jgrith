@@ -193,6 +193,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private Map<String, String> groupPathCache = Maps.newHashMap();
 
 	private Map<String, VO> fqans;
+
 	private int minProxyLifetime = DEFAULT_MIN_LIFETIME_IN_SECONDS;
 
 	private CredentialInvalid invalidTask = null;
@@ -200,7 +201,6 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private CredentialMinThreshold minThresholdTask = null;
 
 	private CredentialRenewTask renewTask = null;
-
 	private final Timer timer = new Timer(true);
 
 	private volatile Date lastCredentialAutoRefresh = new Date();
@@ -395,6 +395,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			} catch (Exception e) {
 				myLogger.debug("Error when disposing group gss credential.");
 			}
+		}
+
+		for (String path : groupPathCache.values()) {
+			Util.destroy(path);
 		}
 
 		if (StringUtils.isNotBlank(this.localPath)) {
@@ -776,6 +780,30 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			timer.schedule(renewTask, delay * 1000);
 		}
 
+	}
+
+	@Override
+	public void setMyProxyHost(String mph) {
+		super.setMyProxyHost(mph);
+		isUploaded = false;
+	}
+
+	@Override
+	public void setMyProxyPassword(char[] pw) {
+		super.setMyProxyPassword(pw);
+		isUploaded = false;
+	}
+
+	@Override
+	public void setMyProxyPort(int port) {
+		super.setMyProxyPort(port);
+		isUploaded = false;
+	}
+
+	@Override
+	public void setMyProxyUsername(String username) {
+		super.setMyProxyUsername(username);
+		isUploaded = false;
 	}
 
 	public void setProxyLifetimeInSeconds(int p) {

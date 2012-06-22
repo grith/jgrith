@@ -296,6 +296,9 @@ public class BaseCred {
 	}
 
 	public void setMyProxyUsername(String username) {
+		if (StringUtils.isBlank(username)) {
+			this.myProxyUsername = null;
+		}
 		String tmp = extractMyProxyServerFromUsername(username);
 		if (StringUtils.isNotBlank(tmp)) {
 			this.myProxyHost = tmp;

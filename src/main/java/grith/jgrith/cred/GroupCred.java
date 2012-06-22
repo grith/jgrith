@@ -29,6 +29,8 @@ public class GroupCred extends AbstractCred {
 		this.baseCred = cred;
 		this.vo = vo;
 		this.group = group;
+
+		init();
 	}
 
 	@Override

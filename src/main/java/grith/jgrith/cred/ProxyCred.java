@@ -1,5 +1,6 @@
 package grith.jgrith.cred;
 
+import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.details.FileDetail;
 import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.utils.CredentialHelpers;
@@ -15,9 +16,14 @@ public class ProxyCred extends AbstractCred {
 
 	protected FileDetail proxyFile = new FileDetail("X509 proxy file");
 
-	public ProxyCred() {
+	public ProxyCred() throws CredentialException {
 		super();
-		init();
+		try {
+			init();
+		} catch (Exception e) {
+			throw new CredentialException("Can't create proxy: "
+					+ e.getLocalizedMessage());
+		}
 
 	}
 
