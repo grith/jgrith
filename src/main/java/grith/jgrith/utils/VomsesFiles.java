@@ -9,9 +9,11 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.python.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,8 @@ public class VomsesFiles {
 
 	static final Logger myLogger = LoggerFactory.getLogger(VomsesFiles.class
 			.getName());
+
+	public static final Set<String> DEFAULT_VOS = Sets.newHashSet("nz");
 
 	// public static final String[] VOMSES_TO_ACTIVATE = new String[] { "nz" };
 
