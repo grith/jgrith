@@ -15,8 +15,10 @@ public class CopyOfServiceTicketGenerator {
 		Oid krb5PrincipalNameType = new Oid("1.2.840.113554.1.2.2.1");
 
 		// Identify who the client wishes to be
-		GSSName userName = manager.createName("yhal003",
-				GSSName.NT_USER_NAME);
+		// GSSName userName = manager.createName("yhal003",
+		// GSSName.NT_USER_NAME);
+
+		GSSName userName = null;
 
 		// Identify the name of the server. This uses a Kerberos specific
 		// name format.

@@ -33,6 +33,7 @@ PrivilegedExceptionAction<byte[]> {
 				new ServiceTicketGenerator());
 	}
 
+	@Override
 	public byte[] run() throws Exception {
 		try {
 			// GSSAPI is generic, but if you give it the following Object ID,
@@ -44,8 +45,11 @@ PrivilegedExceptionAction<byte[]> {
 
 			// tell the GSSManager the Kerberos name of the client and service
 			// (substitute your appropriate names here)
-			GSSName clientName = gssManager.createName("yhal003@NESI.ORG.NZ",
-					GSSName.NT_USER_NAME);
+
+			// GSSName clientName = gssManager.createName("yhal003@NESI.ORG.NZ",
+			// GSSName.NT_USER_NAME);
+
+			GSSName clientName = null;
 			GSSName serviceName = gssManager.createName(
 					"myproxy@myproxyca.nesi.org.nz@NESI.ORG.NZ", null);
 
