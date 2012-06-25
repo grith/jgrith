@@ -122,7 +122,7 @@ public class GridLoginParameters {
 
 	private IdPDetail institution = new IdPDetail();
 	private StringDetail myproxyHost = new StringDetail("myproxy_host",
-			"Please enter the MyProxy host");
+			"Please enter the MyProxy host", false);
 	private PasswordDetail password = new PasswordDetail();
 
 	private StringDetail loginType = new StringDetail("login_type",
@@ -133,7 +133,7 @@ public class GridLoginParameters {
 	public GridLoginParameters() {
 
 		institution.assignGridProperty(Property.SHIB_IDP);
-		myproxyHost.assignGridProperty(Property.MYPROXY_HOST);
+		// myproxyHost.assignGridProperty(Property.MYPROXY_HOST);
 	}
 
 

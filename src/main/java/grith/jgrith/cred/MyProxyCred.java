@@ -116,7 +116,7 @@ public class MyProxyCred extends AbstractCred {
 			}
 
 			this.username.assignGridProperty(Property.MYPROXY_USERNAME);
-			this.host.assignGridProperty(Property.MYPROXY_HOST);
+			// this.host.assignGridProperty(Property.MYPROXY_HOST);
 			if (StringUtils.isNotBlank(hostTemp)) {
 				this.host.set(hostTemp);
 			}

@@ -141,6 +141,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			if (callback != null) {
 				c.setCallback(callback);
 			}
+
 			c.init(config);
 			return c;
 		} catch (CredentialException ce) {
@@ -343,6 +344,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	/* (non-Javadoc)
 	 * @see grith.jgrith.cred.Cred#destroy()
 	 */
+	@Override
 	public void destroy() {
 		if ( cachedCredential != null ) {
 
@@ -436,6 +438,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	/* (non-Javadoc)
 	 * @see grith.jgrith.cred.Cred#getDN()
 	 */
+	@Override
 	public String getDN() {
 		return CertHelpers.getDnInProperFormat(getGSSCredential());
 	}
@@ -577,6 +580,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	/* (non-Javadoc)
 	 * @see grith.jgrith.cred.Cred#getRemainingLifetime()
 	 */
+	@Override
 	public int getRemainingLifetime() {
 		try {
 			return getGSSCredential().getRemainingLifetime();
@@ -602,6 +606,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		init(config);
 	}
 
+	@Override
 	public synchronized void init(Map<PROPERTY, Object> config) {
 		isPopulated = false;
 		isUploaded = false;
@@ -625,6 +630,13 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			renewTask.cancel();
 		}
 
+		// just so that doesn't need to be configured for every Cred that
+		// inherits this
+		Object mph = config.get(PROPERTY.MyProxyHost);
+		if ( (mph != null) && StringUtils.isNotBlank((String)mph) ) {
+			setMyProxyHost((String) mph);
+		}
+
 		initCred(config);
 
 		populate();
@@ -633,6 +645,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	protected abstract void initCred(Map<PROPERTY, Object> config);
 
+	@Override
 	abstract public boolean isRenewable();
 
 	public boolean isUploaded() {
@@ -642,6 +655,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	/* (non-Javadoc)
 	 * @see grith.jgrith.cred.Cred#isValid()
 	 */
+	@Override
 	public boolean isValid() {
 		return (getRemainingLifetime() > 0);
 	}
@@ -686,6 +700,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	}
 
+	@Override
 	public synchronized boolean refresh() {
 
 		if (!isRenewable()) {
@@ -754,6 +769,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		this.credCallback = callback;
 	}
 
+	@Override
 	public void setMinimumLifetime(int m) {
 		this.minProxyLifetime = m;
 
@@ -810,6 +826,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		this.proxyLifetimeInSeconds = p;
 	}
 
+	@Override
 	public void uploadMyProxy() {
 		uploadMyProxy(false);
 	}
