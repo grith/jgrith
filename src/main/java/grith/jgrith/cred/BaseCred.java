@@ -29,8 +29,10 @@ public class BaseCred {
 	static final Logger myLogger = LoggerFactory.getLogger(BaseCred.class
 			.getName());
 
+	public static final String DEFAULT_MYPROXY_FILE_EXTENSION = ".mp";
+
 	public static final String DEFAULT_MYPROXY_FILE_LOCATION = CoGProperties
-			.getDefault().getProxyFile() + ".mp";
+			.getDefault().getProxyFile() + DEFAULT_MYPROXY_FILE_EXTENSION;
 
 	public static final int DEFAULT_MIN_LIFETIME_IN_SECONDS = 1200;
 
@@ -251,12 +253,30 @@ public class BaseCred {
 		saveMyProxy(null);
 	}
 
+	/**
+	 * Saves the metadata file for this myproxy (contains host, username,
+	 * password,...).
+	 * 
+	 * Only works if proxy is already stored in the path.
+	 * 
+	 * @param path
+	 *            the path for the proxy (.mp) will be appended
+	 */
 	public void saveMyProxy(String path) {
 
 		if (StringUtils.isBlank(path)) {
 			path = DEFAULT_MYPROXY_FILE_LOCATION;
 		}
-		this.localMPPath = path;
+
+		File proxyFile = new File(path);
+		if ( !proxyFile.exists() ) {
+			myLogger.debug("No proxy file exists on {}", path);
+			throw new CredentialException(
+					"Can't save myproxy metadata, proxy file " + path
+					+ " does not exist.");
+		}
+
+		this.localMPPath = path + DEFAULT_MYPROXY_FILE_EXTENSION;
 
 		File mpProxyFile = new File(localMPPath);
 		Properties prop = new Properties();
@@ -279,7 +299,7 @@ public class BaseCred {
 			prop.store(new FileOutputStream(mpProxyFile), null);
 			Util.setFilePermissions(mpProxyFile.getAbsolutePath(), 600);
 		} catch (Exception e) {
-			throw new RuntimeException("Can't store credential metadata.", e);
+			throw new CredentialException("Can't store credential metadata.", e);
 		}
 	}
 
@@ -291,13 +311,15 @@ public class BaseCred {
 		this.myProxyPassword = pw;
 	}
 
+
 	public void setMyProxyPort(int port) {
-		this.myProxyPort = port;
+			this.myProxyPort = port;
 	}
 
 	public void setMyProxyUsername(String username) {
 		if (StringUtils.isBlank(username)) {
 			this.myProxyUsername = null;
+			return;
 		}
 		String tmp = extractMyProxyServerFromUsername(username);
 		if (StringUtils.isNotBlank(tmp)) {

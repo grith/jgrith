@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
 import org.globus.myproxy.InitParams;
@@ -753,7 +755,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	public void saveProxy(String path) {
 
-		if (StringUtils.isBlank(path)) {
+		if (StringUtils.isBlank(path) && StringUtils.isNotBlank(this.localPath)) {
+			path = this.localPath;
+		} else if (StringUtils.isBlank(path)) {
 			path = CoGProperties.getDefault().getProxyFile();
 		}
 		synchronized (path) {
@@ -761,6 +765,12 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			this.localPath = path;
 
 			CredentialHelpers.writeToDisk(getGSSCredential(), new File(localPath));
+			if (isUploaded()) {
+				saveMyProxy(path);
+			} else {
+				FileUtils.deleteQuietly(new File(path
+						+ DEFAULT_MYPROXY_FILE_EXTENSION));
+			}
 		}
 
 	}
@@ -800,26 +810,43 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	@Override
 	public void setMyProxyHost(String mph) {
-		super.setMyProxyHost(mph);
-		isUploaded = false;
+		if (!StringUtils.equals(getMyProxyHost(), mph)) {
+			super.setMyProxyHost(mph);
+			isUploaded = false;
+		}
 	}
 
 	@Override
 	public void setMyProxyPassword(char[] pw) {
-		super.setMyProxyPassword(pw);
-		isUploaded = false;
+		if (!Arrays.equals(getMyProxyPassword(), pw)) {
+			super.setMyProxyPassword(pw);
+			isUploaded = false;
+		}
 	}
 
 	@Override
 	public void setMyProxyPort(int port) {
-		super.setMyProxyPort(port);
-		isUploaded = false;
+		if (port != getMyProxyPort()) {
+
+			super.setMyProxyPort(port);
+			isUploaded = false;
+		}
 	}
 
 	@Override
 	public void setMyProxyUsername(String username) {
-		super.setMyProxyUsername(username);
-		isUploaded = false;
+		String tmpHost = extractMyProxyServerFromUsername(username);
+		String tmpUsername = null;
+		if (StringUtils.isNotBlank(tmpHost)) {
+			tmpUsername = extractUsernameFromUsername(username);
+			setMyProxyHost(tmpHost);
+			setMyProxyUsername(tmpUsername);
+		}
+
+		if (!StringUtils.equals(getMyProxyUsername(), username)) {
+			super.setMyProxyUsername(username);
+			isUploaded = false;
+		}
 	}
 
 	public void setProxyLifetimeInSeconds(int p) {
@@ -834,7 +861,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	/* (non-Javadoc)
 	 * @see grith.jgrith.cred.Cred#uploadMyProxy(boolean)
 	 */
-	public void uploadMyProxy(boolean force) {
+	public synchronized void uploadMyProxy(boolean force) {
 
 		if (!isPopulated) {
 			init();
@@ -893,6 +920,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		} catch (Exception e) {
 			throw new CredentialException("Can't upload MyProxy: "
 					+ e.getLocalizedMessage(), e);
+		}
+
+		if (StringUtils.isNotBlank(this.localPath)) {
+			saveProxy();
 		}
 	}
 

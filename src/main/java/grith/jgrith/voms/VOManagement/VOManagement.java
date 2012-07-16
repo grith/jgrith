@@ -92,6 +92,11 @@ public class VOManagement {
 				.synchronizedMap(new TreeMap<String, VO>());
 		for (final VO vo : getAllVOs()) {
 
+			if (VO.NON_VO.equals(vo)) {
+				myLogger.debug("Not looking up NON_VO groups...");
+				continue;
+			}
+
 			Thread t = new Thread() {
 				@Override
 				public void run() {
