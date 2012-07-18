@@ -63,9 +63,9 @@ public class GridSshKey {
 		String sshconfigpath = CommonGridProperties.SSH_DIR + File.separator
 				+ "config";
 
-		StringBuffer panConfig = new StringBuffer("Host pan\n");
+		StringBuffer panConfig = new StringBuffer("\nHost pan\n");
 		panConfig.append("\nHostName login.uoa.nesi.org.nz\n");
-		panConfig.append("User " + username);
+		panConfig.append("User " + username + "\n");
 		panConfig.append("IdentityFile = "
 				+ CommonGridProperties.getDefault().getGridSSHKey() + "\n\n");
 
@@ -76,6 +76,7 @@ public class GridSshKey {
 				String oldConfig = FileUtils.readFileToString(sshconfig);
 				if ((oldConfig != null)
 						&& oldConfig.contains("login.uoa.nesi.org.nz")) {
+
 					// already has got an entry
 					return false;
 				}
@@ -84,12 +85,12 @@ public class GridSshKey {
 
 			} else {
 				FileUtils.write(sshconfig, panConfig);
+				return true;
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		return false;
 	}
 
 	public static boolean gridsshkeyExists() {
