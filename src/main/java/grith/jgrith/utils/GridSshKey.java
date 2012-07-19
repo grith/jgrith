@@ -66,8 +66,8 @@ public class GridSshKey {
 		StringBuffer panConfig = new StringBuffer("\nHost pan\n");
 		panConfig.append("\nHostName login.uoa.nesi.org.nz\n");
 		panConfig.append("User " + username + "\n");
-		panConfig.append("IdentityFile = "
-				+ CommonGridProperties.getDefault().getGridSSHKey() + "\n\n");
+		panConfig.append("IdentityFile = \""
+				+ CommonGridProperties.getDefault().getGridSSHKey() + "\"\n\n");
 
 		File sshconfig = new File(sshconfigpath);
 		try {
