@@ -24,7 +24,9 @@ public class SLCSCredential extends Credential {
 	}
 
 	public SLCSCredential(String idp, String username, char[] pw, boolean store) {
-		this(SLCS.DEFAULT_SLCS_URL, idp, username, pw, store);
+		this(
+				"https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login",
+				idp, username, pw, store);
 	}
 
 	public SLCSCredential(String url, String idp, String username,
@@ -37,7 +39,7 @@ public class SLCSCredential extends Credential {
 			int initialLifetimeInSeconds) {
 
 		if (StringUtils.isBlank(url)) {
-			url = SLCS.DEFAULT_SLCS_URL;
+			url = "https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login";
 		}
 
 		if (initialLifetimeInSeconds < 0) {
@@ -106,7 +108,7 @@ public class SLCSCredential extends Credential {
 
 			String url = (String) config.get(PROPERTY.SlcsUrl);
 			if (StringUtils.isBlank(url)) {
-				url = SLCS.DEFAULT_SLCS_URL;
+				url = "https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login";
 			}
 
 			final SLCS slcs = new SLCS(url, idpO, cm);

@@ -48,7 +48,7 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 
 	private String url;
 
-	private static final String DEFAULT_URL = "https://slcs1.arcs.org.au/SLCS/login";
+	private static final String DEFAULT_URL = "https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login";
 
 	/**
 	 * Create the panel.

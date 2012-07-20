@@ -39,7 +39,7 @@ public class SlcsLoginWrapper {
 
 			try {
 				final Shibboleth shib = new Shibboleth(idpObj, cm);
-				shib.openurl(SLCS.DEFAULT_SLCS_URL);
+				shib.openurl("https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login");
 				myLogger.debug("Login: list of idps loaded (id: " + id + ")");
 
 				cachedIdps = ImmutableList.copyOf(idpObj.getIdps());
@@ -56,7 +56,7 @@ public class SlcsLoginWrapper {
 
 	public static GSSCredential slcsMyProxyInit(String username,
 			char[] password, String idp, LoginParams params, String shibUrl)
-			throws Exception {
+					throws Exception {
 
 		myLogger.debug("SLCS login: starting slcs/myproxy login...");
 		final String id = UUID.randomUUID().toString();

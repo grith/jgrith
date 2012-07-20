@@ -5,7 +5,6 @@ import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
 import grisu.jcommons.view.cli.CliHelpers;
-import grith.gsindl.SLCS;
 import grith.jgrith.Environment;
 import grith.jgrith.control.LoginParams;
 import grith.jgrith.control.SlcsLoginWrapper;
@@ -27,7 +26,7 @@ public class CredentialFactory {
 	static final Logger myLogger = LoggerFactory
 			.getLogger(CredentialFactory.class.getName());
 
-	public static String SLCS_URL = SLCS.DEFAULT_SLCS_URL;
+	public static String SLCS_URL = "https://slcs1.arcs.org.au/Shibboleth.sso/DS?discoveryURL=https://directory.tuakiri.ac.nz/TuakiriAAF-discovery/DS&target=https://slcs1.arcs.org.au/SLCS/login";
 	public static String MYPROXY_HOST = Environment.getDefaultMyProxy()
 			.getHost();
 	public static int MYPROXY_PORT = Environment.getDefaultMyProxy()
