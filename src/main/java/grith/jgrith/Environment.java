@@ -22,7 +22,7 @@ public class Environment {
 
 	public static MyProxy getARCSMyProxy() {
 
-		myLogger.debug("Using default myproxy...");
+		myLogger.debug("Using default ARCS myproxy...");
 
 		if (myproxy == null) {
 
