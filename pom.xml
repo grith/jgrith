@@ -163,12 +163,12 @@
 		<dependency>
 			<groupId>grith</groupId>
 			<artifactId>gsindl</artifactId>
-			<version>1.6-SNAPSHOT</version>
+			<version>1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>grisu</groupId>
 			<artifactId>grid-jcommons</artifactId>
-			<version>1.5.1</version>
+			<version>1.5.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
