@@ -42,10 +42,11 @@ ProxyInitListener {
 	 */
 	public VomsProxyInfoAndInitPanel() {
 		super();
-		setLayout(new FormLayout(new ColumnSpec[] { new ColumnSpec(
+		setLayout(new FormLayout(
+				new ColumnSpec[] { ColumnSpec.decode(
 				"default:grow(1.0)") }, new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
-				new RowSpec("default:grow(1.0)") }));
+						RowSpec.decode("default:grow(1.0)") }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1,
 				CellConstraints.FILL, CellConstraints.FILL));
 		add(getVomsProxyInitPanel(), new CellConstraints(1, 3,
@@ -138,6 +139,7 @@ ProxyInitListener {
 		fireNewProxyCreated(credential);
 	}
 
+	@Override
 	public void proxyCreated(GlobusCredential newProxy) {
 
 		fireNewProxyCreated(newProxy);
@@ -155,6 +157,7 @@ ProxyInitListener {
 
 	}
 
+	@Override
 	public void proxyDestroyed() {
 		// TODO Auto-generated method stub
 

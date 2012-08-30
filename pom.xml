@@ -6,7 +6,6 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<grid-jcommons.version>2.0.2-SNAPSHOT</grid-jcommons.version>
 	</properties>
 
 	<repositories>
@@ -101,9 +100,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>bouncycastle</groupId>
+			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15</artifactId>
-			<version>145</version>
+			<version>${bcprov.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -156,8 +155,8 @@
 
 		<dependency>
 			<groupId>com.jgoodies</groupId>
-			<artifactId>forms</artifactId>
-			<version>1.2.1</version>
+			<artifactId>jgoodiesforms</artifactId>
+			<version>1.5.1</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -347,6 +346,6 @@
 	<parent>
 		<groupId>nz.org.nesi</groupId>
 		<artifactId>nesi</artifactId>
-		<version>0.17</version>
+		<version>0.19</version>
 	</parent>
 </project>

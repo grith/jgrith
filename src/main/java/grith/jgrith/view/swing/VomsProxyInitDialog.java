@@ -31,6 +31,7 @@ public class VomsProxyInitDialog extends JDialog {
 			dialog.enableWriteToDisk(true);
 			// dialog.addProxyListener(proxyListener);
 			dialog.addWindowListener(new WindowAdapter() {
+				@Override
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
 				}
@@ -90,6 +91,7 @@ public class VomsProxyInitDialog extends JDialog {
 		if (closeButton == null) {
 			closeButton = new JButton();
 			closeButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					VomsProxyInitDialog.this.setVisible(false);
 				}
@@ -107,7 +109,7 @@ public class VomsProxyInitDialog extends JDialog {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
 					FormFactory.RELATED_GAP_COLSPEC,
-					new ColumnSpec("default:grow(1.0)"),
+					ColumnSpec.decode("default:grow(1.0)"),
 					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 					FormFactory.DEFAULT_ROWSPEC,
 					FormFactory.RELATED_GAP_ROWSPEC,

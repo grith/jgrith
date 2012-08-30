@@ -99,6 +99,7 @@ public class MyProxyUploadDialog extends JDialog {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
 			cancelButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					dispose();
 				}
@@ -137,18 +138,19 @@ public class MyProxyUploadDialog extends JDialog {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(
-					new ColumnSpec[] { new ColumnSpec("left:16dlu"),
+new ColumnSpec[] {
+					ColumnSpec.decode("left:16dlu"),
 							FormFactory.DEFAULT_COLSPEC,
 							FormFactory.RELATED_GAP_COLSPEC,
-							new ColumnSpec("default:grow(1.0)"),
+					ColumnSpec.decode("default:grow(1.0)"),
 							FormFactory.RELATED_GAP_COLSPEC,
 							FormFactory.DEFAULT_COLSPEC,
-							new ColumnSpec("left:15dlu") }, new RowSpec[] {
-							new RowSpec("top:15dlu"),
+					ColumnSpec.decode("left:15dlu") }, new RowSpec[] {
+					RowSpec.decode("top:15dlu"),
 							FormFactory.DEFAULT_ROWSPEC,
-							new RowSpec("top:10dlu"),
+					RowSpec.decode("top:10dlu"),
 							FormFactory.DEFAULT_ROWSPEC,
-							new RowSpec("top:11dlu"),
+					RowSpec.decode("top:11dlu"),
 							FormFactory.DEFAULT_ROWSPEC }));
 			panel.add(getLabel(), new CellConstraints(2, 2,
 					CellConstraints.RIGHT, CellConstraints.DEFAULT));
@@ -191,6 +193,7 @@ public class MyProxyUploadDialog extends JDialog {
 		if (uploadButton == null) {
 			uploadButton = new JButton();
 			uploadButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
@@ -250,8 +253,8 @@ public class MyProxyUploadDialog extends JDialog {
 										MyProxyUploadDialog.this,
 										"Could not upload proxy: "
 												+ e1.getLocalizedMessage(),
-										"Upload error",
-										JOptionPane.ERROR_MESSAGE);
+												"Upload error",
+												JOptionPane.ERROR_MESSAGE);
 								uploadException = e1;
 								enablePanel(true);
 								return;

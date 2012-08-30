@@ -108,11 +108,11 @@ public class VomsProxyInit {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
 					FormFactory.RELATED_GAP_COLSPEC,
-					new ColumnSpec("312px:grow(1.0)"),
+					ColumnSpec.decode("312px:grow(1.0)"),
 					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 					FormFactory.RELATED_GAP_ROWSPEC,
-					new RowSpec("271px:grow(1.0)"),
-					FormFactory.RELATED_GAP_ROWSPEC, new RowSpec("default"),
+					RowSpec.decode("271px:grow(1.0)"),
+					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
 					FormFactory.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
 					"2, 2, fill, fill"));

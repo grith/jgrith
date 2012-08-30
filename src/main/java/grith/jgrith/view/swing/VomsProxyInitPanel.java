@@ -76,9 +76,9 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		super();
 		setBorder(DEFAULT_TITLE);
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC, new ColumnSpec("65dlu"),
+				FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("65dlu"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				new ColumnSpec("25dlu:grow(1.0)"),
+				ColumnSpec.decode("25dlu:grow(1.0)"),
 				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
@@ -155,6 +155,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		if (initButton == null) {
 			initButton = new JButton();
 			initButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
@@ -255,6 +256,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		if (voButton == null) {
 			voButton = new JButton();
 			voButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
@@ -341,6 +343,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 
 	}
 
+	@Override
 	public void proxyCreated(GlobusCredential proxy) {
 
 		this.credential = proxy;
@@ -358,6 +361,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		}
 	}
 
+	@Override
 	public void proxyDestroyed() {
 
 		proxyCreated(null);
