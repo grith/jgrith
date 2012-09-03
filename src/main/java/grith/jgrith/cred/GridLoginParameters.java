@@ -32,9 +32,14 @@ public class GridLoginParameters {
 	public static GridLoginParameters createFromCommandlineArgs(
 			GridCliParameters params, String[] args) {
 
-		GridLoginParameters glp = new GridLoginParameters();
+		// GridLoginParameters glp = new GridLoginParameters();
 		try {
-			new JCommander(params, args);
+			JCommander jc = new JCommander(params, args);
+
+			if (params.isHelp()) {
+				jc.usage();
+				System.exit(0);
+			}
 
 			return createFromGridCliParameters(params);
 
@@ -73,6 +78,9 @@ public class GridLoginParameters {
 					glp.setUsername(settings.getUsername());
 					glp.setPassword(settings.getPassword());
 				}
+
+				boolean useGridSession = settings.isStartGridSession();
+				glp.setStartGridSessionDeamon(useGridSession);
 
 				// String backend = settings.getBackend();
 				// if (StringUtils.isNotBlank(backend)) {
@@ -130,12 +138,13 @@ public class GridLoginParameters {
 
 	private AbstractCallback callback = new NoCallback();
 
+	public boolean startGridSessionDeamon = false;
+
 	public GridLoginParameters() {
 
 		institution.assignGridProperty(Property.SHIB_IDP);
 		// myproxyHost.assignGridProperty(Property.MYPROXY_HOST);
 	}
-
 
 	public Map<PROPERTY, Object> getCredProperties() {
 		Map<PROPERTY, Object> result = Maps.newHashMap();
@@ -162,10 +171,10 @@ public class GridLoginParameters {
 		return result;
 	}
 
-
 	public String getInstitution() {
 		return institution.getValue();
 	}
+
 
 	public LoginType getLoginType() {
 		if (loginType == null) {
@@ -173,6 +182,7 @@ public class GridLoginParameters {
 		}
 		return LoginType.fromString(loginType.getValue());
 	}
+
 
 	public String getMyProxyHost() {
 		return myproxyHost.getValue();
@@ -196,6 +206,10 @@ public class GridLoginParameters {
 
 	public boolean isNologin() {
 		return nologin;
+	}
+
+	public boolean isStartGridSessionDeamon() {
+		return startGridSessionDeamon;
 	}
 
 	public void populate() {
@@ -301,13 +315,13 @@ public class GridLoginParameters {
 		this.callback =c;
 	}
 
-	// public void setBackend(String backend) {
-	// this.backend.set(backend);
-	// }
-
 	private void setForceAuthenticate(boolean forceAuth) {
 		this.forceAuthenticate = forceAuth;
 	}
+
+	// public void setBackend(String backend) {
+	// this.backend.set(backend);
+	// }
 
 	public void setInstitution(String institution) {
 		this.institution.set(institution);
@@ -331,6 +345,10 @@ public class GridLoginParameters {
 
 	public void setPassword(char[] password) {
 		this.password.set(password);
+	}
+
+	public void setStartGridSessionDeamon(boolean startGridSessionDeamon) {
+		this.startGridSessionDeamon = startGridSessionDeamon;
 	}
 
 	public void setUsername(String username) {

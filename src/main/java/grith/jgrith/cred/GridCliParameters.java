@@ -39,6 +39,12 @@ public class GridCliParameters {
 	@Parameter(names = { "-x", "--x509" }, description = "x509 certificate login")
 	private boolean useX509;
 
+	@Parameter(names = { "-s", "--start-session" }, description = "start background session to hold and update credential (on Linux)")
+	private boolean startGridSession;
+
+	@Parameter(names = { "-h", "--help" }, description = "display this help text")
+	private boolean help;
+
 	private char[] password;
 
 	public boolean getForce() {
@@ -65,12 +71,20 @@ public class GridCliParameters {
 		return username;
 	}
 
+	public boolean isHelp() {
+		return help;
+	}
+
 	public boolean isLogout() {
 		return logout;
 	}
 
 	public boolean isNologin() {
 		return nologin;
+	}
+
+	public boolean isStartGridSession() {
+		return startGridSession;
 	}
 
 	public boolean useIdPLogin() {

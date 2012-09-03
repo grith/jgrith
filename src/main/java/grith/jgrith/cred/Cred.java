@@ -28,6 +28,10 @@ public interface Cred {
 
 	public abstract boolean refresh();
 
+	public String saveProxy();
+
+	public String saveProxy(String path);
+
 	public abstract void setMinimumLifetime(int lifetimeInSeconds);
 
 	public abstract void setMyProxyHost(String myProxyServer);

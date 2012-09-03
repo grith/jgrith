@@ -749,11 +749,13 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		}
 	}
 
-	public void saveProxy() {
-		saveProxy(null);
+	@Override
+	public String saveProxy() {
+		return saveProxy(null);
 	}
 
-	public void saveProxy(String path) {
+	@Override
+	public String saveProxy(String path) {
 
 		if (StringUtils.isBlank(path) && StringUtils.isNotBlank(this.localPath)) {
 			path = this.localPath;
@@ -772,6 +774,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 						+ DEFAULT_MYPROXY_FILE_EXTENSION));
 			}
 		}
+
+		return localPath;
 
 	}
 

@@ -131,14 +131,17 @@ public class ProxyCred extends AbstractCred {
 	}
 
 	@Override
-	public void saveProxy() {
+	public String saveProxy() {
 		// do nothing, it's already saved
+		return this.localPath;
 	}
 
 	@Override
-	public void saveProxy(String path) {
+	public String saveProxy(String path) {
 
 		// do nothing, it's already saved
+
+		return this.localPath;
 
 		// if (StringUtils.isBlank(path)) {
 		// path = CoGProperties.getDefault().getProxyFile();
