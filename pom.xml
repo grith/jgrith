@@ -6,7 +6,6 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<grid-jcommons.version>2.0.3-SNAPSHOT</grid-jcommons.version>
 	</properties>
 
 	<repositories>
@@ -347,6 +346,6 @@
 	<parent>
 		<groupId>nz.org.nesi</groupId>
 		<artifactId>nesi</artifactId>
-		<version>0.19</version>
+		<version>0.20</version>
 	</parent>
 </project>
