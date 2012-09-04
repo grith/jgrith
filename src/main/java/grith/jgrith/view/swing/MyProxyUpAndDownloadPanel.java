@@ -1,9 +1,9 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.control.UserProperty;
 import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,13 +18,14 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -33,13 +34,13 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class MyProxyUpAndDownloadPanel extends JPanel implements
-		ProxyInitListener {
+ProxyInitListener {
 
 	private JPasswordField passwordField;
 	private JTextField textField;
 	private JLabel label_1;
 	private JLabel label;
-	static final Logger myLogger = Logger.getLogger(MyProxy_light.class
+	static final Logger myLogger = LoggerFactory.getLogger(MyProxy_light.class
 			.getName());
 
 	private JButton uploadButton;
@@ -62,14 +63,14 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 				TitledBorder.DEFAULT_JUSTIFICATION,
 				TitledBorder.DEFAULT_POSITION, null, null));
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC, new ColumnSpec("65dlu"),
+				FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("65dlu"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				new ColumnSpec("default:grow(1.0)"),
+				ColumnSpec.decode("default:grow(1.0)"),
 				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				new RowSpec("top:11dlu"), FormFactory.DEFAULT_ROWSPEC,
-				new RowSpec("top:9dlu") }));
+				RowSpec.decode("top:11dlu"), FormFactory.DEFAULT_ROWSPEC,
+				RowSpec.decode("top:9dlu") }));
 		add(getDownloadButton(), new CellConstraints(2, 6,
 				CellConstraints.LEFT, CellConstraints.DEFAULT));
 		add(getUploadButton(), new CellConstraints(4, 6, CellConstraints.RIGHT,
@@ -127,6 +128,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 		if (downloadButton == null) {
 			downloadButton = new JButton();
 			downloadButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 
 					String username = getTextField().getText();
@@ -170,8 +172,8 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								MyProxyUpAndDownloadPanel.this,
 								"Could not download proxy:\n\n"
 										+ e1.getLocalizedMessage(),
-								"Proxy download error",
-								JOptionPane.ERROR_MESSAGE);
+										"Proxy download error",
+										JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 
@@ -240,6 +242,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 		if (uploadButton == null) {
 			uploadButton = new JButton();
 			uploadButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 
 					String username = getTextField().getText();
@@ -258,11 +261,11 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								null, "*", "*", null, -1);
 					} catch (MyProxyException e3) {
 						JOptionPane
-								.showMessageDialog(
-										MyProxyUpAndDownloadPanel.this,
-										"Error preparing myproxy parameters: "
-												+ e3.getLocalizedMessage()
-												+ "\n\n. Please contact your administrator.",
+						.showMessageDialog(
+								MyProxyUpAndDownloadPanel.this,
+								"Error preparing myproxy parameters: "
+										+ e3.getLocalizedMessage()
+										+ "\n\n. Please contact your administrator.",
 										"MyProxy error",
 										JOptionPane.ERROR_MESSAGE);
 					}
@@ -289,7 +292,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 
 					params.setLifetime((int) currentCredential.getTimeLeft());
 					try {
-						MyProxy_light.init(getMyproxy(), currentCredential,
+						MyProxy_light.init(getMyproxy(), CredentialHelpers.wrapGlobusCredential(currentCredential),
 								params, passphrase);
 						getPasswordField().setText("");
 					} catch (Exception e1) {
@@ -297,7 +300,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 								MyProxyUpAndDownloadPanel.this,
 								"Could not upload proxy: "
 										+ e1.getLocalizedMessage(),
-								"Upload error", JOptionPane.ERROR_MESSAGE);
+										"Upload error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 
@@ -309,6 +312,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 		return uploadButton;
 	}
 
+	@Override
 	public void proxyCreated(GlobusCredential newProxy) {
 
 		try {
@@ -321,6 +325,7 @@ public class MyProxyUpAndDownloadPanel extends JPanel implements
 		}
 	}
 
+	@Override
 	public void proxyDestroyed() {
 		this.currentCredential = null;
 		getUploadButton().setEnabled(false);

@@ -11,9 +11,14 @@ import javax.swing.JDialog;
 
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsProxyInitDialogOld extends JDialog implements
-		ProxyInitListener {
+ProxyInitListener {
+
+	static final Logger myLogger = LoggerFactory
+			.getLogger(VomsProxyInitDialogOld.class.getName());
 
 	/**
 	 * Launch the application
@@ -25,6 +30,7 @@ public class VomsProxyInitDialogOld extends JDialog implements
 			VomsProxyInitDialogOld dialog = new VomsProxyInitDialogOld();
 			dialog.addProxyInitListener(dialog);
 			dialog.addWindowListener(new WindowAdapter() {
+				@Override
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
 				}
@@ -73,7 +79,8 @@ public class VomsProxyInitDialogOld extends JDialog implements
 						+ LocalProxy.loadGlobusCredential().getTimeLeft()
 						+ " seconds.");
 			} catch (GlobusCredentialException e) {
-				e.printStackTrace();
+				myLogger.error(
+						"Can't create proxy: " + e.getLocalizedMessage(), e);
 			}
 		} else if (type == ProxyInitListener.VOMS_PROXY_CREATED) {
 			System.out.println("Voms proxy created. Valid until: "
@@ -86,7 +93,9 @@ public class VomsProxyInitDialogOld extends JDialog implements
 					System.out.println(info);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				myLogger.error(
+						"Can't create voms proxy: " + e.getLocalizedMessage(),
+						e);
 			}
 
 		}

@@ -18,25 +18,32 @@
 
 package grith.jgrith.plainProxy;
 
-import grith.jgrith.CredentialHelpers;
+import grisu.jcommons.exceptions.CredentialException;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalProxy {
 
-	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(LocalProxy.class.getName());
 
 	public static final String PROXY_FILE = CoGProperties.getDefault()
 			.getProxyFile();
+
+	public static final String CERT_FILE = CoGProperties.getDefault()
+			.getUserCertFile();
+	public static final String KEY_FILE = CoGProperties.getDefault()
+			.getUserKeyFile();
 
 	/**
 	 * Writes random data in the default local proxy file and then deletes it.
@@ -83,22 +90,14 @@ public class LocalProxy {
 	 *             if the proxy could not be written to disk
 	 */
 	public static void gridProxyInit(char[] passwd, int lifetime_in_hours)
-			throws IOException, GSSException, Exception {
+			throws CredentialException {
 
 		GSSCredential credential = PlainProxy.init(passwd, lifetime_in_hours);
 
 		// get the default location of the grid-proxy file
 		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
-		try {
-			// write the proxy to disk
-			CredentialHelpers.writeToDisk(credential, proxyFile);
-		} catch (IOException e) {
-			// could not write proxy to disk
-			throw e;
-		} catch (GSSException e1) {
-			throw e1;
-		}
-		// yeah. everything was all right
+		// write the proxy to disk
+		CredentialHelpers.writeToDisk(credential, proxyFile);
 	}
 
 	/**
@@ -114,31 +113,23 @@ public class LocalProxy {
 	 *            the passphrase of the private key in the .globus folder
 	 * @param lifetime_in_hours
 	 *            how long should the proxy be valid for
-	 * @throws Exception
-	 *             if some general error occured
-	 * @throws GSSException
-	 *             if something was wrong with the gsscredential
-	 * @throws IOException
-	 *             if the proxy could not be written to disk
+	 * @throws CredentialException
+	 *             if the proxy could not be created and written to disk
 	 */
 	public static void gridProxyInit(String certFile, String keyFile, char[] passwd, int lifetime_in_hours)
-			throws IOException, GSSException, Exception {
+			throws CredentialException {
 
-		GSSCredential credential = PlainProxy.init(certFile, keyFile, passwd,
-				lifetime_in_hours);
-
-		// get the default location of the grid-proxy file
-		File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
 		try {
+			GSSCredential credential = PlainProxy.init(certFile, keyFile, passwd,
+					lifetime_in_hours);
+
+			// get the default location of the grid-proxy file
+			File proxyFile = new File(CoGProperties.getDefault().getProxyFile());
 			// write the proxy to disk
 			CredentialHelpers.writeToDisk(credential, proxyFile);
-		} catch (IOException e) {
-			// could not write proxy to disk
-			throw e;
-		} catch (GSSException e1) {
-			throw e1;
+		} catch (Exception e1) {
+			throw new CredentialException(e1);
 		}
-		// yeah. everything was all right
 	}
 
 	/**
@@ -150,8 +141,17 @@ public class LocalProxy {
 	public static GlobusCredential loadGlobusCredential()
 			throws GlobusCredentialException {
 		GlobusCredential globusCredential = null;
+
+		// String jobProxy = System.getenv("X509_USER_PROXY");
+		// if (StringUtils.isNotBlank(jobProxy)) {
+		//
+		// globusCredential = new GlobusCredential(jobProxy);
+		//
+		// } else {
+
 		globusCredential = new GlobusCredential(CoGProperties.getDefault()
 				.getProxyFile());
+		// }
 
 		return globusCredential;
 	}
@@ -202,10 +202,11 @@ public class LocalProxy {
 	 */
 	public static boolean validGridProxyExists(int minTimeInMinutes) {
 
+		String location = CoGProperties.getDefault().getProxyFile();
+
 		GlobusCredential globusCredential = null;
 		try {
-			globusCredential = new GlobusCredential(CoGProperties.getDefault()
-					.getProxyFile());
+			globusCredential = new GlobusCredential(location);
 			globusCredential.verify();
 
 			if ((globusCredential.getTimeLeft() / 60) < minTimeInMinutes) {

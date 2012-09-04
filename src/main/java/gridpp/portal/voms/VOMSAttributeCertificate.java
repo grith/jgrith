@@ -14,7 +14,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
@@ -49,12 +48,14 @@ import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.globus.gsi.OpenSSLKey;
 import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //--------------------------------------------------------------------------------
 
 public class VOMSAttributeCertificate {
-	static final Logger myLogger = Logger
-			.getLogger(VOMSAttributeCertificate.class.getName());
+	static final Logger myLogger = LoggerFactory
+			.getLogger(VOMSAttributeCertificate.class);
 
 	AttributeCertificate ac = null;
 
@@ -175,7 +176,7 @@ public class VOMSAttributeCertificate {
 					thisDN = thisDN.concat("/"
 							+ Translate_OID.getString(""
 									+ this_seq.getObjectAt(0)) + "="
-							+ this_string.getString());
+									+ this_string.getString());
 				} catch (Exception notPS) {
 					// email is encoded differently?
 					DERIA5String this_string = (DERIA5String) this_seq
@@ -183,7 +184,7 @@ public class VOMSAttributeCertificate {
 					thisDN = thisDN.concat("/"
 							+ Translate_OID.getString(""
 									+ this_seq.getObjectAt(0)) + "="
-							+ this_string.getString());
+									+ this_string.getString());
 				}
 			}
 
@@ -374,11 +375,9 @@ public class VOMSAttributeCertificate {
 		return this.version.getValue();
 	}
 
-	public ArrayList<String> getVOMSFQANs() throws Exception {
+	public ArrayList<String> getVOMSFQANs()  {
 
 		ArrayList<String> theseFQANs = new ArrayList<String>();
-
-		try {
 
 			// could have more than one AC in here...
 			for (Enumeration a = this.attributes.getObjects(); a
@@ -421,10 +420,6 @@ public class VOMSAttributeCertificate {
 				}
 
 			}
-
-		} catch (Exception e) {
-			throw e;
-		}
 
 		return theseFQANs;
 
@@ -512,7 +507,7 @@ public class VOMSAttributeCertificate {
 			// }
 
 		} catch (Exception e) {
-			myLogger.error(e);
+			myLogger.error("Error setting extension.", e);
 			// e.printStackTrace() ;
 		}
 
@@ -527,7 +522,7 @@ public class VOMSAttributeCertificate {
 
 			IssuerSerial baseCertificateID = new IssuerSerial(new GeneralNames(
 					new GeneralName(4, holder_name_sequence)), new DERInteger(
-					holderSerialNumber));
+							holderSerialNumber));
 
 			this.holder = new Holder(baseCertificateID);
 
@@ -616,8 +611,8 @@ public class VOMSAttributeCertificate {
 
 			DEREncodableVector fqanVector = new DEREncodableVector();
 
-			for (int f = 0; f < fqans.length; f++) {
-				DERGeneralString fqan = new DERGeneralString(fqans[f]);
+			for (String fqan2 : fqans) {
+				DERGeneralString fqan = new DERGeneralString(fqan2);
 				ASN1OctetString fqanOctetString = ASN1OctetString
 						.getInstance(new DEROctetString(fqan.getOctets()));
 				fqanVector.add(fqanOctetString);
@@ -702,7 +697,7 @@ public class VOMSAttributeCertificate {
 
 			String hostPrivateKeyLocation = new String(
 					System.getProperty("user.home")
-							+ "/gridsecurity/hostkey.pem");
+					+ "/gridsecurity/hostkey.pem");
 
 			OpenSSLKey key = new BouncyCastleOpenSSLKey(hostPrivateKeyLocation);
 

@@ -1,40 +1,40 @@
 package grith.jgrith;
 
 import grisu.jcommons.constants.GridEnvironment;
-import grisu.jcommons.utils.HttpProxyManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.gssapi.auth.AuthorizationException;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyServerAuthorization;
 import org.ietf.jgss.GSSContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Environment {
 
-	static final Logger myLogger = Logger.getLogger(HttpProxyManager.class
+	static final Logger myLogger = LoggerFactory.getLogger(Environment.class
 			.getName());
 
 	private static MyProxy myproxy = null;
 
-	public static MyProxy getDefaultMyProxy() {
+	public static MyProxy getARCSMyProxy() {
 
-		myLogger.debug("Using default myproxy...");
+		myLogger.debug("Using default ARCS myproxy...");
 
 		if (myproxy == null) {
 
-			int port = GridEnvironment.getDefaultMyProxyPort();
-			String server = GridEnvironment.getDefaultMyProxyServer();
+			int port = 7512;
+			String server = "myproxy.arcs.org.au";
 			myLogger.debug("Creating default MyProxy object: " + server + " / "
 					+ port);
 
 			try {
 				server = InetAddress.getByName(server).getHostAddress();
 			} catch (final UnknownHostException e1) {
-				e1.printStackTrace();
+				myLogger.error(e1.getLocalizedMessage());
 			}
 
 			myproxy = new MyProxy(server, port);
@@ -45,6 +45,7 @@ public class Environment {
 						throws AuthorizationException {
 					myLogger.debug("actual host: " + host);
 					try {
+						// TODO make this configurable?
 						InetAddress addr = InetAddress.getByName(host);
 						String hostname = addr.getHostName();
 						if (!"myproxy.arcs.org.au".equals(hostname)
@@ -63,5 +64,11 @@ public class Environment {
 			});
 		}
 		return myproxy;
+	}
+
+	public static MyProxy getDefaultMyProxy() {
+		MyProxy mp = new MyProxy(GridEnvironment.getDefaultMyProxyServer(),
+				GridEnvironment.getDefaultMyProxyPort());
+		return mp;
 	}
 }

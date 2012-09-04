@@ -1,19 +1,20 @@
 package grith.jgrith.voms.VOManagement;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.voms.VO;
+import grisu.model.info.dto.VO;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.vomsProxy.VomsProxyCredential;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroupManagement {
 
-	static final Logger myLogger = Logger.getLogger(GroupManagement.class
+	static final Logger myLogger = LoggerFactory.getLogger(GroupManagement.class
 			.getName());
 
 	/**
@@ -34,7 +35,7 @@ public class GroupManagement {
 		GlobusCredential globusCredential = null;
 		try {
 			globusCredential = CredentialHelpers
-			.unwrapGlobusCredential(gssCred);
+					.unwrapGlobusCredential(gssCred);
 
 			// create a temporary VomsProxyCredential to contact the voms server
 			// and ask about all it knows about the user
@@ -58,8 +59,7 @@ public class GroupManagement {
 
 		} catch (Exception e1) {
 			// e1.printStackTrace();
-			// myLogger.error(e1);
-			// e1.printStackTrace();
+			myLogger.debug("Error getting fqans: " + e1.getLocalizedMessage());
 			status = VOManagement.NO_MEMBER;
 			return null;
 		}

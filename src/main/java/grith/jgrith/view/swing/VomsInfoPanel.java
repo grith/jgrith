@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.voms.VO;
+import grisu.model.info.dto.VO;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsHelpers;
 import grith.jgrith.vomsProxy.VomsProxy;
@@ -21,12 +21,13 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsInfoPanel extends JPanel {
 
-	static final Logger myLogger = Logger.getLogger(VomsInfoPanel.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsInfoPanel.class
 			.getName());
 
 	private JButton initButton;
@@ -86,8 +87,9 @@ public class VomsInfoPanel extends JPanel {
 
 	// register a listener
 	synchronized public void addVomsPanelListener(ProxyInitListener l) {
-		if (vomsPanelListeners == null)
+		if (vomsPanelListeners == null) {
 			vomsPanelListeners = new Vector();
+		}
 		vomsPanelListeners.addElement(l);
 	}
 
@@ -107,7 +109,7 @@ public class VomsInfoPanel extends JPanel {
 
 	private void fireNewProxyCreated(VomsProxy vomsProxy) {
 		// if we have no mountPointsListeners, do nothing...
-		if (vomsPanelListeners != null && !vomsPanelListeners.isEmpty()) {
+		if ((vomsPanelListeners != null) && !vomsPanelListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -183,7 +185,7 @@ public class VomsInfoPanel extends JPanel {
 	}
 
 	public void initialize(String buttonText, boolean ignoreErrors) {
-		if (buttonText != null && !"".equals(buttonText)) {
+		if ((buttonText != null) && !"".equals(buttonText)) {
 			this.buttonText = buttonText;
 		}
 		getInitButton().setText(this.buttonText);
@@ -222,8 +224,9 @@ public class VomsInfoPanel extends JPanel {
 			voModel.addElement(vo);
 		}
 
-		if (info.keySet().iterator().hasNext())
+		if (info.keySet().iterator().hasNext()) {
 			setVO(info.keySet().iterator().next());
+		}
 	}
 
 	// remove a listener

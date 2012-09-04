@@ -2,10 +2,10 @@ package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
 import grisu.jcommons.commonInterfaces.ProxyDestructorHolder;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.view.swing.MyProxyUploadDialog;
 
 import java.awt.event.ActionEvent;
@@ -18,11 +18,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxyException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -32,7 +32,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class OtherActionsPanel extends JPanel {
 
-	private static final Logger myLogger = Logger
+	private static final Logger myLogger = LoggerFactory
 			.getLogger(OtherActionsPanel.class.getName());
 
 	private JButton loadLocalProxyButton;
@@ -108,7 +108,7 @@ public class OtherActionsPanel extends JPanel {
 		if (destroyButton == null) {
 			destroyButton = new JButton();
 			destroyButton
-					.setToolTipText("Destroys the current proxy and a possibly existing locally stored one");
+			.setToolTipText("Destroys the current proxy and a possibly existing locally stored one");
 			destroyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 
@@ -155,7 +155,7 @@ public class OtherActionsPanel extends JPanel {
 		if (loadLocalProxyButton == null) {
 			loadLocalProxyButton = new JButton();
 			loadLocalProxyButton
-					.setToolTipText("Loads a local proxy from the default location into this app");
+			.setToolTipText("Loads a local proxy from the default location into this app");
 			loadLocalProxyButton.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 
@@ -175,7 +175,7 @@ public class OtherActionsPanel extends JPanel {
 		if (storeButton == null) {
 			storeButton = new JButton();
 			storeButton
-					.setToolTipText("Stores the current proxy to the default location on your computer");
+			.setToolTipText("Stores the current proxy to the default location on your computer");
 			storeButton.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 
@@ -186,7 +186,7 @@ public class OtherActionsPanel extends JPanel {
 						JOptionPane.showMessageDialog(OtherActionsPanel.this,
 								"Proxy written successfully to: "
 										+ LocalProxy.PROXY_FILE, "I/O error",
-								JOptionPane.INFORMATION_MESSAGE);
+										JOptionPane.INFORMATION_MESSAGE);
 
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(OtherActionsPanel.this,
@@ -221,7 +221,7 @@ public class OtherActionsPanel extends JPanel {
 		if (uploadButton == null) {
 			uploadButton = new JButton();
 			uploadButton
-					.setToolTipText("Uploads the current proxy into MyProxy");
+			.setToolTipText("Uploads the current proxy into MyProxy");
 			uploadButton.addActionListener(new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 

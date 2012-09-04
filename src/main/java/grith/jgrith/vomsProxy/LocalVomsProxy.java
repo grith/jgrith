@@ -18,20 +18,22 @@
 
 package grith.jgrith.vomsProxy;
 
-import grith.jgrith.CredentialHelpers;
+import grisu.jcommons.exceptions.CredentialException;
+import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.LocalProxy;
-import grith.jgrith.voms.VO;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalVomsProxy {
 
-	static final Logger myLogger = Logger.getLogger(LocalProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(LocalProxy.class.getName());
 
 	// this is the default apacgrid voms server
 	public static final VO APACGRID_VO = new VO("APACGrid",
@@ -52,11 +54,9 @@ public class LocalVomsProxy {
 		try {
 			LocalVomsProxy.vomsProxyInit("/APACGrid/NGAdmin", passphrase, 12);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e.getLocalizedMessage());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e.getLocalizedMessage());
 		}
 
 	}
@@ -109,7 +109,7 @@ public class LocalVomsProxy {
 	 *             if another error occured
 	 */
 	public static void vomsProxyInit(VO vo, String group, char[] passphrase,
-			int lifetime_in_hours) throws IOException, Exception {
+			int lifetime_in_hours) throws CredentialException {
 
 		GSSCredential credential = VomsProxy.init(vo, group, passphrase,
 				lifetime_in_hours);
@@ -118,7 +118,7 @@ public class LocalVomsProxy {
 		try {
 			// write the proxy to disk
 			CredentialHelpers.writeToDisk(credential, proxyFile);
-		} catch (IOException e) {
+		} catch (CredentialException e) {
 			// could not write proxy to disk
 			myLogger.error("Could not write voms proxy to disk: "
 					+ e.getMessage());

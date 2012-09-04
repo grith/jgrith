@@ -1,14 +1,15 @@
 package grith.jgrith.voms.VOManagement;
 
-import grith.jgrith.CredentialHelpers;
+import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.LocalProxy;
-import grith.jgrith.voms.VO;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,9 +22,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages all VOMS servers that are of interest for the user. Information about
@@ -44,12 +46,12 @@ import org.ietf.jgss.GSSCredential;
  */
 public class VOManagement {
 
-	static final Logger myLogger = Logger.getLogger(VOManagement.class
+	static final Logger myLogger = LoggerFactory.getLogger(VOManagement.class
 			.getName());
 
 	public final static File USER_VOMSES = new File(
 			System.getProperty("user.home") + File.separator + ".glite"
-			+ File.separator + "vomses");
+					+ File.separator + "vomses");
 
 	public final static File GLOBAL_VOMSES = new File("/etc/vomses");
 
@@ -66,7 +68,7 @@ public class VOManagement {
 	 *            the credential
 	 * @return the (short) fqan
 	 */
-	public static Map<String, String> getAllFqans(GSSCredential cred) {
+	public static Map<String, VO> getAllFqans(GSSCredential cred) {
 		return getAllFqans(cred, false);
 	}
 
@@ -80,15 +82,20 @@ public class VOManagement {
 	 *            whether to return the full fqan (true) or not (false)
 	 * @return the fqan
 	 */
-	public static Map<String, String> getAllFqans(final GSSCredential cred,
+	public static Map<String, VO> getAllFqans(final GSSCredential cred,
 			final boolean returnWholeFqan) {
 
 		final ExecutorService executor = Executors
-		.newFixedThreadPool(getAllVOs().size());
+				.newFixedThreadPool(getAllVOs().size());
 
-		final Map<String, String> allFqans = Collections
-		.synchronizedMap(new TreeMap<String, String>());
+		final Map<String, VO> allFqans = Collections
+				.synchronizedMap(new TreeMap<String, VO>());
 		for (final VO vo : getAllVOs()) {
+
+			if (VO.NON_VO.equals(vo)) {
+				myLogger.debug("Not looking up NON_VO groups...");
+				continue;
+			}
 
 			Thread t = new Thread() {
 				@Override
@@ -109,7 +116,7 @@ public class VOManagement {
 								}
 								// }
 							}
-							allFqans.put(fqan, vo.getVoName());
+							allFqans.put(fqan, vo);
 						}
 					}
 					Date end = new Date();
@@ -118,6 +125,7 @@ public class VOManagement {
 							+ " ms.");
 				}
 			};
+			t.setName(vo.getVoName() + "_lookup");
 			executor.execute(t);
 		}
 
@@ -125,7 +133,7 @@ public class VOManagement {
 		try {
 			executor.awaitTermination(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			myLogger.error(e);
+			myLogger.error("Retrieving of FQANs interrupted.", e);
 		}
 
 		return allFqans;
@@ -241,8 +249,7 @@ public class VOManagement {
 			cred = CredentialHelpers.wrapGlobusCredential(LocalProxy
 					.loadGlobusCredential());
 		} catch (GlobusCredentialException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			myLogger.error(e.getLocalizedMessage());
 		}
 
 		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);
@@ -334,17 +341,12 @@ public class VOManagement {
 
 		myLogger.debug(name + " " + host + " " + port + " " + hostDN + vomrsUrl);
 
-		return new VO(name, host, port, hostDN, vomrsUrl);
+		return new VO(name, host, port, hostDN);
 	}
 
-	/**
-	 * Reads the vomses directories again to check whether something has
-	 * changed.
-	 * 
-	 * @return all available VOs
-	 */
-	public static Vector<VO> refreshAllVOs() {
-		allVOs = null;
-		return getAllVOs();
+
+	public static void setVOsToUse(Collection<VO> vos) {
+		allVOs = new Vector<VO>(vos);
 	}
+
 }

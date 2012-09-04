@@ -1,10 +1,10 @@
 package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.Environment;
 import grith.jgrith.control.UserProperty;
 import grith.jgrith.myProxy.MyProxy_light;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
@@ -21,12 +21,12 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -38,11 +38,11 @@ public class MyProxyProxyCreatorPanel extends JPanel {
 
 	private JLabel lifetimeinDaysLabel;
 	private JComboBox comboBox;
-	private static final Logger myLogger = Logger
-			.getLogger(MyProxyProxyCreatorPanel.class.getName());
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(MyProxyProxyCreatorPanel.class);
 
 	public static final Integer[] DEFAULT_PROXY_LIFETIME_VALUES = new Integer[] {
-			1, 2, 3, 7, 14, 21 };
+		1, 2, 3, 7, 14, 21 };
 
 	private MyProxy myproxy = null;
 

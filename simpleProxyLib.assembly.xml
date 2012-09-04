@@ -1,5 +1,5 @@
 <assembly>
-	<id>lib</id>
+	<id>bin</id>
 	<formats>
 <!--				<format>dir</format>-->
 		<!--		<format>zip</format>-->
@@ -15,7 +15,7 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<outputDirectory>/</outputDirectory>
 			<includes>
-				<include>au.org.arcs.auth:simpleProxyLib</include>
+				<include>grith:jgrith</include>
 			</includes>
 			<excludes>
 				<exclude>junit:junit</exclude>
@@ -30,6 +30,7 @@
 					<exclude>**/LICENSE</exclude>
 					<exclude>**/NOTICE</exclude>
 					<exclude>log4j.properties</exclude>
+					<exclude>logback.xml</exclude>
 					<exclude>certificates.zip</exclude>
 					<exclude>vomses.zip</exclude>
 					<exclude>arcs/__init__.py</exclude>
@@ -69,7 +70,7 @@
 <!--	</dependencySets>-->
 	<files>
 		<file>
-			<source>log4j.properties</source>
+			<source>src/main/resources/logback.xml</source>
 			<outputDirectory></outputDirectory>
 		</file>
 		<file>

@@ -23,7 +23,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInfoPanel extends JPanel implements
-		CredentialStatusListener, ProxyInitListener {
+CredentialStatusListener, ProxyInitListener {
 
 	private static final String BORDER_DEFAULT_TITLE = "Status of current proxy";
 
@@ -36,7 +36,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 
 		int start = dn.toLowerCase().indexOf("cn=") + 3;
 		int end = dn.toLowerCase().indexOf(",cn=proxy");
-		if (end == -1 || end <= start) {
+		if ((end == -1) || (end <= start)) {
 			end = dn.length() - 1;
 		}
 		return dn.substring(start, end);
@@ -66,9 +66,9 @@ public class VomsProxyInfoPanel extends JPanel implements
 		super();
 		setBorder(BORDER_DEFAULT_TITLE);
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC, new ColumnSpec("65dlu"),
+				FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("65dlu"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				new ColumnSpec("default:grow(1.0)"),
+				ColumnSpec.decode("default:grow(1.0)"),
 				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
@@ -89,6 +89,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 		updateStatus();
 	}
 
+	@Override
 	public void credentialStatusChanged(CredentialStatusEvent event) {
 
 		if (event.getType() == CredentialStatusEvent.CREDENTIAL_EXPIRED) {
@@ -198,6 +199,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 		return voTextField;
 	}
 
+	@Override
 	public void proxyCreated(GlobusCredential newProxy) {
 		if (timer != null) {
 			timer.cancel();
@@ -207,6 +209,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 		updateStatus();
 	}
 
+	@Override
 	public void proxyDestroyed() {
 		updateStatus();
 	}
@@ -233,7 +236,7 @@ public class VomsProxyInfoPanel extends JPanel implements
 	private void setVomsProxyDetails() {
 
 		String defaultFqan = vomsProxy.getDefaultFqan(false);
-		if (defaultFqan == null || "".equals(defaultFqan)) {
+		if ((defaultFqan == null) || "".equals(defaultFqan)) {
 			getVoTextField().setText(ERROR_GETTING_VO_INFO);
 			getDetailsButton().setEnabled(false);
 		}

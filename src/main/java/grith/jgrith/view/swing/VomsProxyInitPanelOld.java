@@ -17,13 +17,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
 
 public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 
-	static final Logger myLogger = Logger.getLogger(VomsProxyInitPanelOld.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxyInitPanelOld.class
 			.getName());
 
 	private JLabel createAVomsLabel;

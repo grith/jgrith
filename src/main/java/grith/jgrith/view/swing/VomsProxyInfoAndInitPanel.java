@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.LocalProxy;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,10 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.GlobusCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -22,9 +23,9 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInfoAndInitPanel extends JPanel implements
-		ProxyInitListener {
+ProxyInitListener {
 
-	static final Logger myLogger = Logger
+	static final Logger myLogger = LoggerFactory
 			.getLogger(VomsProxyInfoAndInitPanel.class.getName());
 
 	private VomsProxyInitPanel vomsProxyInitPanel;
@@ -41,10 +42,11 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 	 */
 	public VomsProxyInfoAndInitPanel() {
 		super();
-		setLayout(new FormLayout(new ColumnSpec[] { new ColumnSpec(
+		setLayout(new FormLayout(
+				new ColumnSpec[] { ColumnSpec.decode(
 				"default:grow(1.0)") }, new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
-				new RowSpec("default:grow(1.0)") }));
+						RowSpec.decode("default:grow(1.0)") }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1,
 				CellConstraints.FILL, CellConstraints.FILL));
 		add(getVomsProxyInitPanel(), new CellConstraints(1, 3,
@@ -61,8 +63,9 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
@@ -83,7 +86,7 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -136,6 +139,7 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 		fireNewProxyCreated(credential);
 	}
 
+	@Override
 	public void proxyCreated(GlobusCredential newProxy) {
 
 		fireNewProxyCreated(newProxy);
@@ -153,6 +157,7 @@ public class VomsProxyInfoAndInitPanel extends JPanel implements
 
 	}
 
+	@Override
 	public void proxyDestroyed() {
 		// TODO Auto-generated method stub
 

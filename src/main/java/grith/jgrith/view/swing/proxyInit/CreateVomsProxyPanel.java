@@ -1,8 +1,8 @@
 package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.voms.VO;
+import grisu.model.info.dto.VO;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxy;
@@ -19,9 +19,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -31,16 +31,16 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class CreateVomsProxyPanel extends JPanel {
 
-	private static final Logger myLogger = Logger
-			.getLogger(CreateVomsProxyPanel.class.getName());
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(CreateVomsProxyPanel.class);
 
 	private JButton joinVoButton;
 	private JComboBox comboBox;
 	private JLabel label;
 
-	private DefaultComboBoxModel voModel = new DefaultComboBoxModel();
+	private final DefaultComboBoxModel voModel = new DefaultComboBoxModel();
 
-	Map<String, String> allFqans = null;
+	Map<String, VO> allFqans = null;
 
 	Thread fillThread = null;
 
@@ -77,6 +77,7 @@ public class CreateVomsProxyPanel extends JPanel {
 	private void createVomsProxy() {
 
 		new Thread() {
+			@Override
 			public void run() {
 				try {
 
@@ -85,7 +86,7 @@ public class CreateVomsProxyPanel extends JPanel {
 							.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					String fqan = (String) voModel.getSelectedItem();
 
-					VO vo = VOManagement.getVO(getAllFqans().get(fqan));
+					VO vo = getAllFqans().get(fqan);
 					long lifetime;
 					lifetime = CredentialHelpers.wrapGlobusCredential(proxy)
 							.getRemainingLifetime() * 1000;
@@ -98,14 +99,16 @@ public class CreateVomsProxyPanel extends JPanel {
 					denyComboboxUpdate = false;
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					myLogger.error(
+							"Can't create vomsProxy: "
+									+ e.getLocalizedMessage(), e);
 					CreateVomsProxyPanel.this.setCursor(Cursor
 							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					JOptionPane
-							.showMessageDialog(
-									CreateVomsProxyPanel.this,
-									"<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
-									"Voms error", JOptionPane.ERROR_MESSAGE);
+					.showMessageDialog(
+							CreateVomsProxyPanel.this,
+							"<html><body>Error when trying to contact VOMRS.<br><br>This is a know bug. Destroy your proxy and try again until it works...</body></html>",
+							"Voms error", JOptionPane.ERROR_MESSAGE);
 					enablePanel(true);
 					return;
 				} finally {
@@ -130,11 +133,12 @@ public class CreateVomsProxyPanel extends JPanel {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		} else {
 
-			if (fillThread != null && fillThread.isAlive()) {
+			if ((fillThread != null) && fillThread.isAlive()) {
 				// I know, I know, shouldn't do that...
 				fillThread.stop();
 			}
 			fillThread = new Thread() {
+				@Override
 				public void run() {
 
 					getComboBox().setEnabled(false);
@@ -186,7 +190,7 @@ public class CreateVomsProxyPanel extends JPanel {
 
 		//
 		// voModel.addElement(NON_VOMS_PROXY_NAME);
-		Map<String, String> tempAllFqans = getAllFqans();
+		Map<String, VO> tempAllFqans = getAllFqans();
 
 		if (tempAllFqans == null) {
 			throw new VomsException("Can't get list of fqans...");
@@ -202,7 +206,7 @@ public class CreateVomsProxyPanel extends JPanel {
 		}
 	}
 
-	private Map<String, String> getAllFqans() {
+	private Map<String, VO> getAllFqans() {
 
 		try {
 			proxy.verify();
@@ -266,7 +270,7 @@ public class CreateVomsProxyPanel extends JPanel {
 		if (proxy != null) {
 			enablePanel(true);
 		} else {
-			if (fillThread != null && fillThread.isAlive()) {
+			if ((fillThread != null) && fillThread.isAlive()) {
 				// I'm being a bad boy again...
 				fillThread.stop();
 			}

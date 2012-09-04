@@ -19,18 +19,20 @@
 package grith.jgrith.vomsProxy;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.voms.VO;
+import grisu.jcommons.exceptions.CredentialException;
+import grisu.model.info.dto.VO;
+import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x509.AttributeCertificate;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.tools.proxy.DefaultGridProxyModel;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A VomsProxy is a wrapper for a {@link GlobusCredential} that has got a voms
@@ -56,7 +58,7 @@ import org.ietf.jgss.GSSCredential;
  */
 public class VomsProxy {
 
-	static final Logger myLogger = Logger.getLogger(VomsProxy.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxy.class.getName());
 
 	/**
 	 * This one creates a voms proxy with the requested vo information and
@@ -76,7 +78,7 @@ public class VomsProxy {
 	 *             if something went wrong
 	 */
 	public static GSSCredential init(VO vo, String group, char[] passphrase,
-			int lifetime_in_hours) throws Exception {
+			int lifetime_in_hours) throws CredentialException {
 
 		VomsProxy vomsproxy = null;
 		try {
@@ -85,10 +87,10 @@ public class VomsProxy {
 		} catch (Exception e) {
 			LocalVomsProxy.myLogger.error("Could not create voms proxy: "
 					+ e.getMessage());
-			throw e;
+			throw new CredentialException(e);
 		}
 
-		if (vomsproxy == null || vomsproxy.getVomsProxyCredential() == null) {
+		if ((vomsproxy == null) || (vomsproxy.getVomsProxyCredential() == null)) {
 			LocalVomsProxy.myLogger.error("Voms proxy is null.");
 			throw new NullPointerException(
 					"VomsProxy or VomsProxyCredentail is null.");
@@ -99,7 +101,7 @@ public class VomsProxy {
 		} catch (GlobusCredentialException e) {
 			LocalVomsProxy.myLogger.error("Voms proxy is not valid: "
 					+ e.getMessage());
-			throw e;
+			throw new CredentialException(e);
 		}
 
 		return CredentialHelpers.wrapGlobusCredential(vomsproxy
@@ -125,7 +127,7 @@ public class VomsProxy {
 
 	private VomsProxyCredential vomsProxyCredential = null;
 
-	private AttributeCertificate ac = null;
+	private final AttributeCertificate ac = null;
 
 	private ArrayList<String> vomsInfo = null;
 

@@ -16,8 +16,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package grith.jgrith;
+package grith.jgrith.utils;
 
+import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.plainProxy.LocalProxy;
 
 import java.io.File;
@@ -26,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
@@ -35,10 +35,12 @@ import org.gridforum.jgss.ExtendedGSSCredential;
 import org.gridforum.jgss.ExtendedGSSManager;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CredentialHelpers {
 
-	static final Logger myLogger = Logger.getLogger(CredentialHelpers.class
+	static final Logger myLogger = LoggerFactory.getLogger(CredentialHelpers.class
 			.getName());
 
 	public static GSSCredential convertByteArrayToGSSCredential(byte[] data)
@@ -69,13 +71,22 @@ public class CredentialHelpers {
 	 * @param proxyFile
 	 *            the proxy file
 	 * @return the {@link GlobusCredential}
-	 * @throws GlobusCredentialException
+	 * @throws CredentialException
 	 *             if something goes wrong (e.g. the proxy is not a
 	 *             GlobusCredential
 	 */
 	public static GlobusCredential loadGlobusCredential(File proxyFile)
-			throws GlobusCredentialException {
-		return new GlobusCredential(proxyFile.toString());
+			throws CredentialException {
+		try {
+			return new GlobusCredential(proxyFile.toString());
+		} catch (GlobusCredentialException e) {
+			throw new CredentialException(e);
+		}
+	}
+
+	public static GSSCredential loadGssCredential(File proxyFile)
+			throws CredentialException {
+		return wrapGlobusCredential(loadGlobusCredential(proxyFile));
 	}
 
 	/**
@@ -157,8 +168,8 @@ public class CredentialHelpers {
 		myLogger.debug("Save proxy file: " + proxyFile);
 		try {
 			out = new FileOutputStream(proxyFile);
-			Util.setFilePermissions(proxyFile.toString(), 600);
 			globusCred.save(out);
+			Util.setFilePermissions(proxyFile.toString(), 600);
 		} catch (FileNotFoundException e) {
 			myLogger.error("Could not write credential to file "
 					+ proxyFile.getAbsolutePath() + ": " + e.getMessage());
@@ -187,8 +198,8 @@ public class CredentialHelpers {
 	 * @throws IOException
 	 *             if something's wonky with the file / file permission
 	 */
-	public static void writeToDisk(GSSCredential gssCred) throws IOException,
-			GSSException {
+	public static void writeToDisk(GSSCredential gssCred)
+			throws CredentialException {
 		writeToDisk(gssCred, new File(LocalProxy.PROXY_FILE));
 	}
 
@@ -205,15 +216,20 @@ public class CredentialHelpers {
 	 *             if something is strange with the {@link GSSCredential}
 	 */
 	public static void writeToDisk(GSSCredential gssCred, File proxyFile)
-			throws IOException, GSSException {
+			throws CredentialException {
 
-		byte[] data = convertGSSCredentialToByteArray(gssCred);
-		String path = proxyFile.getPath();
-		Util.setFilePermissions(proxyFile.toString(), 600);
+		byte[] data;
+		try {
+			data = convertGSSCredentialToByteArray(gssCred);
 
-		FileOutputStream out = new FileOutputStream(path);
-		out.write(data);
+			String path = proxyFile.getPath();
 
+			FileOutputStream out = new FileOutputStream(path);
+			out.write(data);
+			Util.setFilePermissions(proxyFile.toString(), 600);
+		} catch (Exception e) {
+			throw new CredentialException(e);
+		}
 	}
 
 }

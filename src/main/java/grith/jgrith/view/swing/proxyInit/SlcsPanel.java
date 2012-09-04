@@ -3,18 +3,18 @@ package grith.jgrith.view.swing.proxyInit;
 import grisu.jcommons.commonInterfaces.HttpProxyInfoHolder;
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
 import grisu.jcommons.commonInterfaces.ProxyCreatorPanel;
+import grisu.jcommons.exceptions.CredentialException;
 import grisu.jcommons.interfaces.IdpListener;
 import grisu.jcommons.interfaces.SlcsListener;
 import grith.gsindl.SLCS;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.sibboleth.ShibListener;
 import grith.sibboleth.ShibLoginPanel;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -26,7 +26,8 @@ import javax.swing.JPanel;
 
 import org.ietf.jgss.GSSCredential;
 import org.python.core.PyInstance;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -34,7 +35,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class SlcsPanel extends JPanel implements SlcsListener,
-		ProxyCreatorPanel, ShibListener, IdpListener {
+ProxyCreatorPanel, ShibListener, IdpListener {
+
+	private static final Logger myLogger = LoggerFactory.getLogger(SlcsPanel.class
+			.getName());
+
 	private ShibLoginPanel shibLoginPanel;
 	private JButton button;
 
@@ -152,19 +157,19 @@ public class SlcsPanel extends JPanel implements SlcsListener,
 						.unwrapGlobusCredential(proxy));
 			}
 
-		} catch (GeneralSecurityException e) {
+		} catch (CredentialException e) {
 
 			if (holder != null) {
 				holder.proxyCreationFailed(e.getLocalizedMessage());
 			}
-			e.printStackTrace();
+			myLogger.error("SLCS login could not be completed.", e);
 		}
 
 	}
 
 	public void slcsLoginFailed(String message, Exception optionalException) {
 
-		optionalException.printStackTrace();
+		myLogger.error("SLCS login failed.", optionalException);
 		enablePanel(true);
 
 		if (holder != null) {

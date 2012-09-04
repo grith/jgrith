@@ -85,6 +85,7 @@ public class MyProxyDownloadDialog extends JDialog {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
 			cancelButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					cred = null;
 					dispose();
@@ -110,6 +111,7 @@ public class MyProxyDownloadDialog extends JDialog {
 		if (downloadButton == null) {
 			downloadButton = new JButton();
 			downloadButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					String username = getTextField().getText();
 
@@ -150,8 +152,8 @@ public class MyProxyDownloadDialog extends JDialog {
 								MyProxyDownloadDialog.this,
 								"Could not download proxy:\n\n"
 										+ e1.getLocalizedMessage(),
-								"Proxy download error",
-								JOptionPane.ERROR_MESSAGE);
+										"Proxy download error",
+										JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 
@@ -192,18 +194,19 @@ public class MyProxyDownloadDialog extends JDialog {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(
-					new ColumnSpec[] { new ColumnSpec("left:16dlu"),
+new ColumnSpec[] {
+					ColumnSpec.decode("left:16dlu"),
 							FormFactory.DEFAULT_COLSPEC,
 							FormFactory.RELATED_GAP_COLSPEC,
-							new ColumnSpec("default:grow(1.0)"),
+					ColumnSpec.decode("default:grow(1.0)"),
 							FormFactory.RELATED_GAP_COLSPEC,
 							FormFactory.DEFAULT_COLSPEC,
-							new ColumnSpec("left:18dlu") }, new RowSpec[] {
-							new RowSpec("top:15dlu"),
+					ColumnSpec.decode("left:18dlu") }, new RowSpec[] {
+					RowSpec.decode("top:15dlu"),
 							FormFactory.DEFAULT_ROWSPEC,
-							new RowSpec("top:9dlu"),
+					RowSpec.decode("top:9dlu"),
 							FormFactory.DEFAULT_ROWSPEC,
-							new RowSpec("top:11dlu"),
+					RowSpec.decode("top:11dlu"),
 							FormFactory.DEFAULT_ROWSPEC }));
 			panel.add(getLabel(), new CellConstraints(2, 2,
 					CellConstraints.RIGHT, CellConstraints.DEFAULT));

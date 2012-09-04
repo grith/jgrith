@@ -10,9 +10,14 @@ import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 
 import org.globus.common.CoGProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class GenericProxyInitDialog extends JDialog {
+
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(GenericProxyInitDialog.class);
 
 	/**
 	 * Launch the application
@@ -34,13 +39,14 @@ public class GenericProxyInitDialog extends JDialog {
 				try {
 					GenericProxyInitDialog dialog = new GenericProxyInitDialog();
 					dialog.addWindowListener(new WindowAdapter() {
+						@Override
 						public void windowClosing(WindowEvent e) {
 							System.exit(0);
 						}
 					});
 					dialog.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					myLogger.error(e.getLocalizedMessage());
 				}
 			}
 		});

@@ -1,7 +1,7 @@
 package start;
 
-import grith.jgrith.control.CertificateFiles;
-import grith.jgrith.control.VomsesFiles;
+import grith.jgrith.utils.CertificateFiles;
+import grith.jgrith.utils.VomsesFiles;
 import grith.jgrith.view.swing.MyProxyUpAndDownloadPanel;
 import grith.jgrith.view.swing.VomsProxyInfoAndInitPanel;
 
@@ -13,7 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -34,7 +35,7 @@ public class VomsProxyInit {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 
 			try {
-				VomsesFiles.copyVomses();
+				VomsesFiles.copyVomses(null);
 				CertificateFiles.copyCACerts(true);
 			} catch (Exception e) {
 				myLogger.error("Could not copy ca certs: "
@@ -51,7 +52,7 @@ public class VomsProxyInit {
 
 	private MyProxyUpAndDownloadPanel myProxyUpAndDownloadPanel;
 
-	static final Logger myLogger = Logger.getLogger(VomsProxyInit.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxyInit.class
 			.getName());
 	private MyProxyUpAndDownloadPanel myProxyPanel;
 	private JPanel panel;
@@ -107,11 +108,11 @@ public class VomsProxyInit {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
 					FormFactory.RELATED_GAP_COLSPEC,
-					new ColumnSpec("312px:grow(1.0)"),
+					ColumnSpec.decode("312px:grow(1.0)"),
 					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
 					FormFactory.RELATED_GAP_ROWSPEC,
-					new RowSpec("271px:grow(1.0)"),
-					FormFactory.RELATED_GAP_ROWSPEC, new RowSpec("default"),
+					RowSpec.decode("271px:grow(1.0)"),
+					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
 					FormFactory.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
 					"2, 2, fill, fill"));

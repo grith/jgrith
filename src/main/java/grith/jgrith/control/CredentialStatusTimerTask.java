@@ -6,8 +6,13 @@ import java.util.Vector;
 
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CredentialStatusTimerTask extends TimerTask {
+
+	static final Logger myLogger = LoggerFactory
+			.getLogger(CredentialStatusTimerTask.class);
 
 	private GlobusCredential proxy = null;
 
@@ -22,14 +27,15 @@ public class CredentialStatusTimerTask extends TimerTask {
 	// register a listener
 	synchronized public void addCredentialStatusListener(
 			CredentialStatusListener l) {
-		if (mountPointsListeners == null)
+		if (mountPointsListeners == null) {
 			mountPointsListeners = new Vector<CredentialStatusListener>();
+		}
 		mountPointsListeners.addElement(l);
 	}
 
 	private void fireCredentialStatusEvent(GlobusCredential credential, int type) {
 		// if we have no credentialListeners, do nothing...
-		if (mountPointsListeners != null && !mountPointsListeners.isEmpty()) {
+		if ((mountPointsListeners != null) && !mountPointsListeners.isEmpty()) {
 			// create the event object to send
 			CredentialStatusEvent event = null;
 			event = new CredentialStatusEvent(credential, type);
@@ -46,8 +52,7 @@ public class CredentialStatusTimerTask extends TimerTask {
 				try {
 					l.credentialStatusChanged(event);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					myLogger.error(e1.getLocalizedMessage());
 				}
 			}
 		}

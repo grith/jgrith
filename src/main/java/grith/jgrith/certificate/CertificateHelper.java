@@ -1,5 +1,5 @@
 /* Copyright 2006 VPAC
- * 
+ *
  * This file is part of proxy_light.
  * proxy_light is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +26,12 @@ import java.security.InvalidKeyException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
 import org.globus.common.CoGProperties;
 import org.globus.gsi.CertUtil;
 import org.globus.gsi.OpenSSLKey;
 import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Some very low-level helper methods. Just to illustrate how it works.
@@ -40,7 +41,7 @@ import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
  */
 public class CertificateHelper {
 
-	static final Logger myLogger = Logger.getLogger(CertificateHelper.class
+	static final Logger myLogger = LoggerFactory.getLogger(CertificateHelper.class
 			.getName());
 
 	/**
@@ -194,6 +195,20 @@ public class CertificateHelper {
 			throws GeneralSecurityException {
 		return CertUtil.loadCertificate(new ByteArrayInputStream(pemCert
 				.getBytes()));
+	}
+
+	/**
+	 * Checks whether usercert and key files exist.
+	 * 
+	 * @return true or false
+	 */
+	public static boolean userCertExists() {
+		if (getUserCert().exists() && getUserCert().canRead()
+				&& getUserKey().exists() && getUserKey().canRead()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

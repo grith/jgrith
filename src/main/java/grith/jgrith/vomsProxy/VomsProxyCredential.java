@@ -13,7 +13,8 @@ package grith.jgrith.vomsProxy;
 
 import gridpp.portal.voms.VOMSAttributeCertificate;
 import gridpp.portal.voms.VincenzoBase64;
-import grith.jgrith.voms.VO;
+import grisu.jcommons.exceptions.CredentialException;
+import grisu.model.info.dto.VO;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -27,7 +28,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -50,6 +50,8 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The actual credential that is build of a GlobusCredential and an
@@ -70,7 +72,7 @@ import org.ietf.jgss.GSSManager;
  */
 public class VomsProxyCredential {
 
-	static final Logger myLogger = Logger.getLogger(VomsProxyCredential.class
+	static final Logger myLogger = LoggerFactory.getLogger(VomsProxyCredential.class
 			.getName());
 
 	/**
@@ -96,7 +98,7 @@ public class VomsProxyCredential {
 				try {
 
 					byte[] payload = x509
-					.getExtensionValue("1.3.6.1.4.1.8005.100.100.5");
+							.getExtensionValue("1.3.6.1.4.1.8005.100.100.5");
 
 					// Octet String encapsulation - see RFC 3280 section 4.1
 					payload = ((ASN1OctetString) new ASN1InputStream(
@@ -107,12 +109,12 @@ public class VomsProxyCredential {
 							new ByteArrayInputStream(payload)).readObject();
 
 					for (Enumeration e1 = acSequence.getObjects(); e1
-					.hasMoreElements();) {
+							.hasMoreElements();) {
 
 						ASN1Sequence seq2 = (ASN1Sequence) e1.nextElement();
 
 						for (Enumeration e2 = seq2.getObjects(); e2
-						.hasMoreElements();) {
+								.hasMoreElements();) {
 
 							AttributeCertificate ac = new AttributeCertificate(
 									(ASN1Sequence) e2.nextElement());
@@ -131,7 +133,7 @@ public class VomsProxyCredential {
 
 		} catch (Exception e) {
 			// e.printStackTrace();
-			myLogger.error(e);
+			myLogger.error("Could not extract AttributeCertificate.", e);
 		}
 
 		return acArrayList;
@@ -162,23 +164,27 @@ public class VomsProxyCredential {
 	// .getDefaultVO(), "G/" + VO.getDefaultVO().getVoName(), 10000);
 	// }
 
-	public VomsProxyCredential(GlobusCredential vomsProxy) throws Exception {
+	public VomsProxyCredential(GlobusCredential vomsProxy) throws CredentialException {
 
 		this.vomsProxy = vomsProxy;
 		// try to extract the first attribute credential (hopefully this is the
 		// voms one
-		ac = VomsProxyCredential.extractVOMSACs(vomsProxy).get(0);
-		if (ac == null) {
-			throw new Exception(
-			"Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
+		ArrayList<AttributeCertificate> acs = VomsProxyCredential.extractVOMSACs(vomsProxy);
+		if ( acs.size() == 0 ) {
+			throw new CredentialException("Credential is not voms enabled.");
 		}
+		ac = acs.get(0);
+		//		if (ac == null) {
+		//			throw new Exception(
+		//					"Could not extract Voms attribute certificate from this globus credential. Probably this is not a voms proxy.");
+		//		}
 
 		vomsac = new VOMSAttributeCertificate(ac);
 	}
 
 	public VomsProxyCredential(GlobusCredential gridProxy,
 			long lifetime_in_seconds, VO vo, String command, String order)
-	throws Exception {
+					throws Exception {
 		this.plainProxy = gridProxy;
 		this.vo = vo;
 		this.command = command;
@@ -219,7 +225,7 @@ public class VomsProxyCredential {
 	@Deprecated
 	public VomsProxyCredential(GlobusCredential gridProxy, VO vo,
 			String command, String order, int lifetime_in_hours)
-	throws Exception {
+					throws Exception {
 		this.plainProxy = gridProxy;
 		this.vo = vo;
 		this.command = command;
@@ -257,7 +263,7 @@ public class VomsProxyCredential {
 
 		// generate new VOMS proxy
 		BouncyCastleCertProcessingFactory factory = BouncyCastleCertProcessingFactory
-		.getDefault();
+				.getDefault();
 		vomsProxy = factory.createCredential(plainProxy.getCertificateChain(),
 				plainProxy.getPrivateKey(), plainProxy.getStrength(),
 				(int) plainProxy.getTimeLeft(), GSIConstants.DELEGATION_FULL,
@@ -288,8 +294,8 @@ public class VomsProxyCredential {
 				plainProxy, GSSCredential.INITIATE_ONLY);
 
 		ExtendedGSSContext context = (ExtendedGSSContext) manager
-		.createContext(null, GSSConstants.MECH_OID, clientCreds,
-				GSSContext.DEFAULT_LIFETIME);
+				.createContext(null, GSSConstants.MECH_OID, clientCreds,
+						GSSContext.DEFAULT_LIFETIME);
 
 		context.requestMutualAuth(true);
 		context.requestCredDeleg(false);
@@ -300,7 +306,7 @@ public class VomsProxyCredential {
 		context.setOption(GSSConstants.REJECT_LIMITED_PROXY, new Boolean(false));
 
 		GssSocket socket = (GssSocket) GssSocketFactory.getDefault()
-		.createSocket(vo.getHost(), vo.getPort(), context);
+				.createSocket(vo.getHost(), vo.getPort(), context);
 
 		socket.setWrapMode(GssSocket.GSI_MODE);
 		socket.setAuthorization(authorization);
@@ -313,14 +319,14 @@ public class VomsProxyCredential {
 		if ((order == null) || "".equals(order)) {
 			msg = new String(
 					"<?xml version=\"1.0\" encoding = \"US-ASCII\"?><voms><command>"
-					+ command + "</command><lifetime>" + lifetime
-					+ "</lifetime></voms>");
+							+ command + "</command><lifetime>" + lifetime
+							+ "</lifetime></voms>");
 		} else {
 			msg = new String(
 					"<?xml version=\"1.0\" encoding = \"US-ASCII\"?><voms><command>"
-					+ command + "</command><order>" + order
-					+ "</order><lifetime>" + lifetime
-					+ "</lifetime></voms>");
+							+ command + "</command><order>" + order
+							+ "</order><lifetime>" + lifetime
+							+ "</lifetime></voms>");
 		}
 
 		byte[] outToken = msg.getBytes();
@@ -373,7 +379,9 @@ public class VomsProxyCredential {
 			ac = new org.bouncycastle.asn1.x509.AttributeCertificate(acseq);
 
 		} catch (Exception e) {
-			myLogger.error(e);
+			myLogger.info(
+					"Could not get AttributeCertificate: {}. Probably means the user is not member of the VO.",
+					e.getLocalizedMessage());
 			throw new IOException(e);
 		}
 
@@ -414,10 +422,10 @@ public class VomsProxyCredential {
 			long milliseconds = vomsac.getTime();
 			if (milliseconds > 0) {
 				int hours = new Long(milliseconds / (1000 * 3600)).intValue();
-				int minutes = new Long((milliseconds - hours * 1000 * 3600)
+				int minutes = new Long((milliseconds - (hours * 1000 * 3600))
 						/ (1000 * 60)).intValue();
 				int seconds = new Long(
-						(milliseconds - (hours * 1000 * 3600 + minutes * 1000 * 60)) / 1000)
+						(milliseconds - ((hours * 1000 * 3600) + (minutes * 1000 * 60))) / 1000)
 				.intValue();
 				info.add("time left\t: " + hours + ":" + minutes + ":"
 						+ seconds);
@@ -434,7 +442,7 @@ public class VomsProxyCredential {
 			// info.addAll(vomsac.getVOMSFQANs());
 
 		} catch (Exception e) {
-			myLogger.error(e);
+			myLogger.error(e.getLocalizedMessage());
 			return null;
 		}
 		return info;

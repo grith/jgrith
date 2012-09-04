@@ -1,12 +1,12 @@
 package grith.jgrith.control;
 
-import grith.jgrith.CredentialHelpers;
+import grisu.model.info.dto.VO;
 import grith.jgrith.Environment;
 import grith.jgrith.certificate.CertificateHelper;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.plainProxy.PlainProxy;
-import grith.jgrith.voms.VO;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.vomsProxy.VomsProxy;
 
 import java.net.URL;
@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.myproxy.InitParams;
@@ -25,6 +24,8 @@ import org.globus.myproxy.MyProxy;
 import org.globus.myproxy.MyProxyException;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.Ostermiller.util.RandPass;
 
@@ -37,7 +38,7 @@ import com.Ostermiller.util.RandPass;
  */
 public class DirectMyProxyUpload {
 
-	static final Logger myLogger = Logger.getLogger(DirectMyProxyUpload.class
+	static final Logger myLogger = LoggerFactory.getLogger(DirectMyProxyUpload.class
 			.getName());
 
 	/**
@@ -80,6 +81,16 @@ public class DirectMyProxyUpload {
 			char[] myProxyPassphrase, String proxyname, String renewer,
 			String retriever, String description, int lifetime_in_seconds) {
 
+		return init(privateKeyPassphrase, myProxyServer, myProxyPort,
+				myProxyUsername, myProxyPassphrase, proxyname, renewer,
+				retriever, description, lifetime_in_seconds, true);
+	}
+
+	public static Map<String, char[]> init(char[] privateKeyPassphrase,
+			String myProxyServer, int myProxyPort, String myProxyUsername,
+			char[] myProxyPassphrase, String proxyname, String renewer,
+			String retriever, String description, int lifetime_in_seconds, boolean createUniqueMyProxy) {
+
 		GSSCredential proxy = null;
 
 		if (privateKeyPassphrase == null) {
@@ -98,8 +109,8 @@ public class DirectMyProxyUpload {
 
 			// create proxy from certificate / private key
 			try {
-				proxy = PlainProxy.init(privateKeyPassphrase,
-						(lifetime_in_seconds / 3600) + 1);
+				proxy = PlainProxy.init_lifetimeInSeconds(privateKeyPassphrase,
+						lifetime_in_seconds);
 			} catch (Exception e1) {
 				throw new RuntimeException(
 						"Could not create proxy from local certificate & private key: "
@@ -110,7 +121,7 @@ public class DirectMyProxyUpload {
 
 		return init(proxy, myProxyServer, myProxyPort, myProxyUsername,
 				myProxyPassphrase, proxyname, renewer, retriever, description,
-				lifetime_in_seconds);
+				lifetime_in_seconds, createUniqueMyProxy);
 	}
 
 	public static Map<String, char[]> init(GlobusCredential proxy,

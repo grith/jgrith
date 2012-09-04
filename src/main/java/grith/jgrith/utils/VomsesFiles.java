@@ -1,6 +1,4 @@
-package grith.jgrith.control;
-
-import grith.jgrith.Init;
+package grith.jgrith.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -9,17 +7,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 public class VomsesFiles {
 
-	static final Logger myLogger = Logger
-	.getLogger(VomsesFiles.class.getName());
+	static final Logger myLogger = LoggerFactory.getLogger(VomsesFiles.class
+			.getName());
 
-	public static final String[] VOMSES_TO_ACTIVATE = new String[] { "nz" };
+	public static final Set<String> DEFAULT_VOS = Sets.newHashSet("nz");
+
+	// public static final String[] VOMSES_TO_ACTIVATE = new String[] { "nz" };
 
 	public static final File AVAILABLE_VOMSES_DIR = new File(
 			System.getProperty("user.home"), ".glite" + File.separator
@@ -53,7 +59,8 @@ public class VomsesFiles {
 	 * 
 	 * @throws Exception
 	 */
-	public static void copyVomses() throws Exception {
+	public static void copyVomses(Collection<String> vomses_to_use)
+			throws Exception {
 
 		if (GLOBAL_VOMSES_DIR.exists() && GLOBAL_VOMSES_DIR.isDirectory()) {
 			myLogger.info("Using global vomses directory /etc/vomses.");
@@ -68,10 +75,16 @@ public class VomsesFiles {
 		int count;
 		byte data[] = new byte[BUFFER_SIZE];
 
-		InputStream in = Init.class.getResourceAsStream("/vomses.zip");
+		InputStream in = VomsesFiles.class.getResourceAsStream("/vomses.zip");
 		ZipInputStream vomsStream = new ZipInputStream(in);
 
 		BufferedOutputStream dest = null;
+
+		boolean add_all = false;
+		if (vomses_to_use == null) {
+			add_all = true;
+			vomses_to_use = new HashSet<String>();
+		}
 
 		try {
 
@@ -85,25 +98,25 @@ public class VomsesFiles {
 					File vomses_file = new File(AVAILABLE_VOMSES_DIR,
 							voms.getName());
 
-					if (!vomses_file.exists() || "ARCS".equals(voms.getName())) {
-
-						// Write the file to the file system
-						FileOutputStream fos = new FileOutputStream(vomses_file);
-						dest = new BufferedOutputStream(fos, BUFFER_SIZE);
-						while ((count = vomsStream.read(data, 0, BUFFER_SIZE)) != -1) {
-							dest.write(data, 0, count);
-						}
-						dest.flush();
-						dest.close();
+					if (add_all) {
+						vomses_to_use.add(voms.getName());
 					}
-
+					// Write the file to the file system
+					FileOutputStream fos = new FileOutputStream(vomses_file);
+					dest = new BufferedOutputStream(fos, BUFFER_SIZE);
+					while ((count = vomsStream.read(data, 0, BUFFER_SIZE)) != -1) {
+						dest.write(data, 0, count);
+					}
+					dest.flush();
+					dest.close();
 				}
+
 			}
 
-			for (String vomsFile : VOMSES_TO_ACTIVATE) {
+			for (String vomsFile : vomses_to_use) {
 				File source = new File(AVAILABLE_VOMSES_DIR, vomsFile);
 				File target = new File(USER_VOMSES_DIR, vomsFile);
-				if (target.exists() || "nz".equals(source.getName())) {
+				if (source.exists()) {
 					copyFile(source, target);
 				} else {
 					myLogger.error("Could not activate VO: " + vomsFile
@@ -114,7 +127,7 @@ public class VomsesFiles {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
-			myLogger.error(e);
+			myLogger.error("Can't copy vomses files.", e);
 		}
 	}
 
@@ -131,8 +144,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-						+ USER_VOMSES_DIR.toString()
-						+ " to be created.");
+								+ USER_VOMSES_DIR.toString()
+								+ " to be created.");
 			}
 		}
 
@@ -141,8 +154,8 @@ public class VomsesFiles {
 				myLogger.error("Could not create available_vomses directory.");
 				throw new Exception(
 						"Could not create vomses directory. Please set permissions for "
-						+ AVAILABLE_VOMSES_DIR.toString()
-						+ " to be created.");
+								+ AVAILABLE_VOMSES_DIR.toString()
+								+ " to be created.");
 			}
 		}
 	}

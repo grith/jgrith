@@ -1,8 +1,8 @@
 package grith.jgrith.view.swing.proxyInit;
 
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
-import grith.jgrith.CredentialHelpers;
 import grith.jgrith.plainProxy.PlainProxy;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.view.swing.Utils;
 
 import java.awt.Cursor;

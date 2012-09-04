@@ -16,10 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.MyProxy;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -28,14 +28,14 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class GenericProxyCreationPanel extends JPanel implements
-		ProxyCreatorHolder, ProxyDestructorHolder {
+ProxyCreatorHolder, ProxyDestructorHolder {
 
 	private OtherActionsPanel otherActionsPanel;
 	private JPanel panel;
 	private CreateVomsProxyPanel createVomsProxyPanel;
 	private VomsProxyInfoPanel vomsProxyInfoPanel;
-	private static final Logger myLogger = Logger
-			.getLogger(GenericProxyCreationPanel.class.getName());
+	private static final Logger myLogger = LoggerFactory
+			.getLogger(GenericProxyCreationPanel.class);
 
 	private MyProxyProxyCreatorPanel myProxyProxyCreatorPanel;
 	private LocalX509CertProxyCreatorPanel localX509CertProxyCreatorPanel;
@@ -52,7 +52,8 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private JTabbedPane tabbedPane;
 	private JButton button;
 
-	private boolean useShib, useX509, useMyProxy, displayOtherAction = true;
+	private final boolean useShib, useX509, useMyProxy;
+	private boolean displayOtherAction = true;
 
 	// -------------------------------------------------------------------
 	// EventStuff
@@ -84,8 +85,9 @@ public class GenericProxyCreationPanel extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
@@ -97,7 +99,7 @@ public class GenericProxyCreationPanel extends JPanel implements
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -218,9 +220,8 @@ public class GenericProxyCreationPanel extends JPanel implements
 				shibProxyCreatorPanel.setProxyCreatorHolder(this);
 
 			} catch (Exception e) {
-				e.printStackTrace();
 				myLogger.error("Can't create shibProxyPanel: "
-						+ e.getLocalizedMessage());
+						+ e.getLocalizedMessage(), e);
 				throw new RuntimeException(
 						"Can't create shibboleth authentication panel.", e);
 			}
@@ -240,7 +241,7 @@ public class GenericProxyCreationPanel extends JPanel implements
 					tabbedPane.addTab(SHIB_TAB_NAME,
 							getShibbolethProxyCreatorPanel().getPanel());
 					getShibbolethProxyCreatorPanel()
-							.setProxyCreatorHolder(this);
+					.setProxyCreatorHolder(this);
 				}
 			}
 			if (useX509) {

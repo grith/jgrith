@@ -1,7 +1,7 @@
 package grith.jgrith.view.swing;
 
-import grith.jgrith.CredentialHelpers;
-import grith.jgrith.voms.VO;
+import grisu.model.info.dto.VO;
+import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.voms.VOManagement.VOManagement;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxy;
@@ -24,8 +24,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
 import org.globus.gsi.GlobusCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -34,7 +35,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class X509AndShibVomsProxyInitPanel extends JPanel implements
-		ProxyInitListener {
+ProxyInitListener {
 
 	private JLabel passwordLabel;
 	private JLabel usernameLabel;
@@ -42,8 +43,8 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 	private JPanel shibbolethPanel;
 	private JTabbedPane tabbedPane_1;
 	private JPanel panel;
-	static final Logger myLogger = Logger
-			.getLogger(X509AndShibVomsProxyInitPanel.class.getName());
+	static final Logger myLogger = LoggerFactory
+			.getLogger(X509AndShibVomsProxyInitPanel.class);
 
 	public static final String NON_VOMS_PROXY_NAME = "None";
 
@@ -58,18 +59,18 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 	private JLabel label_1;
 
 	public static final Integer[] DEFAULT_LIFETIMES = new Integer[] { 1, 2, 3,
-			7, 14, 21 };
+		7, 14, 21 };
 	public static final String DEFAULT_TITLE = "Authentication";
 
-	private DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
+	private final DefaultComboBoxModel lifetimeModel = new DefaultComboBoxModel(
 			DEFAULT_LIFETIMES);
-	private DefaultComboBoxModel voModel = new DefaultComboBoxModel();
+	private final DefaultComboBoxModel voModel = new DefaultComboBoxModel();
 
 	private GlobusCredential credential = null;
 	private VomsProxy currentVomsProxy = null;
 	// Map<VO, Set<String>> info = null;
 
-	Map<String, String> allFqans = null;
+	Map<String, VO> allFqans = null;
 
 	boolean ignoreErrors = true;
 
@@ -107,8 +108,9 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 
 	// register a listener
 	synchronized public void addProxyListener(ProxyInitListener l) {
-		if (proxyListeners == null)
+		if (proxyListeners == null) {
 			proxyListeners = new Vector();
+		}
 		proxyListeners.addElement(l);
 	}
 
@@ -135,7 +137,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 	private void fireNewProxyCreated(GlobusCredential proxy) {
 
 		// if we have no mountPointsListeners, do nothing...
-		if (proxyListeners != null && !proxyListeners.isEmpty()) {
+		if ((proxyListeners != null) && !proxyListeners.isEmpty()) {
 			// create the event object to send
 
 			// make a copy of the listener list in case
@@ -177,6 +179,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
+						@Override
 						public void run() {
 							try {
 								X509AndShibVomsProxyInitPanel.this.setCursor(Cursor
@@ -278,10 +281,10 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 					FormFactory.RELATED_GAP_COLSPEC,
 					FormFactory.DEFAULT_COLSPEC },
 					new RowSpec[] { FormFactory.DEFAULT_ROWSPEC,
-							FormFactory.RELATED_GAP_ROWSPEC,
-							FormFactory.DEFAULT_ROWSPEC,
-							FormFactory.RELATED_GAP_ROWSPEC,
-							RowSpec.decode("default") }));
+					FormFactory.RELATED_GAP_ROWSPEC,
+					FormFactory.DEFAULT_ROWSPEC,
+					FormFactory.RELATED_GAP_ROWSPEC,
+					RowSpec.decode("default") }));
 			shibbolethPanel.add(getIdpLabel(), new CellConstraints());
 			shibbolethPanel.add(getUsernameLabel(), new CellConstraints(1, 3));
 			shibbolethPanel.add(getPasswordLabel(), new CellConstraints(1, 5));
@@ -323,6 +326,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 				public void actionPerformed(final ActionEvent e) {
 
 					new Thread() {
+						@Override
 						public void run() {
 							try {
 								X509AndShibVomsProxyInitPanel.this.setCursor(Cursor
@@ -339,7 +343,7 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 								//
 								// } else {
 
-								VO vo = VOManagement.getVO(allFqans.get(fqan));
+								VO vo = allFqans.get(fqan);
 								long lifetime;
 
 								lifetime = CredentialHelpers
@@ -444,8 +448,9 @@ public class X509AndShibVomsProxyInitPanel extends JPanel implements
 
 	public void setLifetimes(Integer[] values) {
 		lifetimeModel.removeAllElements();
-		for (Integer value : values)
+		for (Integer value : values) {
 			lifetimeModel.addElement(value);
+		}
 
 	}
 
