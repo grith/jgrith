@@ -11,6 +11,7 @@ import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
 import grith.jgrith.credential.Credential.PROPERTY;
+import grith.jgrith.utils.CommandlineArgumentHelpers;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,10 @@ public class GridLoginParameters {
 
 		// GridLoginParameters glp = new GridLoginParameters();
 		try {
-			JCommander jc = new JCommander(params, args);
+			
+			String[] gridArgs = CommandlineArgumentHelpers.extractGridParameters(params, args);
+			
+			JCommander jc = new JCommander(params, gridArgs);
 
 			if (params.isHelp()) {
 				jc.usage();
