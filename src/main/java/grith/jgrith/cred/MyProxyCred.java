@@ -32,8 +32,7 @@ public class MyProxyCred extends AbstractCred {
 			"Please specify the MyProxy host", false);
 	protected int myproxyPort = 7512;
 	
-	private boolean saveDetails = true;
-
+	
 	public MyProxyCred() {
 		this(null, null, null);
 	}
@@ -55,11 +54,15 @@ public class MyProxyCred extends AbstractCred {
 		this(username, password, host, GridEnvironment.getDefaultMyProxyPort());
 	}
 
-	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds) {
-		this(username, password, host, port);
+	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds, boolean saveProperties) {
+		this(username, password, host, port, saveProperties);
 		setProxyLifetimeInSeconds(lifetimeInSeconds);
 	}
 		
+	public MyProxyCred(String username, char[] password, String host, int port, boolean saveProperties) {
+		super(username, password, host, port, saveProperties);
+	}
+	
 	public MyProxyCred(String username, char[] password, String host, int port) {
 		super(username, password, host, port);
 
