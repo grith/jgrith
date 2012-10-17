@@ -2,7 +2,7 @@ package grith.jgrith.cred;
 
 import grisu.jcommons.constants.GridEnvironment;
 import grisu.jcommons.exceptions.CredentialException;
-import grith.jgrith.credential.Credential.PROPERTY;
+import grith.jgrith.cred.AbstractCred.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
 
 import java.io.File;

@@ -2,7 +2,6 @@ package grith.jgrith.cred;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.details.FileDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;

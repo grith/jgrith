@@ -5,12 +5,12 @@ import grisu.jcommons.configuration.CommonGridProperties.Property;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.certificate.CertificateHelper;
+import grith.jgrith.cred.AbstractCred.PROPERTY;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.utils.CommandlineArgumentHelpers;
 
 import java.util.List;

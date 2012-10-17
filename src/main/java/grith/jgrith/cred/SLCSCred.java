@@ -7,7 +7,6 @@ import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.sibboleth.CredentialManager;
 import grith.sibboleth.IdpObject;

@@ -10,7 +10,6 @@ import grith.jgrith.cred.callbacks.CliCallback;
 import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.CredDetail;
 import grith.jgrith.cred.details.LoginTypeDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CredentialHelpers;
@@ -44,6 +43,26 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractCred extends BaseCred implements Cred {
+	
+	public enum PROPERTY {
+		LoginType(LoginType.class), Username(String.class), Password(
+				char[].class), MyProxyHost(String.class), MyProxyPort(
+						Integer.class), VO(VO.class), FQAN(String.class), md5sum(
+								String.class), SlcsUrl(String.class), IdP(String.class), CertFile(
+										String.class), KeyFile(String.class), MyProxyPassword(
+												char[].class), MyProxyUsername(String.class), LifetimeInSeconds(
+														Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
+																Boolean.class);
+	private Class valueClass;
+
+	private PROPERTY(Class valueClass) {
+		this.valueClass = valueClass;
+	}
+
+	public Class getValueClass() {
+		return valueClass;
+	}
+}
 
 	class CredentialInvalid extends TimerTask {
 

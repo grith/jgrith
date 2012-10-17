@@ -6,7 +6,6 @@ import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
 
 import java.io.File;

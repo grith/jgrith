@@ -3,7 +3,6 @@ package grith.jgrith.cred;
 import grisu.jcommons.constants.Constants;
 import grisu.jcommons.exceptions.CredentialException;
 import grisu.model.info.dto.VO;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.utils.CredentialHelpers;
 import grith.jgrith.vomsProxy.VomsProxy;
 

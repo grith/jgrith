@@ -4,7 +4,6 @@ import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.details.FileDetail;
 import grith.jgrith.cred.details.PasswordDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.plainProxy.PlainProxy;
 
 import java.util.Map;

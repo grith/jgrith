@@ -46,7 +46,7 @@ public class SlcsLoginWrapper {
 
 			} catch (final Throwable e) {
 				myLogger.debug("Login: error loading list of idps (id:" + id
-						+ ")");
+						+ "): "+e.getLocalizedMessage());
 				throw e;
 			}
 
