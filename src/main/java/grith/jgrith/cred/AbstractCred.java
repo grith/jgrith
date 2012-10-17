@@ -475,6 +475,16 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return groupCache.get(fqan);
 
 	}
+	
+	public String getFqan() {
+		
+		if ( this instanceof GroupCred ) {
+			return ((GroupCred)this).getFqan();
+		} else {
+			return Constants.NON_VO_FQAN;
+		}
+		
+	}
 
 	/**
 	 * Creates a new, voms-enabled Credential object from an arbitrary VO.

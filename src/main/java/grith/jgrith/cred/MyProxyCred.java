@@ -53,6 +53,11 @@ public class MyProxyCred extends AbstractCred {
 		this(username, password, host, GridEnvironment.getDefaultMyProxyPort());
 	}
 
+	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds) {
+		this(username, password, host, port);
+		setProxyLifetimeInSeconds(lifetimeInSeconds);
+	}
+		
 	public MyProxyCred(String username, char[] password, String host, int port) {
 		super(username, password, host, port);
 
