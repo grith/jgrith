@@ -239,14 +239,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	public AbstractCred(String mpUsername, char[] mpPassword, String mpHost,
 			int mpPort) {
-		this(mpUsername, mpPassword, mpHost, mpPort, true);
+		super(mpUsername, mpPassword, mpHost, mpPort);
 	}
 
-	public AbstractCred(String mpUsername, char[] mpPassword, String mpHost,
-			int mpPort, boolean saveProperties) {
-		super(mpUsername, mpPassword, mpHost, mpPort);
-		setSaveDetails(saveProperties);
-	}
 
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		pcs.addPropertyChangeListener(l);
@@ -494,7 +489,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	public String getFqan() {
 		
 		if ( this instanceof GroupCred ) {
-			return ((GroupCred)this).getFqan();
+			return ((GroupCred)this).getGroup();
 		} else {
 			return Constants.NON_VO_FQAN;
 		}

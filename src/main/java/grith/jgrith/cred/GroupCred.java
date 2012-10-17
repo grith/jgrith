@@ -60,6 +60,10 @@ public class GroupCred extends AbstractCred {
 		// baseCred.init(config);
 
 	}
+	
+	protected String getGroup() {
+		return group;
+	}
 
 	@Override
 	public boolean isRenewable() {

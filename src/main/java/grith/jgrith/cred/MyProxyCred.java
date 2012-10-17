@@ -54,18 +54,21 @@ public class MyProxyCred extends AbstractCred {
 		this(username, password, host, GridEnvironment.getDefaultMyProxyPort());
 	}
 
-	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds, boolean saveProperties) {
-		this(username, password, host, port, saveProperties);
+	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds) {
+		this(username, password, host, port);
 		setProxyLifetimeInSeconds(lifetimeInSeconds);
 	}
 		
-	public MyProxyCred(String username, char[] password, String host, int port, boolean saveProperties) {
-		super(username, password, host, port, saveProperties);
+
+	public MyProxyCred(String username, char[] password, String host, int port) {
+		this(username, password, host, port, true);
 	}
 	
-	public MyProxyCred(String username, char[] password, String host, int port) {
+	public MyProxyCred(String username, char[] password, String host, int port, boolean saveProperties) {
+
 		super(username, password, host, port);
 
+		setSaveDetails(saveProperties);
 
 		Map<PROPERTY, Object> config = Maps.newHashMap();
 		config.put(PROPERTY.MyProxyUsername, username);
