@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public abstract class AbstractCred extends BaseCred implements Cred {
 
@@ -476,6 +477,14 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	}
 	
+	public void setSaveDetails(boolean save) {
+		
+		for ( CredDetail d : getDetails() ) {
+			d.setSaveToPropertiesFile(save);
+		}
+		
+	}
+	
 	public String getFqan() {
 		
 		if ( this instanceof GroupCred ) {
@@ -671,37 +680,48 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	public boolean isValid() {
 		return (getRemainingLifetime() > 0);
 	}
+	
+	private Set<CredDetail> getDetails() {
+		
+		Set<CredDetail> details = Sets.newLinkedHashSet();
+		
+		for (Field f : this.getClass().getDeclaredFields()) {
+			myLogger.debug("populating field: {}", f);
+			try {
+				Class c = f.get(this).getClass().getSuperclass();
+				if (CredDetail.class.equals(c)) {
+					CredDetail d = (CredDetail) f.get(this);
+					details.add(d);
+				}
+			} catch (Exception e) {
+				myLogger.debug("Error when trying to get field: {}, {}", f,
+						e.getLocalizedMessage());
+			}
+		}
+		return details;
+		
+	}
 
 	private void populate() {
 
 		if (!isPopulated) {
-
-			for (Field f : this.getClass().getDeclaredFields()) {
-				myLogger.debug("populating field: {}", f);
-				try {
-					Class c = f.get(this).getClass().getSuperclass();
-					if (CredDetail.class.equals(c)) {
-						CredDetail d = (CredDetail) f.get(this);
-						if (d.isSet()) {
-							myLogger.debug("field {} already set", f);
-						} else {
-							myLogger.debug(
-									"field {} not set, calling callback...",
-									f.toString());
-							getCallback().fill(d);
-							if (!d.isSet()) {
-								myLogger.debug(
-										"field {} still not set, callback failed...",
-										f);
-								throw new CredentialException(d.toString()
-										+ " not filled");
-							}
-						}
+			for ( CredDetail d : getDetails() ) {
+				if (d.isSet()) {
+					myLogger.debug("detail {} already set", d.getName());
+				} else {
+					myLogger.debug(
+							"detail {} not set, calling callback...",
+							d.getName());
+					getCallback().fill(d);
+					if (!d.isSet()) {
+						myLogger.debug(
+								"detail {} still not set, callback failed...",
+								d.getName());
+						throw new CredentialException(d.getName()
+								+ " not filled");
 					}
-				} catch (Exception e) {
-					myLogger.debug("Error when trying to get field: {}, {}", f,
-							e.getLocalizedMessage());
 				}
+
 			}
 
 			createGSSCredential();

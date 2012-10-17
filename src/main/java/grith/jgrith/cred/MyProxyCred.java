@@ -31,6 +31,8 @@ public class MyProxyCred extends AbstractCred {
 	protected StringDetail host = new StringDetail("MyProxy host",
 			"Please specify the MyProxy host", false);
 	protected int myproxyPort = 7512;
+	
+	private boolean saveDetails = true;
 
 	public MyProxyCred() {
 		this(null, null, null);
