@@ -36,6 +36,7 @@ import org.globus.myproxy.MyProxyException;
 import org.globus.util.Util;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
+import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -448,6 +449,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		}
 		return fqans;
 
+	}
+	
+	public Set<String> getAvailableGroups() {
+		return getAvailableFqans().keySet();
 	}
 
 	private AbstractCallback getCallback() {
