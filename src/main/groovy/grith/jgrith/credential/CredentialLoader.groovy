@@ -48,7 +48,6 @@ class CredentialLoader {
 					break
 				case LoginType.MYPROXY:
 					AbstractCred c = loadMyProxy(config)
-					c.init();
 					credentials.put(name, c)
 					break
 				case LoginType.LOCAL_PROXY:
