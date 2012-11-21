@@ -822,7 +822,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			this.localPath = path;
 
 			CredentialHelpers.writeToDisk(getGSSCredential(), new File(localPath));
-			if (isUploaded()) {
+			if (isUploaded() || this instanceof MyProxyCred) {
 				saveMyProxy(path);
 			} else {
 				FileUtils.deleteQuietly(new File(path
