@@ -19,6 +19,19 @@ import org.ietf.jgss.GSSCredential;
 import com.google.common.collect.Maps;
 
 public class MyProxyCred extends AbstractCred {
+	
+	public static MyProxyCred loadFromDefault() {
+		
+		File mpFile = new File(BaseCred.DEFAULT_MYPROXY_FILE_LOCATION);
+		
+		if ( ! mpFile.exists() ) {
+			throw new CredentialException("No myproxy credential cache file exists in: "+BaseCred.DEFAULT_MYPROXY_FILE_LOCATION);
+		}
+		
+		MyProxyCred mp = new MyProxyCred(mpFile);
+		return mp;
+		
+	}
 
 
 	protected StringDetail username = new StringDetail("MyProxy username",
@@ -162,6 +175,9 @@ public class MyProxyCred extends AbstractCred {
 	}
 
 	public void initFromFile(String path) {
+		
+		this.localMPPath = path;
+		this.localPath = path.substring(0, path.length()-BaseCred.DEFAULT_MYPROXY_FILE_EXTENSION.length());
 
 		myLogger.debug("Loading credential from file: " + path);
 		try {

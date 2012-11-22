@@ -166,6 +166,9 @@ public class ProxyCred extends AbstractCred {
 	public String saveProxy(String path) {
 
 		// do nothing, it's already saved
+		if ( isUploaded() ) {
+			saveMyProxy(path);
+		}
 
 		return this.localPath;
 

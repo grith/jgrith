@@ -662,7 +662,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		groupCache.clear();
 		groupPathCache.clear();
 		fqans = null;
-		localPath = null;
+		if ( StringUtils.isBlank(localPath) ) {
+			localPath = null;
+		}
 
 		if (invalidTask != null) {
 			invalidTask.cancel();
