@@ -88,7 +88,7 @@ public class MyProxyCred extends AbstractCred {
 		config.put(PROPERTY.MyProxyHost, host);
 		config.put(PROPERTY.MyProxyPort, port);
 
-//		init(config);
+		init(config);
 	}
 
 	public MyProxyCred(String username, String host) {

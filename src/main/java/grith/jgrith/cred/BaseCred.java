@@ -64,7 +64,7 @@ public class BaseCred {
 	private String myProxyHost;
 
 	private int myProxyPort = 7512;
-	protected String localMPPath = CoGProperties.getDefault().getProxyFile();
+	protected String localMPPath = DEFAULT_MYPROXY_FILE_LOCATION;
 
 	private int minLifetimeInSecondsBeforeReDownload = DEFAULT_MIN_LIFETIME_IN_SECONDS;
 

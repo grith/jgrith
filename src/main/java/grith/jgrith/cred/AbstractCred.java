@@ -663,7 +663,11 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		groupPathCache.clear();
 		fqans = null;
 		if ( StringUtils.isBlank(localPath) ) {
-			localPath = null;
+			if (! StringUtils.isBlank(localMPPath) ) {
+				localPath = localMPPath.substring(0, localMPPath.length()-BaseCred.DEFAULT_MYPROXY_FILE_EXTENSION.length());
+			} else {
+				localPath = null;
+			}
 		}
 
 		if (invalidTask != null) {
