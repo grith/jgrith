@@ -81,6 +81,8 @@ public class MyProxyCred extends AbstractCred {
 		super(username, password, host, port);
 
 		setSaveDetails(saveProperties);
+		
+		if ( StringUtils.isNotBlank(username) ) {
 
 		Map<PROPERTY, Object> config = Maps.newHashMap();
 		config.put(PROPERTY.MyProxyUsername, username);
@@ -89,6 +91,7 @@ public class MyProxyCred extends AbstractCred {
 		config.put(PROPERTY.MyProxyPort, port);
 
 		init(config);
+		}
 	}
 
 	public MyProxyCred(String username, String host) {
