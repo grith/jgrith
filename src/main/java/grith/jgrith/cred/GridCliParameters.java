@@ -39,7 +39,7 @@ public class GridCliParameters {
 	@Parameter(names = { "-x", "--x509" }, description = "x509 certificate login")
 	private boolean useX509;
 
-	@Parameter(names = { "-s", "--start-session" }, description = "start background session to hold and update credential (on Linux)")
+	@Parameter(names = { "-s", "--start-session" }, description = "start or use existing background session to hold and update credential (on Linux)")
 	private boolean startGridSession;
 
 	@Parameter(names = { "-h", "--help" }, description = "display this help text")
