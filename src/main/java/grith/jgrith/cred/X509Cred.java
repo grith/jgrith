@@ -2,6 +2,7 @@ package grith.jgrith.cred;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.callbacks.AbstractCallback;
+import grith.jgrith.cred.callbacks.StaticCallback;
 import grith.jgrith.cred.details.FileDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.plainProxy.PlainProxy;
@@ -73,7 +74,7 @@ public class X509Cred extends AbstractCred {
 		return keyFile.getValue();
 	}
 
-	public String getPw() {
+	public String getPassword() {
 		return new String(password.getValue());
 	}
 

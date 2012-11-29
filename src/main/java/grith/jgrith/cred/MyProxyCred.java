@@ -51,6 +51,7 @@ public class MyProxyCred extends AbstractCred {
 
 	public MyProxyCred(AbstractCallback callback) {
 		super(callback);
+		init();
 	}
 
 	public MyProxyCred(File mpFile) {

@@ -70,7 +70,6 @@ public class BaseCred {
 
 	private GSSCredential cachedMyProxyCredential = null;
 
-
 	public BaseCred() {
 		this(null, null, null, -1);
 	}
@@ -90,26 +89,27 @@ public class BaseCred {
 
 	public BaseCred(String un, char[] pw, String host, Integer port) {
 
-		Map<PROPERTY, Object> config = Maps.newHashMap();
-		config.put(PROPERTY.MyProxyUsername, un);
-		config.put(PROPERTY.MyProxyPassword, pw);
-		config.put(PROPERTY.MyProxyHost, host);
-		config.put(PROPERTY.MyProxyPort, port);
+		if (StringUtils.isNotBlank(un)) {
 
-		initMyProxy(config);
+			Map<PROPERTY, Object> config = Maps.newHashMap();
+			config.put(PROPERTY.MyProxyUsername, un);
+			config.put(PROPERTY.MyProxyPassword, pw);
+			config.put(PROPERTY.MyProxyHost, host);
+			config.put(PROPERTY.MyProxyPort, port);
+
+			initMyProxy(config);
+		}
 
 	}
 
 	public void destroyMyProxy() {
 
-
-		if ( StringUtils.isNotBlank(localMPPath) ) {
+		if (StringUtils.isNotBlank(localMPPath)) {
 			if (new File(localMPPath).exists()) {
 				myLogger.debug("Deleting proxy file " + localMPPath);
 				Util.destroy(localMPPath);
 			}
 		}
-
 
 		if (cachedMyProxyCredential != null) {
 			try {
@@ -118,7 +118,6 @@ public class BaseCred {
 				myLogger.debug("Error when disposing cached gss credential.", e);
 			}
 		}
-
 
 		Arrays.fill(getMyProxyPassword(), 'x');
 
@@ -269,11 +268,11 @@ public class BaseCred {
 		}
 
 		File proxyFile = new File(path);
-		if ( !proxyFile.exists() ) {
+		if (!proxyFile.exists()) {
 			myLogger.debug("No proxy file exists on {}", path);
 			throw new CredentialException(
 					"Can't save myproxy metadata, proxy file " + path
-					+ " does not exist.");
+							+ " does not exist.");
 		}
 
 		this.localMPPath = path + DEFAULT_MYPROXY_FILE_EXTENSION;
@@ -294,7 +293,6 @@ public class BaseCred {
 		prop.put(PROPERTY.MyProxyPort.toString(),
 				Integer.toString(getMyProxyPort()));
 
-
 		try {
 			prop.store(new FileOutputStream(mpProxyFile), null);
 			Util.setFilePermissions(mpProxyFile.getAbsolutePath(), 600);
@@ -311,9 +309,8 @@ public class BaseCred {
 		this.myProxyPassword = pw;
 	}
 
-
 	public void setMyProxyPort(int port) {
-			this.myProxyPort = port;
+		this.myProxyPort = port;
 	}
 
 	public void setMyProxyUsername(String username) {
