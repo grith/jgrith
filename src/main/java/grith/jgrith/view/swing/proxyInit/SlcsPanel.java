@@ -44,7 +44,7 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 	private JButton button;
 
 	private ProxyCreatorHolder holder = null;
-	private SLCS slcs = null;
+	private final SLCS slcs;
 
 	private String url;
 
@@ -75,6 +75,10 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 		enablePanel(false);
 		getShibLoginPanel().refreshIdpList();
 
+	}
+	
+	public void addSlcsListener(SlcsListener l) {
+		slcs.addSlcsListener(l);
 	}
 
 	private void enablePanel(boolean enable) {
