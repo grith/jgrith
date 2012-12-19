@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>jgrith</artifactId>
 	<groupId>grith</groupId>
-	<version>0.9-SNAPSHOT</version>
+	<version>0.9</version>
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
@@ -169,7 +169,7 @@
 		<dependency>
 			<groupId>grisu</groupId>
 			<artifactId>grid-jcommons</artifactId>
-			<version>${grid-jcommons.version}</version>
+			<version>2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
