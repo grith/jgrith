@@ -19,20 +19,21 @@ import org.ietf.jgss.GSSCredential;
 import com.google.common.collect.Maps;
 
 public class MyProxyCred extends AbstractCred {
-	
+
 	public static MyProxyCred loadFromDefault() {
-		
+
 		File mpFile = new File(BaseCred.DEFAULT_MYPROXY_FILE_LOCATION);
-		
-		if ( ! mpFile.exists() ) {
-			throw new CredentialException("No myproxy credential cache file exists in: "+BaseCred.DEFAULT_MYPROXY_FILE_LOCATION);
+
+		if (!mpFile.exists()) {
+			throw new CredentialException(
+					"No myproxy credential cache file exists in: "
+							+ BaseCred.DEFAULT_MYPROXY_FILE_LOCATION);
 		}
-		
+
 		MyProxyCred mp = new MyProxyCred(mpFile);
 		return mp;
-		
-	}
 
+	}
 
 	protected StringDetail username = new StringDetail("MyProxy username",
 			"Please enter the MyProxy username");
@@ -43,8 +44,7 @@ public class MyProxyCred extends AbstractCred {
 	protected StringDetail host = new StringDetail("MyProxy host",
 			"Please specify the MyProxy host", false);
 	protected int myproxyPort = 7512;
-	
-	
+
 	public MyProxyCred() {
 		this(null, null, null);
 	}
@@ -67,31 +67,47 @@ public class MyProxyCred extends AbstractCred {
 		this(username, password, host, GridEnvironment.getDefaultMyProxyPort());
 	}
 
-	public MyProxyCred(String username, char[] password, String host, int port, int lifetimeInSeconds) {
+	public MyProxyCred(String username, char[] password, String host, int port,
+			int lifetimeInSeconds) {
 		this(username, password, host, port);
 		setProxyLifetimeInSeconds(lifetimeInSeconds);
 	}
-		
 
 	public MyProxyCred(String username, char[] password, String host, int port) {
 		this(username, password, host, port, true);
 	}
+
+	public MyProxyCred(String username, char[] password, String host, int port,
+			boolean saveProperties) {
+		this(username, password, host, port, saveProperties, true);
+	}
+
+	public MyProxyCred(String username, char[] password, String host, int port,
+			boolean saveProperties, boolean saveProxyOnCreation) {
+		this(username, password, host, port, -1, saveProperties, saveProxyOnCreation);
+	}
 	
-	public MyProxyCred(String username, char[] password, String host, int port, boolean saveProperties) {
+	public MyProxyCred(String username, char[] password, String host, int port, int lifetime,
+				boolean saveProperties, boolean saveProxyOnCreation) {
 
 		super(username, password, host, port);
 
 		setSaveDetails(saveProperties);
+		setSaveProxyOnCreation(saveProxyOnCreation);
 		
-		if ( StringUtils.isNotBlank(username) ) {
+		if ( lifetime > 0 ) {
+			setProxyLifetimeInSeconds(lifetime);
+		}
 
-		Map<PROPERTY, Object> config = Maps.newHashMap();
-		config.put(PROPERTY.MyProxyUsername, username);
-		config.put(PROPERTY.MyProxyPassword, password);
-		config.put(PROPERTY.MyProxyHost, host);
-		config.put(PROPERTY.MyProxyPort, port);
+		if (StringUtils.isNotBlank(username)) {
 
-		init(config);
+			Map<PROPERTY, Object> config = Maps.newHashMap();
+			config.put(PROPERTY.MyProxyUsername, username);
+			config.put(PROPERTY.MyProxyPassword, password);
+			config.put(PROPERTY.MyProxyHost, host);
+			config.put(PROPERTY.MyProxyPort, port);
+
+			init(config);
 		}
 	}
 
@@ -179,9 +195,10 @@ public class MyProxyCred extends AbstractCred {
 	}
 
 	public void initFromFile(String path) {
-		
+
 		this.localMPPath = path;
-		this.localPath = path.substring(0, path.length()-BaseCred.DEFAULT_MYPROXY_FILE_EXTENSION.length());
+		this.localPath = path.substring(0, path.length()
+				- BaseCred.DEFAULT_MYPROXY_FILE_EXTENSION.length());
 
 		myLogger.debug("Loading credential from file: " + path);
 		try {
@@ -195,7 +212,6 @@ public class MyProxyCred extends AbstractCred {
 			for (Object o : props.keySet()) {
 
 				String key = (String) o;
-
 
 				PROPERTY p = PROPERTY.valueOf(key);
 				String value = props.getProperty(key);

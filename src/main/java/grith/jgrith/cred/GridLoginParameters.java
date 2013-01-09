@@ -174,7 +174,8 @@ public class GridLoginParameters {
 
 		return result;
 	}
-
+	
+	
 	public String getInstitution() {
 		return institution.getValue();
 	}

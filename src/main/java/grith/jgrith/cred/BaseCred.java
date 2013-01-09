@@ -244,6 +244,7 @@ public class BaseCred {
 		this.cachedMyProxyCredential = null;
 	}
 
+
 	public boolean isValidMyProxy() {
 		return (getRemainingLifetimeMyProxy() > 0);
 	}
@@ -262,7 +263,7 @@ public class BaseCred {
 	 *            the path for the proxy (.mp) will be appended
 	 */
 	public void saveMyProxy(String path) {
-
+		
 		if (StringUtils.isBlank(path)) {
 			path = DEFAULT_MYPROXY_FILE_LOCATION;
 		}
@@ -326,6 +327,7 @@ public class BaseCred {
 			this.myProxyUsername = username;
 		}
 	}
+
 
 	@Override
 	public String toString() {
