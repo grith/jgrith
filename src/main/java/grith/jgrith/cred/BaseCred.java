@@ -265,7 +265,7 @@ public class BaseCred {
 	public void saveMyProxy(String path) {
 		
 		if (StringUtils.isBlank(path)) {
-			path = DEFAULT_MYPROXY_FILE_LOCATION;
+			path = CoGProperties.getDefault().getProxyFile();
 		}
 
 		File proxyFile = new File(path);

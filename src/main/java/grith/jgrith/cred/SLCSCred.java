@@ -89,13 +89,14 @@ public class SLCSCred extends AbstractCred {
 		String idpTemp = (String) config.get(PROPERTY.IdP);
 		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
 		String unTemp = (String) config.get(PROPERTY.Username);
-
+		
 		if (StringUtils.isNotBlank(idpTemp)) {
 			idp.set(idpTemp);
 		}
 		if (StringUtils.isNotBlank(unTemp)) {
 			username.set(unTemp);
 		}
+
 		pw.set(pwTemp);
 
 	}

@@ -75,7 +75,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		LoginType(LoginType.class), Username(String.class), Password(
 				char[].class), MyProxyHost(String.class), MyProxyPort(
 				Integer.class), VO(VO.class), FQAN(String.class), md5sum(
-				String.class), SlcsUrl(String.class), IdP(String.class), CertFile(
+				String.class), SlcsUrl(String.class), SlcsResponse(String.class), IdP(String.class), CertFile(
 				String.class), KeyFile(String.class), MyProxyPassword(
 				char[].class), MyProxyUsername(String.class), LifetimeInSeconds(
 				Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
@@ -1022,6 +1022,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 					"Saving myproxy credential as part of myproxy upload. Path: {}",
 					this.localPath);
 			saveProxy();
+			saveMyProxy();
 		}
 	}
 
