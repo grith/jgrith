@@ -785,11 +785,23 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			return false;
 		}
 
-		int lt = getRemainingLifetime();
+		int lt = Integer.MIN_VALUE;
+		if ( cachedCredential != null ) {
+			try {
+				lt = cachedCredential.getRemainingLifetime();
+			} catch (GSSException e) {
+				e.printStackTrace();
+			}
+		}
 
 		createGSSCredential();
 
-		int newLt = getRemainingLifetime();
+		int newLt = Integer.MIN_VALUE;
+		try {
+			newLt = cachedCredential.getRemainingLifetime();
+		} catch (GSSException e) {
+			e.printStackTrace();
+		}
 
 		return (newLt > lt);
 
