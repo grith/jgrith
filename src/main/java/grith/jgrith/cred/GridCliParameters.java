@@ -30,7 +30,7 @@ public class GridCliParameters {
 	@Parameter(names = { "-u", "--username" }, description = "institution or myproxy username")
 	private String username;
 
-	@Parameter(names = { "-i", "--institution" }, description = "institution name")
+	@Parameter(names = { "--institution" }, description = "institution name")
 	private String institution;
 
 	@Parameter(names = { "-m", "--myproxy_host" }, description = "myproxy host to use")

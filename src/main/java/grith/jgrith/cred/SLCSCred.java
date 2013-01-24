@@ -19,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.ietf.jgss.GSSCredential;
 
 public class SLCSCred extends AbstractCred {
+	
+	public static final int DEFAULT_SLCS_MIN_LIFETIME = 86400;
 
 	protected StringDetail slcs_url = new StringDetail("SLCS url",
 			"Please provide the url for the SLCS server", false);
@@ -36,6 +38,7 @@ public class SLCSCred extends AbstractCred {
 		username.assignGridProperty(Property.SHIB_USERNAME);
 		idp.assignGridProperty(Property.SHIB_IDP);
 		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
+		setMinimumLifetime(DEFAULT_SLCS_MIN_LIFETIME);		
 	}
 
 	public SLCSCred(AbstractCallback callback) {
@@ -43,6 +46,7 @@ public class SLCSCred extends AbstractCred {
 		username.assignGridProperty(Property.SHIB_USERNAME);
 		idp.assignGridProperty(Property.SHIB_IDP);
 		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
+		setMinimumLifetime(DEFAULT_SLCS_MIN_LIFETIME);		
 	}
 
 	@Override
