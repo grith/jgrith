@@ -182,7 +182,6 @@ public class MyProxyCred extends AbstractCred {
 			initMyProxy(config);
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new CredentialException(
 					"Can't create credential from config: "
 							+ e.getLocalizedMessage());
