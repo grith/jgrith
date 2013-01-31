@@ -56,6 +56,7 @@ public class MyProxyCred extends AbstractCred {
 
 	public MyProxyCred(File mpFile) {
 		this();
+		setSaveProxyOnCreation(false);
 		initFromFile(mpFile.getAbsolutePath());
 	}
 
