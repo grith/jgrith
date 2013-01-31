@@ -310,7 +310,6 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				}
 			};
 			t2.setName("Proxy save thread");
-			Thread.dumpStack();
 			t2.start();
 
 		}
