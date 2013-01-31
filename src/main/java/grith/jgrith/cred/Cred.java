@@ -50,5 +50,9 @@ public interface Cred {
 	public abstract Cred getGroupCredential(String fqan);
 
 	public abstract Map<String, VO> getAvailableFqans();
+	
+	public abstract void setSaveProxyOnCreation(boolean save);
+	
+	public abstract boolean getSaveProxyOnCreation();
 
 }

@@ -268,6 +268,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		pcs.addPropertyChangeListener(l);
 	}
 
+	
+	
 	public synchronized void createGSSCredential() {
 
 		cachedCredential = createGSSCredentialInstance();
@@ -288,7 +290,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		t1.setName("MyProxyUpdateThread");
 		t1.start();
 
-		if (saveProxyOnCreation) {
+		if (getSaveProxyOnCreation()) {
 
 			Thread t2 = new Thread() {
 				@Override
@@ -304,9 +306,11 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 						String path = groupPathCache.get(group);
 						saveGroupProxy(group, path);
 					}
+
 				}
 			};
 			t2.setName("Proxy save thread");
+			Thread.dumpStack();
 			t2.start();
 
 		}
