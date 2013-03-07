@@ -27,6 +27,8 @@ import org.ietf.jgss.GSSCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 /**
  * Manages all VOMS servers that are of interest for the user. Information about
  * these servers can be found in the $HOME/.glite/vomses or
@@ -85,11 +87,18 @@ public class VOManagement {
 	public static Map<String, VO> getAllFqans(final GSSCredential cred,
 			final boolean returnWholeFqan) {
 
+		final Map<String, VO> allFqans = Collections
+				.synchronizedMap(new TreeMap<String, VO>());
+
+		int size = getAllVOs().size();
+		
+		if ( size == 0 ) {
+			return allFqans;
+		}
+		
 		final ExecutorService executor = Executors
 				.newFixedThreadPool(getAllVOs().size());
 
-		final Map<String, VO> allFqans = Collections
-				.synchronizedMap(new TreeMap<String, VO>());
 		for (final VO vo : getAllVOs()) {
 
 			if (VO.NON_VO.equals(vo)) {

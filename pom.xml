@@ -314,6 +314,6 @@
 	<parent>
 		<groupId>nz.org.nesi</groupId>
 		<artifactId>nesi</artifactId>
-		<version>0.23</version>
+		<version>0.25</version>
 	</parent>
 </project>
