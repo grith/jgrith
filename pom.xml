@@ -6,7 +6,7 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<grid-jcommons.version>2.6-SNAPSHOT</grid-jcommons.version>
+		<grid-jcommons.version>2.5</grid-jcommons.version>
 	</properties>
 
 	<repositories>
@@ -164,7 +164,7 @@
 		<dependency>
 			<groupId>grith</groupId>
 			<artifactId>gsindl</artifactId>
-			<version>1.7-SNAPSHOT</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>grisu</groupId>
