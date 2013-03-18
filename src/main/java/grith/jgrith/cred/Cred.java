@@ -20,6 +20,8 @@ public interface Cred {
 	public abstract int getMyProxyPort();
 
 	public abstract String getMyProxyUsername();
+	
+	public abstract String getProxyPath();
 
 	public abstract int getRemainingLifetime();
 

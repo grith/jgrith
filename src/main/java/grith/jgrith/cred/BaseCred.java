@@ -38,6 +38,8 @@ public class BaseCred {
 
 	public static final String CHILD_KEY = "group";
 
+	public static final int DEFAULT_PROXY_LIFETIME_IN_SECONDS = 864000;
+
 	public static String extractMyProxyServerFromUsername(String un) {
 
 		int index = un.lastIndexOf('@');

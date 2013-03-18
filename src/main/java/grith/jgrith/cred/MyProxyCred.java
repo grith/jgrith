@@ -249,6 +249,20 @@ public class MyProxyCred extends AbstractCred {
 	public boolean isRenewable() {
 		return false;
 	}
+	
+	
+	@Override
+	public String saveProxy(String path) {
+
+		// do nothing, if it's already saved
+		if ( new File(this.localPath).exists() ) {
+			return this.localPath;
+		} else {
+			super.saveProxy(path);
+			return this.localPath;
+		}
+
+	}
 
 	@Override
 	public void uploadMyProxy(boolean force) {

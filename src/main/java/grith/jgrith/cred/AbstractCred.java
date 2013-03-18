@@ -296,7 +296,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				@Override
 				public void run() {
 
-					if (StringUtils.isNotBlank(localPath)) {
+					if (StringUtils.isNotBlank(localPath) && ! (AbstractCred.this instanceof GroupCred )) {
 						myLogger.debug("Saving proxy as part of gss cred creation. Path: "
 								+ localPath);
 						saveProxy(localPath);

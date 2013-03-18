@@ -1,5 +1,6 @@
 package grith.jgrith.utils;
 
+import grisu.jcommons.utils.FqanHelpers;
 import grisu.model.info.dto.VO;
 import grith.jgrith.certificate.ProxyCredentialOld;
 import grith.jgrith.vomsProxy.VomsException;
