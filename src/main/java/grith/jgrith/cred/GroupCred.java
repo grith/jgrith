@@ -76,21 +76,21 @@ public class GroupCred extends AbstractCred {
 
 	}
 	
-	@Override
-	public String saveProxy() {
-		// do nothing, it's already saved
-		return this.localPath;
-	}
-
-	@Override
-	public String saveProxy(String path) {
-
-		// do nothing, it's already saved
-		if ( isUploaded() ) {
-			saveMyProxy(path);
-		}
-
-		return this.localPath;
-
-	}
+//	@Override
+//	public String saveProxy() {
+//		// do nothing, it's already saved
+//		return this.localPath;
+//	}
+//
+//	@Override
+//	public String saveProxy(String path) {
+//
+//		// do nothing, it's already saved
+//		if ( isUploaded() ) {
+//			saveMyProxy(path);
+//		}
+//
+//		return this.localPath;
+//
+//	}
 }
