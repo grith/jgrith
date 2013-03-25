@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
 
 import com.google.common.collect.Maps;
@@ -250,12 +251,21 @@ public class MyProxyCred extends AbstractCred {
 		return false;
 	}
 	
+	@Override
+	public String saveProxy() {
+		String path = this.localPath;
+		if ( StringUtils.isBlank(this.localPath)) {
+			path = CoGProperties.getDefault().getProxyFile();
+		}
+		return saveProxy(path);
+	}
+	
 	
 	@Override
 	public String saveProxy(String path) {
 
 		// do nothing, if it's already saved
-		if ( new File(this.localPath).exists() ) {
+		if ( new File(path).exists() ) {
 			return this.localPath;
 		} else {
 			super.saveProxy(path);
@@ -263,6 +273,7 @@ public class MyProxyCred extends AbstractCred {
 		}
 
 	}
+	
 
 	@Override
 	public void uploadMyProxy(boolean force) {

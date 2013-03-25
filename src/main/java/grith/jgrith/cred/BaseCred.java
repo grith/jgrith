@@ -266,6 +266,10 @@ public class BaseCred {
 	 */
 	public void saveMyProxy(String path) {
 		
+		if (( this instanceof GroupCred) && (StringUtils.isBlank(path)) ) {
+			return;
+		}
+		
 		if (StringUtils.isBlank(path)) {
 			path = CoGProperties.getDefault().getProxyFile();
 		}

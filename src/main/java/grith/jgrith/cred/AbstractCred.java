@@ -847,6 +847,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	@Override
 	public String saveProxy(String path) {
+		
+		if (( this instanceof GroupCred) && (StringUtils.isBlank(path)) ) {
+			return null;
+		}
 
 		if (StringUtils.isBlank(path) && StringUtils.isNotBlank(this.localPath)) {
 			path = this.localPath;
@@ -857,8 +861,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 			this.localPath = path;
 
-			CredentialHelpers.writeToDisk(getGSSCredential(), new File(
-					localPath));
+			File file = new File(localPath);
+			CredentialHelpers.writeToDisk(getGSSCredential(), file);
 			if (isUploaded() || this instanceof MyProxyCred) {
 				saveMyProxy(path);
 			} else {

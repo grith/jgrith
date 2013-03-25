@@ -158,8 +158,11 @@ public class ProxyCred extends AbstractCred {
 
 	@Override
 	public String saveProxy() {
-		// do nothing, it's already saved
-		return this.localPath;
+		String path = this.localPath;
+		if ( StringUtils.isBlank(this.localPath)) {
+			path = CoGProperties.getDefault().getProxyFile();
+		}
+		return saveProxy(path);
 	}
 
 	@Override
@@ -170,18 +173,12 @@ public class ProxyCred extends AbstractCred {
 			saveMyProxy(path);
 		}
 
-		return this.localPath;
+		if (! StringUtils.equals(path, this.localPath)) {
+			return super.saveProxy(path);
+		} else {
+			return this.localPath;
+		}
 
-		// if (StringUtils.isBlank(path)) {
-		// path = CoGProperties.getDefault().getProxyFile();
-		// }
-		// synchronized (path) {
-		//
-		// this.localPath = path;
-		//
-		// CredentialHelpers.writeToDisk(getGSSCredential(), new File(
-		// localPath));
-		// }
 
 	}
 
