@@ -42,7 +42,7 @@ public class GridCliParameters {
 	@Parameter(names = { "-s", "--start-session" }, description = "start or use existing background session to hold and update credential (on Linux)")
 	private boolean startGridSession;
 
-	@Parameter(names = { "-h", "--help" }, description = "display this help text")
+	@Parameter(names = { "-h", "--help" }, description = "display this help text", help = true)
 	private boolean help;
 
 	private char[] password;

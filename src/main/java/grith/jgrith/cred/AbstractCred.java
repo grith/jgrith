@@ -97,6 +97,19 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	public static AbstractCred create(AbstractCallback callback) {
 		return loadFromConfig(null, callback);
 	}
+	
+	public static AbstractCred getExistingOrCliCredential() {
+		
+		ProxyCred pc = new ProxyCred();
+		
+		if ( pc.isValid() ) {
+			return pc;
+		}
+		
+		AbstractCred c = AbstractCred.loadFromConfig(null, new CliCallback());
+		
+		return c;
+	}
 
 	public static AbstractCred loadFromConfig(Map<PROPERTY, Object> config) {
 		return loadFromConfig(config, null);
@@ -225,7 +238,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private CredentialMinThreshold minThresholdTask = null;
 
 	private CredentialRenewTask renewTask = null;
-	private final Timer timer = new Timer(true);
+	private final Timer timer = new Timer("CredentialUpdate timer", true);
 
 	private boolean saveProxyOnCreation = true;
 

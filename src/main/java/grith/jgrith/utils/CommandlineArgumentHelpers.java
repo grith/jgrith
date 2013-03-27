@@ -88,7 +88,7 @@ public class CommandlineArgumentHelpers {
 
     	for ( ParameterDescription pd : list ) {
 
-    		Class type = pd.getField().getType();
+    		Class type = pd.getParameterized().getType();
     		if ( type == boolean.class || type == Boolean.class ) {
         		String[] tokens = pd.getNames().split(",");
         		for ( String token : tokens ) {
@@ -110,7 +110,7 @@ public class CommandlineArgumentHelpers {
 
     	for ( ParameterDescription pd : list ) {
 
-    		Class type = pd.getField().getType();
+    		Class type = pd.getParameterized().getType();
     		if ( type != boolean.class && type != Boolean.class ) {
         		String[] tokens = pd.getNames().split(",");
         		for ( String token : tokens ) {
