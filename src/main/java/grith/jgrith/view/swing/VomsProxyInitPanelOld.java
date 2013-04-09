@@ -17,10 +17,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.globus.gsi.GlobusCredential;
 import org.ietf.jgss.GSSCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VomsProxyInitPanelOld extends JPanel implements ProxyInitListener {
 

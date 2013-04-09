@@ -27,8 +27,6 @@ import org.ietf.jgss.GSSCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
 /**
  * Manages all VOMS servers that are of interest for the user. Information about
  * these servers can be found in the $HOME/.glite/vomses or

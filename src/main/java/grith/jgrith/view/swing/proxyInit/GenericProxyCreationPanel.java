@@ -21,10 +21,10 @@ import org.globus.myproxy.MyProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class GenericProxyCreationPanel extends JPanel implements
@@ -182,7 +182,7 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 			panel.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec
 					.decode("334px:grow"), }, new RowSpec[] {
 					RowSpec.decode("154px:grow"),
-					FormFactory.RELATED_GAP_ROWSPEC, }));
+					FormSpecs.RELATED_GAP_ROWSPEC, }));
 			panel.add(getTabbedPane(), new CellConstraints(
 					"1, 1, 1, 1, fill, fill"));
 		}
@@ -283,16 +283,16 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 
 	private void initialize() {
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("23dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("35dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("167dlu"),
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, }));
+				FormSpecs.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+				FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("167dlu"),
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(2, 6, 3, 1,
 				CellConstraints.FILL, CellConstraints.DEFAULT));
 		add(getCreateVomsProxyPanel(), new CellConstraints(2, 4, 3, 1));

@@ -16,10 +16,10 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInit {
@@ -107,13 +107,13 @@ public class VomsProxyInit {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
-					FormFactory.RELATED_GAP_COLSPEC,
+					FormSpecs.RELATED_GAP_COLSPEC,
 					ColumnSpec.decode("312px:grow(1.0)"),
-					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-					FormFactory.RELATED_GAP_ROWSPEC,
+					FormSpecs.RELATED_GAP_COLSPEC }, new RowSpec[] {
+					FormSpecs.RELATED_GAP_ROWSPEC,
 					RowSpec.decode("271px:grow(1.0)"),
-					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
-					FormFactory.RELATED_GAP_ROWSPEC }));
+					FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
+					FormSpecs.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
 					"2, 2, fill, fill"));
 			panel.add(getMyProxyPanel(), new CellConstraints(2, 4));

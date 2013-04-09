@@ -16,10 +16,10 @@ import org.globus.gsi.GlobusCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInfoAndInitPanel extends JPanel implements
@@ -45,7 +45,7 @@ ProxyInitListener {
 		setLayout(new FormLayout(
 				new ColumnSpec[] { ColumnSpec.decode(
 				"default:grow(1.0)") }, new RowSpec[] {
-				FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
+				FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
 						RowSpec.decode("default:grow(1.0)") }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1,
 				CellConstraints.FILL, CellConstraints.FILL));

@@ -10,10 +10,10 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInitDialog extends JDialog {
@@ -108,13 +108,13 @@ public class VomsProxyInitDialog extends JDialog {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
-					FormFactory.RELATED_GAP_COLSPEC,
+					FormSpecs.RELATED_GAP_COLSPEC,
 					ColumnSpec.decode("default:grow(1.0)"),
-					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-					FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC,
-					FormFactory.DEFAULT_ROWSPEC,
-					FormFactory.RELATED_GAP_ROWSPEC }));
+					FormSpecs.RELATED_GAP_COLSPEC }, new RowSpec[] {
+					FormSpecs.DEFAULT_ROWSPEC,
+					FormSpecs.RELATED_GAP_ROWSPEC,
+					FormSpecs.DEFAULT_ROWSPEC,
+					FormSpecs.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(2, 1));
 			panel.add(getCloseButton(), new CellConstraints(2, 3,
 					CellConstraints.RIGHT, CellConstraints.BOTTOM));
