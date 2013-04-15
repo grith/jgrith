@@ -2,6 +2,7 @@ package grith.jgrith.view.swing;
 
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +37,15 @@ ProxyInitListener {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> proxyListeners;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the panel
 	 */
-	public VomsProxyInfoAndInitPanel() {
+	public VomsProxyInfoAndInitPanel(VOManager vom) {
 		super();
+		this.vom = vom;
 		setLayout(new FormLayout(
 				new ColumnSpec[] { ColumnSpec.decode(
 				"default:grow(1.0)") }, new RowSpec[] {
@@ -121,7 +125,7 @@ ProxyInitListener {
 	 */
 	protected VomsProxyInitPanel getVomsProxyInitPanel() {
 		if (vomsProxyInitPanel == null) {
-			vomsProxyInitPanel = new VomsProxyInitPanel();
+			vomsProxyInitPanel = new VomsProxyInitPanel(vom);
 		}
 		return vomsProxyInitPanel;
 	}

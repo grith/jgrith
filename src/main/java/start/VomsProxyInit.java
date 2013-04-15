@@ -4,6 +4,7 @@ import grith.jgrith.utils.CertificateFiles;
 import grith.jgrith.utils.VomsesFiles;
 import grith.jgrith.view.swing.MyProxyUpAndDownloadPanel;
 import grith.jgrith.view.swing.VomsProxyInfoAndInitPanel;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
@@ -35,13 +36,13 @@ public class VomsProxyInit {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 
 			try {
-				VomsesFiles.copyVomses(null);
+//				VomsesFiles.copyVomses(null);
 				CertificateFiles.copyCACerts(true);
 			} catch (Exception e) {
 				myLogger.error("Could not copy ca certs: "
 						+ e.getLocalizedMessage());
 			}
-			VomsProxyInit window = new VomsProxyInit();
+			VomsProxyInit window = new VomsProxyInit(new VOManager());
 
 			window.enableWriteToDisk(true);
 			window.frame.setVisible(true);
@@ -59,11 +60,14 @@ public class VomsProxyInit {
 	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
 
 	private JFrame frame;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the application
 	 */
-	public VomsProxyInit() {
+	public VomsProxyInit(VOManager vom) {
+		this.vom = vom;
 		initialize();
 	}
 
@@ -131,7 +135,7 @@ public class VomsProxyInit {
 	 */
 	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
 		if (vomsProxyInfoAndInitPanel == null) {
-			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
+			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel(vom);
 		}
 		return vomsProxyInfoAndInitPanel;
 	}

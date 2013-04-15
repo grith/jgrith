@@ -1,5 +1,7 @@
 package grith.jgrith.view.swing;
 
+import grith.jgrith.voms.VOManagement.VOManager;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JApplet;
@@ -7,12 +9,14 @@ import javax.swing.JApplet;
 public class VomsProxyInitApplet extends JApplet {
 
 	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
+	private final VOManager vom;
 
 	/**
 	 * Create the applet
 	 */
-	public VomsProxyInitApplet() {
+	public VomsProxyInitApplet(VOManager vom) {
 		super();
+		this.vom = vom;
 		getContentPane().add(getVomsProxyInfoAndInitPanel(),
 				BorderLayout.CENTER);
 		//
@@ -23,7 +27,7 @@ public class VomsProxyInitApplet extends JApplet {
 	 */
 	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
 		if (vomsProxyInfoAndInitPanel == null) {
-			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
+			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel(vom);
 		}
 		return vomsProxyInfoAndInitPanel;
 	}

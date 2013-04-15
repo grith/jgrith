@@ -3,7 +3,7 @@ package grith.jgrith.view.swing.proxyInit;
 import grisu.jcommons.commonInterfaces.ProxyCreatorHolder;
 import grisu.model.info.dto.VO;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.voms.VOManagement.VOManager;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxy;
 
@@ -48,12 +48,19 @@ public class CreateVomsProxyPanel extends JPanel {
 	private ProxyCreatorHolder proxyCreatorHolder = null;
 
 	private boolean denyComboboxUpdate = false;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the panel
 	 */
-	public CreateVomsProxyPanel() {
+	public CreateVomsProxyPanel(VOManager vom) {
 		super();
+		if ( vom == null ) {
+			this.vom = new VOManager();
+		} else {
+			this.vom = vom;
+		}
 		setLayout(new FormLayout(new ColumnSpec[] {
 				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow(1.0)"),
@@ -217,7 +224,7 @@ public class CreateVomsProxyPanel extends JPanel {
 		}
 
 		if (allFqans == null) {
-			allFqans = VOManagement.getAllFqans(CredentialHelpers
+			allFqans = vom.getAllFqans(CredentialHelpers
 					.wrapGlobusCredential(proxy));
 		}
 		return allFqans;

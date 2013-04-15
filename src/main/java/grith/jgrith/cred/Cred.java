@@ -2,6 +2,7 @@ package grith.jgrith.cred;
 
 import grisu.model.info.dto.VO;
 import grith.jgrith.cred.AbstractCred.PROPERTY;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.util.Map;
 
@@ -56,5 +57,7 @@ public interface Cred {
 	public abstract void setSaveProxyOnCreation(boolean save);
 	
 	public abstract boolean getSaveProxyOnCreation();
+
+	public abstract VOManager getVOManager();
 
 }

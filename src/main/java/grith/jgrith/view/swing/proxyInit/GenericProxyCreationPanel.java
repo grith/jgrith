@@ -5,6 +5,7 @@ import grisu.jcommons.commonInterfaces.ProxyCreatorPanel;
 import grisu.jcommons.commonInterfaces.ProxyDestructorHolder;
 import grith.jgrith.view.swing.ProxyInitListener;
 import grith.jgrith.view.swing.VomsProxyInfoPanel;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.beans.Beans;
 import java.util.Enumeration;
@@ -58,23 +59,26 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> proxyListeners;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the default version of the panel
 	 */
-	public GenericProxyCreationPanel() {
-		this(true, true, true, true, null);
+	public GenericProxyCreationPanel(VOManager vom) {
+		this(vom, true, true, true, true, null);
 	}
 
-	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
+	public GenericProxyCreationPanel(VOManager vom, boolean useShib, boolean useX509,
 			boolean useMyProxy, boolean displayOtherAction) {
-		this(useShib, useX509, useMyProxy, displayOtherAction, null);
+		this(vom, useShib, useX509, useMyProxy, displayOtherAction, null);
 	}
 
-	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
+	public GenericProxyCreationPanel(VOManager vom, boolean useShib, boolean useX509,
 			boolean useMyProxy, boolean displayOtherAction, String shibUrl) {
 
 		super();
+		this.vom = vom;
 		this.useShib = useShib;
 		this.useX509 = useX509;
 		this.useMyProxy = useMyProxy;
@@ -124,7 +128,7 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 	 */
 	protected CreateVomsProxyPanel getCreateVomsProxyPanel() {
 		if (createVomsProxyPanel == null) {
-			createVomsProxyPanel = new CreateVomsProxyPanel();
+			createVomsProxyPanel = new CreateVomsProxyPanel(vom);
 			createVomsProxyPanel.setBorder(new TitledBorder(null,
 					"Add group to proxy", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, null, null));

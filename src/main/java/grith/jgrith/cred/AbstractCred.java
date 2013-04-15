@@ -13,7 +13,7 @@ import grith.jgrith.cred.details.LoginTypeDetail;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -92,6 +92,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	static final Logger myLogger = LoggerFactory.getLogger(AbstractCred.class
 			.getName());
+	
+	public static VOManager DEFAULT_VO_MANAGER = new VOManager();
 
 	public static AbstractCred create(AbstractCallback callback) {
 		return loadFromConfig(null, callback);
@@ -242,6 +244,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private boolean saveProxyOnCreation = true;
 
 	private volatile Date lastCredentialAutoRefresh = new Date();
+	
+	private VOManager vom = null;
 
 	public AbstractCred() {
 		super();
@@ -470,7 +474,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	public synchronized Map<String, VO> getAvailableFqans() {
 
 		if (fqans == null) {
-			fqans = VOManagement.getAllFqans(getGSSCredential());
+			fqans = getVOManager().getAllFqans(getGSSCredential());
 		}
 		return fqans;
 
@@ -664,7 +668,22 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return null;
 
 	}
+	
+	public synchronized VOManager getVOManager() {
+		if ( vom == null ) {
+			if ( DEFAULT_VO_MANAGER != null ) {
+				vom = DEFAULT_VO_MANAGER;
+			} else {
+				vom = new VOManager();
+			}
+		}
+		return vom;
+	}
 
+	public void setVOManager(VOManager vom) {
+		this.vom = vom;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

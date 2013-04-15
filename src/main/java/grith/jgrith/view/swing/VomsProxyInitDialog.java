@@ -1,5 +1,7 @@
 package grith.jgrith.view.swing;
 
+import grith.jgrith.voms.VOManagement.VOManager;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,7 +27,7 @@ public class VomsProxyInitDialog extends JDialog {
 	 */
 	public static void main(String args[]) {
 		try {
-			VomsProxyInitDialog dialog = new VomsProxyInitDialog();
+			VomsProxyInitDialog dialog = new VomsProxyInitDialog(new VOManager());
 			dialog.setModal(true);
 			dialog.setLifetimeDefaults(new Integer[] { 1, 2, 7 });
 			dialog.enableWriteToDisk(true);
@@ -46,12 +48,14 @@ public class VomsProxyInitDialog extends JDialog {
 	private JPanel panel;
 
 	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
+	private final VOManager vom;
 
 	/**
 	 * Create the dialog
 	 */
-	public VomsProxyInitDialog() {
+	public VomsProxyInitDialog(VOManager vom) {
 		super();
+		this.vom = vom;
 		setBounds(100, 100, 470, 335);
 		getContentPane().add(getPanel(), BorderLayout.CENTER);
 		//
@@ -128,7 +132,7 @@ public class VomsProxyInitDialog extends JDialog {
 	 */
 	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
 		if (vomsProxyInfoAndInitPanel == null) {
-			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
+			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel(vom);
 		}
 		return vomsProxyInfoAndInitPanel;
 	}
