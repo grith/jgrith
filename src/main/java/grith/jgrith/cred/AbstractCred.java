@@ -505,8 +505,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 					details.add(d);
 				}
 			} catch (Exception e) {
-				myLogger.debug("Error when trying to get field: {}, {}", f,
-						e.getLocalizedMessage());
+//				myLogger.debug("Error when trying to get field: {}, {}", f,
+//						e.getLocalizedMessage());
 			}
 		}
 		return details;

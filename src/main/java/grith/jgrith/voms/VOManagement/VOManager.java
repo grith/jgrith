@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,7 +211,7 @@ public class VOManager {
 	 * 
 	 * @return all available VO's
 	 */
-	public Vector<VO> getAllVOs() {
+	public synchronized Vector<VO> getAllVOs() {
 
 		if (allVOs == null) {
 			
