@@ -22,8 +22,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +123,8 @@ public class VOManager {
 				public void run() {
 					myLogger.debug("Getting all fqans for: " + vo.getVoName()
 							+ "...");
-					Date start = new Date();
+					StopWatch sw = new Slf4JStopWatch(myLogger);
+					sw.start();
 					String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo,
 							cred);
 					// check whether user is in a vo at all
@@ -138,9 +142,8 @@ public class VOManager {
 						}
 					}
 					Date end = new Date();
-					myLogger.debug("Getting all fqans for: " + vo.getVoName()
-							+ " took: " + (end.getTime() - start.getTime())
-							+ " ms.");
+					sw.stop("JGrith.GetFqans."+vo.getVoName(), "Getting all fqans for '"+vo.getVoName()+"' finished: "+StringUtils.join(allFqansFromThisVO, ", "));
+
 				}
 			};
 			t.setName(vo.getVoName() + "_lookup");
