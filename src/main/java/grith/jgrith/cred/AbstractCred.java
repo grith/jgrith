@@ -99,6 +99,20 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return loadFromConfig(null, callback);
 	}
 	
+	public static AbstractCred getExistingCredential() {
+		ProxyCred pc = null;
+		try {
+			pc = new ProxyCred();
+			if ( pc.isValid() ) {
+				return pc;
+			} else {
+				return null;
+			}
+		} catch (CredentialException c) {
+			return null;
+		}
+	}
+	
 	public static AbstractCred getExistingOrCliCredential() {
 		
 		ProxyCred pc = new ProxyCred();
