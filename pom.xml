@@ -6,7 +6,7 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<grid-jcommons.version>2.7-SNAPSHOT</grid-jcommons.version>
+		<grid-jcommons.version>2.7</grid-jcommons.version>
 	</properties>
 
 	<repositories>
