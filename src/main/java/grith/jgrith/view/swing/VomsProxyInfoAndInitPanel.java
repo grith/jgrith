@@ -2,6 +2,7 @@ package grith.jgrith.view.swing;
 
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +17,10 @@ import org.globus.gsi.GlobusCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInfoAndInitPanel extends JPanel implements
@@ -36,16 +37,19 @@ ProxyInitListener {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> proxyListeners;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the panel
 	 */
-	public VomsProxyInfoAndInitPanel() {
+	public VomsProxyInfoAndInitPanel(VOManager vom) {
 		super();
+		this.vom = vom;
 		setLayout(new FormLayout(
 				new ColumnSpec[] { ColumnSpec.decode(
 				"default:grow(1.0)") }, new RowSpec[] {
-				FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC,
+				FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
 						RowSpec.decode("default:grow(1.0)") }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(1, 1,
 				CellConstraints.FILL, CellConstraints.FILL));
@@ -121,7 +125,7 @@ ProxyInitListener {
 	 */
 	protected VomsProxyInitPanel getVomsProxyInitPanel() {
 		if (vomsProxyInitPanel == null) {
-			vomsProxyInitPanel = new VomsProxyInitPanel();
+			vomsProxyInitPanel = new VomsProxyInitPanel(vom);
 		}
 		return vomsProxyInitPanel;
 	}

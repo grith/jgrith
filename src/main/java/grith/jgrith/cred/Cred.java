@@ -1,8 +1,12 @@
 package grith.jgrith.cred;
 
-import grith.jgrith.credential.Credential.PROPERTY;
+import grisu.model.info.dto.VO;
+import grith.jgrith.cred.AbstractCred.PROPERTY;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.util.Map;
+
+import org.ietf.jgss.GSSCredential;
 
 public interface Cred {
 
@@ -17,6 +21,8 @@ public interface Cred {
 	public abstract int getMyProxyPort();
 
 	public abstract String getMyProxyUsername();
+	
+	public abstract String getProxyPath();
 
 	public abstract int getRemainingLifetime();
 
@@ -39,5 +45,19 @@ public interface Cred {
 	public abstract void setMyProxyPort(int parseInt);
 
 	public abstract void uploadMyProxy();
+
+	public abstract GSSCredential getGSSCredential();
+
+	public abstract String getFqan();
+
+	public abstract Cred getGroupCredential(String fqan);
+
+	public abstract Map<String, VO> getAvailableFqans();
+	
+	public abstract void setSaveProxyOnCreation(boolean save);
+	
+	public abstract boolean getSaveProxyOnCreation();
+
+	public abstract VOManager getVOManager();
 
 }

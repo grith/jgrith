@@ -1,5 +1,6 @@
 package grith.jgrith.voms.VOManagement;
 
+import grisu.jcommons.interfaces.InformationManager;
 import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
@@ -9,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,8 +22,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.globus.gsi.GlobusCredentialException;
 import org.ietf.jgss.GSSCredential;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.python.modules.synchronize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +48,11 @@ import org.slf4j.LoggerFactory;
  * @author Markus Binsteiner
  * 
  */
-public class VOManagement {
-
-	static final Logger myLogger = LoggerFactory.getLogger(VOManagement.class
+public class VOManager {
+	
+	static final Logger myLogger = LoggerFactory.getLogger(VOManager.class
 			.getName());
-
+	
 	public final static File USER_VOMSES = new File(
 			System.getProperty("user.home") + File.separator + ".glite"
 					+ File.separator + "vomses");
@@ -59,7 +63,17 @@ public class VOManagement {
 
 	public static final int NO_MEMBER = 0;
 
-	public static Vector<VO> allVOs = null;
+	public Vector<VO> allVOs = null;
+	
+	private final InformationManager im;
+	
+	public VOManager() {
+		this(null);
+	}
+	
+	public VOManager(InformationManager im) {
+		this.im = im;
+	}
 
 	/**
 	 * Returns the first part of the fqan (without the role/capability part)
@@ -68,7 +82,7 @@ public class VOManagement {
 	 *            the credential
 	 * @return the (short) fqan
 	 */
-	public static Map<String, VO> getAllFqans(GSSCredential cred) {
+	public Map<String, VO> getAllFqans(GSSCredential cred) {
 		return getAllFqans(cred, false);
 	}
 
@@ -82,14 +96,21 @@ public class VOManagement {
 	 *            whether to return the full fqan (true) or not (false)
 	 * @return the fqan
 	 */
-	public static Map<String, VO> getAllFqans(final GSSCredential cred,
+	public Map<String, VO> getAllFqans(final GSSCredential cred,
 			final boolean returnWholeFqan) {
-
-		final ExecutorService executor = Executors
-				.newFixedThreadPool(getAllVOs().size());
 
 		final Map<String, VO> allFqans = Collections
 				.synchronizedMap(new TreeMap<String, VO>());
+
+		int size = getAllVOs().size();
+		
+		if ( size == 0 ) {
+			return allFqans;
+		}
+		
+		final ExecutorService executor = Executors
+				.newFixedThreadPool(getAllVOs().size());
+
 		for (final VO vo : getAllVOs()) {
 
 			if (VO.NON_VO.equals(vo)) {
@@ -102,7 +123,8 @@ public class VOManagement {
 				public void run() {
 					myLogger.debug("Getting all fqans for: " + vo.getVoName()
 							+ "...");
-					Date start = new Date();
+					StopWatch sw = new Slf4JStopWatch(myLogger);
+					sw.start();
 					String[] allFqansFromThisVO = GroupManagement.getAllFqansForVO(vo,
 							cred);
 					// check whether user is in a vo at all
@@ -120,9 +142,8 @@ public class VOManagement {
 						}
 					}
 					Date end = new Date();
-					myLogger.debug("Getting all fqans for: " + vo.getVoName()
-							+ " took: " + (end.getTime() - start.getTime())
-							+ " ms.");
+					sw.stop("JGrith.GetFqans."+vo.getVoName(), "Getting all fqans for '"+vo.getVoName()+"' finished: "+StringUtils.join(allFqansFromThisVO, ", "));
+
 				}
 			};
 			t.setName(vo.getVoName() + "_lookup");
@@ -147,7 +168,7 @@ public class VOManagement {
 	 *            the users' credential
 	 * @return a Map with all information about this user
 	 */
-	public static Map<VO, Map<String, Set<String>>> getAllInformationAboutUser(
+	public Map<VO, Map<String, Set<String>>> getAllInformationAboutUser(
 			GSSCredential gssCred) {
 
 		Map<VO, String[]> allInfoNotProcessed = new HashMap<VO, String[]>();
@@ -193,9 +214,13 @@ public class VOManagement {
 	 * 
 	 * @return all available VO's
 	 */
-	public static Vector<VO> getAllVOs() {
+	public synchronized Vector<VO> getAllVOs() {
 
 		if (allVOs == null) {
+			
+			// if no info manager is set we look at the directory
+			if ( im == null ) { 
+ 			
 			Vector<VO> vos = new Vector<VO>();
 			File[] files = USER_VOMSES.listFiles();
 
@@ -227,12 +252,16 @@ public class VOManagement {
 
 				}
 			}
+			
 			allVOs = vos;
+			} else {
+				allVOs = new Vector<VO>(im.getAllVOs());
+			}
 		}
 		return allVOs;
 	}
 
-	public static VO getVO(String vo_name) {
+	public VO getVO(String vo_name) {
 
 		for (VO vo : getAllVOs()) {
 			if (vo_name.equals(vo.getVoName())) {
@@ -251,8 +280,10 @@ public class VOManagement {
 		} catch (GlobusCredentialException e) {
 			myLogger.error(e.getLocalizedMessage());
 		}
+		
+		VOManager vom = new VOManager(null);
 
-		Map<VO, Map<String, Set<String>>> allInfo = getAllInformationAboutUser(cred);
+		Map<VO, Map<String, Set<String>>> allInfo = vom.getAllInformationAboutUser(cred);
 
 		for (VO vo : allInfo.keySet()) {
 			System.out.println("VO: " + vo.getVoName());
@@ -344,9 +375,5 @@ public class VOManagement {
 		return new VO(name, host, port, hostDN);
 	}
 
-
-	public static void setVOsToUse(Collection<VO> vos) {
-		allVOs = new Vector<VO>(vos);
-	}
 
 }

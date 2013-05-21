@@ -29,9 +29,9 @@ import org.python.core.PyInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class SlcsPanel extends JPanel implements SlcsListener,
@@ -44,7 +44,7 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 	private JButton button;
 
 	private ProxyCreatorHolder holder = null;
-	private SLCS slcs = null;
+	private final SLCS slcs;
 
 	private String url;
 
@@ -61,13 +61,13 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 			this.url = url;
 		}
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("default:grow"),
-				FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+				FormSpecs.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("default:grow"),
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, }));
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, }));
 		add(getShibLoginPanel(), "2, 2, fill, fill");
 		add(getLoginButton(), "2, 4, right, default");
 		slcs = new SLCS(getShibLoginPanel());
@@ -75,6 +75,10 @@ ProxyCreatorPanel, ShibListener, IdpListener {
 		enablePanel(false);
 		getShibLoginPanel().refreshIdpList();
 
+	}
+	
+	public void addSlcsListener(SlcsListener l) {
+		slcs.addSlcsListener(l);
 	}
 
 	private void enablePanel(boolean enable) {

@@ -5,6 +5,7 @@ import grisu.jcommons.commonInterfaces.ProxyCreatorPanel;
 import grisu.jcommons.commonInterfaces.ProxyDestructorHolder;
 import grith.jgrith.view.swing.ProxyInitListener;
 import grith.jgrith.view.swing.VomsProxyInfoPanel;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.beans.Beans;
 import java.util.Enumeration;
@@ -21,10 +22,10 @@ import org.globus.myproxy.MyProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class GenericProxyCreationPanel extends JPanel implements
@@ -58,23 +59,26 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> proxyListeners;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the default version of the panel
 	 */
-	public GenericProxyCreationPanel() {
-		this(true, true, true, true, null);
+	public GenericProxyCreationPanel(VOManager vom) {
+		this(vom, true, true, true, true, null);
 	}
 
-	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
+	public GenericProxyCreationPanel(VOManager vom, boolean useShib, boolean useX509,
 			boolean useMyProxy, boolean displayOtherAction) {
-		this(useShib, useX509, useMyProxy, displayOtherAction, null);
+		this(vom, useShib, useX509, useMyProxy, displayOtherAction, null);
 	}
 
-	public GenericProxyCreationPanel(boolean useShib, boolean useX509,
+	public GenericProxyCreationPanel(VOManager vom, boolean useShib, boolean useX509,
 			boolean useMyProxy, boolean displayOtherAction, String shibUrl) {
 
 		super();
+		this.vom = vom;
 		this.useShib = useShib;
 		this.useX509 = useX509;
 		this.useMyProxy = useMyProxy;
@@ -124,7 +128,7 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 	 */
 	protected CreateVomsProxyPanel getCreateVomsProxyPanel() {
 		if (createVomsProxyPanel == null) {
-			createVomsProxyPanel = new CreateVomsProxyPanel();
+			createVomsProxyPanel = new CreateVomsProxyPanel(vom);
 			createVomsProxyPanel.setBorder(new TitledBorder(null,
 					"Add group to proxy", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, null, null));
@@ -182,7 +186,7 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 			panel.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec
 					.decode("334px:grow"), }, new RowSpec[] {
 					RowSpec.decode("154px:grow"),
-					FormFactory.RELATED_GAP_ROWSPEC, }));
+					FormSpecs.RELATED_GAP_ROWSPEC, }));
 			panel.add(getTabbedPane(), new CellConstraints(
 					"1, 1, 1, 1, fill, fill"));
 		}
@@ -283,16 +287,16 @@ ProxyCreatorHolder, ProxyDestructorHolder {
 
 	private void initialize() {
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("23dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("35dlu:grow"),
-				FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("167dlu"),
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, }));
+				FormSpecs.RELATED_GAP_COLSPEC, }, new RowSpec[] {
+				FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("167dlu"),
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, }));
 		add(getVomsProxyInfoPanel(), new CellConstraints(2, 6, 3, 1,
 				CellConstraints.FILL, CellConstraints.DEFAULT));
 		add(getCreateVomsProxyPanel(), new CellConstraints(2, 4, 3, 1));

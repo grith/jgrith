@@ -2,9 +2,9 @@ package grith.jgrith.cred;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.callbacks.AbstractCallback;
+import grith.jgrith.cred.callbacks.StaticCallback;
 import grith.jgrith.cred.details.FileDetail;
 import grith.jgrith.cred.details.PasswordDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.plainProxy.PlainProxy;
 
 import java.util.Map;
@@ -14,6 +14,15 @@ import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
 
 public class X509Cred extends AbstractCred {
+	
+	public static X509Cred create(char[] passphrase) {
+		
+		X509Cred temp = new X509Cred();
+		temp.setCallback(new StaticCallback(passphrase));
+		
+		return temp;
+		
+	}
 
 	protected FileDetail certFile = new FileDetail("X509 certificate file");
 	protected FileDetail keyFile = new FileDetail("X509 key file");
@@ -74,7 +83,7 @@ public class X509Cred extends AbstractCred {
 		return keyFile.getValue();
 	}
 
-	public String getPw() {
+	public String getPassword() {
 		return new String(password.getValue());
 	}
 

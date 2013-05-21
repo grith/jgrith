@@ -30,7 +30,7 @@ public class GridCliParameters {
 	@Parameter(names = { "-u", "--username" }, description = "institution or myproxy username")
 	private String username;
 
-	@Parameter(names = { "-i", "--institution" }, description = "institution name")
+	@Parameter(names = { "--institution" }, description = "institution name")
 	private String institution;
 
 	@Parameter(names = { "-m", "--myproxy_host" }, description = "myproxy host to use")
@@ -39,10 +39,10 @@ public class GridCliParameters {
 	@Parameter(names = { "-x", "--x509" }, description = "x509 certificate login")
 	private boolean useX509;
 
-	@Parameter(names = { "-s", "--start-session" }, description = "start background session to hold and update credential (on Linux)")
+	@Parameter(names = { "-s", "--start-session" }, description = "start or use existing background session to hold and update credential (on Linux)")
 	private boolean startGridSession;
 
-	@Parameter(names = { "-h", "--help" }, description = "display this help text")
+	@Parameter(names = { "-h", "--help" }, description = "display this help text", help = true)
 	private boolean help;
 
 	private char[] password;

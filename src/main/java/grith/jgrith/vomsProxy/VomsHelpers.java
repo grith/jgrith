@@ -22,7 +22,7 @@ import gridpp.portal.voms.VOMSAttributeCertificate;
 import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.LocalProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +107,7 @@ public class VomsHelpers {
 	 *             if ignoreErrors=false and the first voms server can't be
 	 *             queried
 	 */
-	public static Map<VO, Set<String>> getAllVosAndVoGroups(
+	public static Map<VO, Set<String>> getAllVosAndVoGroups(VOManager vom,
 			GSSCredential credential, boolean ignoreErrors)
 					throws VomsException {
 
@@ -115,7 +115,7 @@ public class VomsHelpers {
 
 		// getting all enabled VOs (vomses files in $HOME/.glite/vomses or
 		// /etc/grid-security/vomses)
-		Vector<VO> allEnabledVOs = VOManagement.getAllVOs();
+		Vector<VO> allEnabledVOs = vom.getAllVOs();
 		// now use the credential and contact all VO servers (aka VOMS servers)
 		// and
 		// get all groups from each of them
@@ -177,8 +177,10 @@ public class VomsHelpers {
 	VomsException {
 
 		GSSCredential proxy = LocalProxy.loadGSSCredential();
+		
+		VOManager vom = new VOManager(null);
 
-		Map<VO, Set<String>> info = getAllVosAndVoGroups(proxy, true);
+		Map<VO, Set<String>> info = getAllVosAndVoGroups(vom, proxy, true);
 
 		for (VO vo : info.keySet()) {
 			Set<String> voInfo = info.get(vo);

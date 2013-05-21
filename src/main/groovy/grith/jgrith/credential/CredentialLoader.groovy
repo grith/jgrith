@@ -2,13 +2,14 @@ package grith.jgrith.credential
 
 import grith.jgrith.plainProxy.LocalProxy
 import grisu.jcommons.constants.GridEnvironment
-import grisu.jcommons.constants.Enums.LoginType;
+import grisu.jcommons.constants.Enums.LoginType
 import grith.jgrith.cred.AbstractCred
-import grith.jgrith.cred.MyProxyCred;
-import grith.jgrith.cred.SLCSCred;
-import grith.jgrith.cred.X509Cred;
-import grith.jgrith.cred.callbacks.CliCallback;
-import grith.jgrith.cred.callbacks.StaticCallback;
+import grith.jgrith.cred.MyProxyCred
+import grith.jgrith.cred.ProxyCred
+import grith.jgrith.cred.SLCSCred
+import grith.jgrith.cred.X509Cred
+import grith.jgrith.cred.callbacks.CliCallback
+import grith.jgrith.cred.callbacks.StaticCallback
 import grith.jgrith.plainProxy.LocalProxy
 
 import org.globus.common.CoGProperties
@@ -57,6 +58,7 @@ class CredentialLoader {
 					throw new RuntimeException("Type: "+typeOrig+" not available")
 			}
 		}
+		
 		return credentials
 	}
 
@@ -74,7 +76,7 @@ class CredentialLoader {
 			}
 		}
 
-		Credential c = new ProxyCredential(file.getAbsolutePath())
+		AbstractCred c = new ProxyCred(file.getAbsolutePath())
 		return c
 	}
 
@@ -98,7 +100,6 @@ class CredentialLoader {
 		MyProxyCred c = new MyProxyCred(username, password.getChars(), myproxy, port)
 		c.setProxyLifetimeInSeconds(lifetime*3600)
 
-		//		c.init();
 		return c
 	}
 

@@ -5,12 +5,13 @@ import grisu.jcommons.configuration.CommonGridProperties.Property;
 import grisu.jcommons.constants.Enums.LoginType;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.certificate.CertificateHelper;
+import grith.jgrith.cred.AbstractCred.PROPERTY;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
+import grith.jgrith.utils.CommandlineArgumentHelpers;
 
 import java.util.List;
 import java.util.Map;
@@ -31,14 +32,25 @@ public class GridLoginParameters {
 
 	public static GridLoginParameters createFromCommandlineArgs(
 			GridCliParameters params, String[] args) {
+		return createFromCommandlineArgs(params, args, true);
+	}
+
+	public static GridLoginParameters createFromCommandlineArgs(
+			GridCliParameters params, String[] args, boolean exitWhenHelp) {
 
 		// GridLoginParameters glp = new GridLoginParameters();
 		try {
-			JCommander jc = new JCommander(params, args);
 
-			if (params.isHelp()) {
-				jc.usage();
-				System.exit(0);
+			String[] gridArgs = CommandlineArgumentHelpers
+					.extractGridParameters(params, args);
+
+			JCommander jc = new JCommander(params, gridArgs);
+
+			if (exitWhenHelp) {
+				if (params.isHelp()) {
+					jc.usage();
+					System.exit(0);
+				}
 			}
 
 			return createFromGridCliParameters(params);
@@ -50,7 +62,8 @@ public class GridLoginParameters {
 
 	}
 
-	public static GridLoginParameters createFromGridCliParameters(GridCliParameters settings) {
+	public static GridLoginParameters createFromGridCliParameters(
+			GridCliParameters settings) {
 		GridLoginParameters glp = new GridLoginParameters();
 		try {
 
@@ -175,14 +188,12 @@ public class GridLoginParameters {
 		return institution.getValue();
 	}
 
-
 	public LoginType getLoginType() {
 		if (loginType == null) {
 			return null;
 		}
 		return LoginType.fromString(loginType.getValue());
 	}
-
 
 	public String getMyProxyHost() {
 		return myproxyHost.getValue();
@@ -216,8 +227,7 @@ public class GridLoginParameters {
 
 		LoginType lt = getLoginType();
 
-
-		if ( lt == null ) {
+		if (lt == null) {
 			String idp = institution.getValue();
 			if (StringUtils.isBlank(idp)) {
 				idp = CommonGridProperties.getDefault().getLastShibIdp();
@@ -262,19 +272,19 @@ public class GridLoginParameters {
 
 			loginType.set(lt.toString());
 
-			switch(lt) {
+			switch (lt) {
 			case SHIBBOLETH:
 				String idpToUse = institution.getValue();
 				if (StringUtils.isBlank(idpToUse)) {
 					String answer = callback.getStringValue(institution);
 					institution.set(answer);
 				}
-				if (! username.isSet() ) {
+				if (!username.isSet()) {
 					String answer = callback.getStringValue(username);
 					username.set(answer);
 				}
 
-				if (! password.isSet()) {
+				if (!password.isSet()) {
 					char[] answer = callback.getPasswordValue(password);
 					password.set(answer);
 				}
@@ -308,11 +318,10 @@ public class GridLoginParameters {
 					"No valid credential after callbacks.");
 		}
 
-
 	}
 
 	public void setCallback(AbstractCallback c) {
-		this.callback =c;
+		this.callback = c;
 	}
 
 	private void setForceAuthenticate(boolean forceAuth) {

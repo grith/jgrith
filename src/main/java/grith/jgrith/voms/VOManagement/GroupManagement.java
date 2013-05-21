@@ -43,12 +43,12 @@ public class GroupManagement {
 					null, 1);
 
 			if (vomsProxy.getAttributeCertificate() != null) {
-				status = VOManagement.MEMBER;
+				status = VOManager.MEMBER;
 			} else {
-				status = VOManagement.NO_MEMBER;
+				status = VOManager.NO_MEMBER;
 			}
 
-			if (status == VOManagement.MEMBER) {
+			if (status == VOManager.MEMBER) {
 				ArrayList<String> fqans = new VOMSAttributeCertificate(
 						vomsProxy.getAttributeCertificate()).getVOMSFQANs();
 				vomsProxy.destroy();
@@ -60,7 +60,7 @@ public class GroupManagement {
 		} catch (Exception e1) {
 			// e1.printStackTrace();
 			myLogger.debug("Error getting fqans: " + e1.getLocalizedMessage());
-			status = VOManagement.NO_MEMBER;
+			status = VOManager.NO_MEMBER;
 			return null;
 		}
 	}

@@ -3,7 +3,7 @@ package grith.jgrith.view.swing;
 import grisu.model.info.dto.VO;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.voms.VOManagement.VOManager;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsProxy;
 
@@ -27,10 +27,10 @@ import org.globus.gsi.GlobusCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
@@ -68,23 +68,25 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> proxyListeners;
+	private final VOManager vom;
 
 	/**
 	 * Create the panel
 	 */
-	public VomsProxyInitPanel() {
+	public VomsProxyInitPanel(VOManager vom) {
 		super();
+		this.vom = vom;
 		setBorder(DEFAULT_TITLE);
 		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("65dlu"),
-				FormFactory.RELATED_GAP_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("65dlu"),
+				FormSpecs.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("25dlu:grow(1.0)"),
-				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC }));
+				FormSpecs.RELATED_GAP_COLSPEC, FormSpecs.DEFAULT_COLSPEC,
+				FormSpecs.RELATED_GAP_COLSPEC }, new RowSpec[] {
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+				FormSpecs.RELATED_GAP_ROWSPEC }));
 		add(getLabel(), new CellConstraints(2, 2));
 		add(getLabel_1(), new CellConstraints(2, 4));
 		add(getLabel_2(), new CellConstraints(2, 6));
@@ -113,7 +115,7 @@ public class VomsProxyInitPanel extends JPanel implements ProxyInitListener {
 		//
 		// voModel.addElement(NON_VOMS_PROXY_NAME);
 
-		allFqans = VOManagement.getAllFqans(CredentialHelpers
+		allFqans = vom.getAllFqans(CredentialHelpers
 				.wrapGlobusCredential(credential));
 
 		for (String fqan : allFqans.keySet()) {

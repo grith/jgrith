@@ -4,6 +4,7 @@ import grith.jgrith.utils.CertificateFiles;
 import grith.jgrith.utils.VomsesFiles;
 import grith.jgrith.view.swing.MyProxyUpAndDownloadPanel;
 import grith.jgrith.view.swing.VomsProxyInfoAndInitPanel;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
@@ -16,10 +17,10 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class VomsProxyInit {
@@ -35,13 +36,13 @@ public class VomsProxyInit {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 
 			try {
-				VomsesFiles.copyVomses(null);
+//				VomsesFiles.copyVomses(null);
 				CertificateFiles.copyCACerts(true);
 			} catch (Exception e) {
 				myLogger.error("Could not copy ca certs: "
 						+ e.getLocalizedMessage());
 			}
-			VomsProxyInit window = new VomsProxyInit();
+			VomsProxyInit window = new VomsProxyInit(new VOManager());
 
 			window.enableWriteToDisk(true);
 			window.frame.setVisible(true);
@@ -59,11 +60,14 @@ public class VomsProxyInit {
 	private VomsProxyInfoAndInitPanel vomsProxyInfoAndInitPanel;
 
 	private JFrame frame;
+	
+	private final VOManager vom;
 
 	/**
 	 * Create the application
 	 */
-	public VomsProxyInit() {
+	public VomsProxyInit(VOManager vom) {
+		this.vom = vom;
 		initialize();
 	}
 
@@ -107,13 +111,13 @@ public class VomsProxyInit {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.setLayout(new FormLayout(new ColumnSpec[] {
-					FormFactory.RELATED_GAP_COLSPEC,
+					FormSpecs.RELATED_GAP_COLSPEC,
 					ColumnSpec.decode("312px:grow(1.0)"),
-					FormFactory.RELATED_GAP_COLSPEC }, new RowSpec[] {
-					FormFactory.RELATED_GAP_ROWSPEC,
+					FormSpecs.RELATED_GAP_COLSPEC }, new RowSpec[] {
+					FormSpecs.RELATED_GAP_ROWSPEC,
 					RowSpec.decode("271px:grow(1.0)"),
-					FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
-					FormFactory.RELATED_GAP_ROWSPEC }));
+					FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("default"),
+					FormSpecs.RELATED_GAP_ROWSPEC }));
 			panel.add(getVomsProxyInfoAndInitPanel(), new CellConstraints(
 					"2, 2, fill, fill"));
 			panel.add(getMyProxyPanel(), new CellConstraints(2, 4));
@@ -131,7 +135,7 @@ public class VomsProxyInit {
 	 */
 	protected VomsProxyInfoAndInitPanel getVomsProxyInfoAndInitPanel() {
 		if (vomsProxyInfoAndInitPanel == null) {
-			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel();
+			vomsProxyInfoAndInitPanel = new VomsProxyInfoAndInitPanel(vom);
 		}
 		return vomsProxyInfoAndInitPanel;
 	}

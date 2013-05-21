@@ -1,5 +1,6 @@
 package grith.jgrith.view.swing.proxyInit;
 
+import grith.jgrith.voms.VOManagement.VOManager;
 import grith.sibboleth.Shibboleth;
 
 import java.awt.BorderLayout;
@@ -37,7 +38,7 @@ public class GenericProxyInitDialog extends JDialog {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GenericProxyInitDialog dialog = new GenericProxyInitDialog();
+					GenericProxyInitDialog dialog = new GenericProxyInitDialog(new VOManager());
 					dialog.addWindowListener(new WindowAdapter() {
 						@Override
 						public void windowClosing(WindowEvent e) {
@@ -53,12 +54,14 @@ public class GenericProxyInitDialog extends JDialog {
 	}
 
 	private GenericProxyCreationPanel genericProxyInitPanel;
+	private final VOManager vom;
 
 	/**
 	 * Create the dialog
 	 */
-	public GenericProxyInitDialog() {
+	public GenericProxyInitDialog(VOManager vom) {
 		super();
+		this.vom = vom;
 		setBounds(100, 100, 563, 650);
 		getContentPane().add(getGenericProxyCreationPanel(),
 				BorderLayout.CENTER);
@@ -70,7 +73,7 @@ public class GenericProxyInitDialog extends JDialog {
 	 */
 	protected GenericProxyCreationPanel getGenericProxyCreationPanel() {
 		if (genericProxyInitPanel == null) {
-			genericProxyInitPanel = new GenericProxyCreationPanel();
+			genericProxyInitPanel = new GenericProxyCreationPanel(vom);
 		}
 		return genericProxyInitPanel;
 	}

@@ -7,7 +7,6 @@ import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.details.IdPDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.cred.details.StringDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.plainProxy.PlainProxy;
 import grith.sibboleth.CredentialManager;
 import grith.sibboleth.IdpObject;
@@ -20,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.ietf.jgss.GSSCredential;
 
 public class SLCSCred extends AbstractCred {
+	
+	public static final int DEFAULT_SLCS_MIN_LIFETIME = 86400;
 
 	protected StringDetail slcs_url = new StringDetail("SLCS url",
 			"Please provide the url for the SLCS server", false);
@@ -37,6 +38,7 @@ public class SLCSCred extends AbstractCred {
 		username.assignGridProperty(Property.SHIB_USERNAME);
 		idp.assignGridProperty(Property.SHIB_IDP);
 		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
+		setMinimumLifetime(DEFAULT_SLCS_MIN_LIFETIME);		
 	}
 
 	public SLCSCred(AbstractCallback callback) {
@@ -44,6 +46,7 @@ public class SLCSCred extends AbstractCred {
 		username.assignGridProperty(Property.SHIB_USERNAME);
 		idp.assignGridProperty(Property.SHIB_IDP);
 		slcs_url.set(SLCS.DEFAULT_SLCS_URL);
+		setMinimumLifetime(DEFAULT_SLCS_MIN_LIFETIME);		
 	}
 
 	@Override
@@ -90,13 +93,14 @@ public class SLCSCred extends AbstractCred {
 		String idpTemp = (String) config.get(PROPERTY.IdP);
 		char[] pwTemp = (char[]) config.get(PROPERTY.Password);
 		String unTemp = (String) config.get(PROPERTY.Username);
-
+		
 		if (StringUtils.isNotBlank(idpTemp)) {
 			idp.set(idpTemp);
 		}
 		if (StringUtils.isNotBlank(unTemp)) {
 			username.set(unTemp);
 		}
+
 		pw.set(pwTemp);
 
 	}

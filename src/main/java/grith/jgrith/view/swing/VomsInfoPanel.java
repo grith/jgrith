@@ -2,6 +2,7 @@ package grith.jgrith.view.swing;
 
 import grisu.model.info.dto.VO;
 import grith.jgrith.utils.CredentialHelpers;
+import grith.jgrith.voms.VOManagement.VOManager;
 import grith.jgrith.vomsProxy.VomsException;
 import grith.jgrith.vomsProxy.VomsHelpers;
 import grith.jgrith.vomsProxy.VomsProxy;
@@ -46,6 +47,8 @@ public class VomsInfoPanel extends JPanel {
 	// -------------------------------------------------------------------
 	// EventStuff
 	private Vector<ProxyInitListener> vomsPanelListeners;
+	
+	private final VOManager vom;
 
 	/**
 	 * Creates the VomsInfoPanel. You have to register a listener to get the
@@ -58,8 +61,9 @@ public class VomsInfoPanel extends JPanel {
 	 *            whether to stop querying for voms information if an error with
 	 *            one of the servers occurs or not.
 	 */
-	public VomsInfoPanel() {
+	public VomsInfoPanel(VOManager vom) {
 		super();
+		this.vom = vom;
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 7, 7, 7, 7, 7 };
@@ -218,7 +222,7 @@ public class VomsInfoPanel extends JPanel {
 		voModel.removeAllElements();
 		groupModel.removeAllElements();
 
-		info = VomsHelpers.getAllVosAndVoGroups(credential, ignoreErrors);
+		info = VomsHelpers.getAllVosAndVoGroups(vom, credential, ignoreErrors);
 
 		for (VO vo : info.keySet()) {
 			voModel.addElement(vo);

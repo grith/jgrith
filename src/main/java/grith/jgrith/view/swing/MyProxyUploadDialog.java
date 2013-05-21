@@ -23,10 +23,10 @@ import org.globus.gsi.GlobusCredential;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxy;
 
-import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class MyProxyUploadDialog extends JDialog {
@@ -140,18 +140,18 @@ public class MyProxyUploadDialog extends JDialog {
 			panel.setLayout(new FormLayout(
 new ColumnSpec[] {
 					ColumnSpec.decode("left:16dlu"),
-							FormFactory.DEFAULT_COLSPEC,
-							FormFactory.RELATED_GAP_COLSPEC,
+							FormSpecs.DEFAULT_COLSPEC,
+							FormSpecs.RELATED_GAP_COLSPEC,
 					ColumnSpec.decode("default:grow(1.0)"),
-							FormFactory.RELATED_GAP_COLSPEC,
-							FormFactory.DEFAULT_COLSPEC,
+							FormSpecs.RELATED_GAP_COLSPEC,
+							FormSpecs.DEFAULT_COLSPEC,
 					ColumnSpec.decode("left:15dlu") }, new RowSpec[] {
 					RowSpec.decode("top:15dlu"),
-							FormFactory.DEFAULT_ROWSPEC,
+							FormSpecs.DEFAULT_ROWSPEC,
 					RowSpec.decode("top:10dlu"),
-							FormFactory.DEFAULT_ROWSPEC,
+							FormSpecs.DEFAULT_ROWSPEC,
 					RowSpec.decode("top:11dlu"),
-							FormFactory.DEFAULT_ROWSPEC }));
+							FormSpecs.DEFAULT_ROWSPEC }));
 			panel.add(getLabel(), new CellConstraints(2, 2,
 					CellConstraints.RIGHT, CellConstraints.DEFAULT));
 			panel.add(getLabel_1(), new CellConstraints(2, 4,

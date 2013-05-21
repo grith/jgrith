@@ -15,6 +15,16 @@ public abstract class CredDetail<T> {
 	private String name;
 
 	private String storeKey = null;
+	
+	private boolean saveToPropertiesFile = true;
+
+	public boolean isSaveToPropertiesFile() {
+		return saveToPropertiesFile;
+	}
+
+	public void setSaveToPropertiesFile(boolean saveToPropertiesFile) {
+		this.saveToPropertiesFile = saveToPropertiesFile;
+	}
 
 	private CommonGridProperties.Property gridProperty = null;
 
@@ -56,7 +66,7 @@ public abstract class CredDetail<T> {
 
 	public void set(T value) {
 		setValue(value);
-		if (storeLastValue() && (value != null)) {
+		if (saveToPropertiesFile && storeLastValue() && (value != null)) {
 			if (gridProperty != null) {
 
 				CommonGridProperties.getDefault().setGridProperty(gridProperty,

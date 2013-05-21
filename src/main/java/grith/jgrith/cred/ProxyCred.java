@@ -2,7 +2,6 @@ package grith.jgrith.cred;
 
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.details.FileDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.utils.CredentialHelpers;
 
 import java.io.File;
@@ -14,10 +13,37 @@ import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
 
+import com.beust.jcommander.internal.Maps;
+
 public class ProxyCred extends AbstractCred {
+	
+	public static void main (String[] args) {
+		
+		ProxyCred p = new ProxyCred("/home/markus/.grid/grid.proxy");
+		
+		System.out.println(p.getDN());
+		
+	}
 
-	protected FileDetail proxyFile = new FileDetail("X509 proxy file");
+	protected FileDetail proxyFile = null;
+	
+	protected FileDetail getProxyFile() {
+		if ( proxyFile == null ) {
+			this.proxyFile = new FileDetail("X509 proxy file");
+		}
+		return proxyFile;
+	}
+	
+	private static Map<PROPERTY, Object> createPropertyMap(String path) {
+		Map<PROPERTY, Object> temp = Maps.newHashMap();
+		temp.put(PROPERTY.LocalPath, path);
+		return temp;
+	}
 
+	public ProxyCred(String path) throws CredentialException {
+		super(createPropertyMap(path));
+	}
+	
 	public ProxyCred() throws CredentialException {
 		super();
 		try {
@@ -32,7 +58,7 @@ public class ProxyCred extends AbstractCred {
 	@Override
 	public GSSCredential createGSSCredentialInstance() {
 
-		return CredentialHelpers.loadGssCredential(new File(proxyFile
+		return CredentialHelpers.loadGssCredential(new File(getProxyFile()
 				.getValue()));
 	}
 
@@ -49,7 +75,7 @@ public class ProxyCred extends AbstractCred {
 			proxyTemp = CoGProperties.getDefault().getProxyFile();
 		}
 
-		proxyFile.set((String) proxyTemp);
+		getProxyFile().set((String) proxyTemp);
 		this.localPath = proxyFile.getValue();
 
 		String mpFilePath = this.localPath
@@ -132,27 +158,27 @@ public class ProxyCred extends AbstractCred {
 
 	@Override
 	public String saveProxy() {
-		// do nothing, it's already saved
-		return this.localPath;
+		String path = this.localPath;
+		if ( StringUtils.isBlank(this.localPath)) {
+			path = CoGProperties.getDefault().getProxyFile();
+		}
+		return saveProxy(path);
 	}
 
 	@Override
 	public String saveProxy(String path) {
 
 		// do nothing, it's already saved
+		if ( isUploaded() ) {
+			saveMyProxy(path);
+		}
 
-		return this.localPath;
+		if (! StringUtils.equals(path, this.localPath)) {
+			return super.saveProxy(path);
+		} else {
+			return this.localPath;
+		}
 
-		// if (StringUtils.isBlank(path)) {
-		// path = CoGProperties.getDefault().getProxyFile();
-		// }
-		// synchronized (path) {
-		//
-		// this.localPath = path;
-		//
-		// CredentialHelpers.writeToDisk(getGSSCredential(), new File(
-		// localPath));
-		// }
 
 	}
 

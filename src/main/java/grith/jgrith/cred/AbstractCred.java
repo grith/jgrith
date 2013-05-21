@@ -10,11 +10,10 @@ import grith.jgrith.cred.callbacks.CliCallback;
 import grith.jgrith.cred.callbacks.NoCallback;
 import grith.jgrith.cred.details.CredDetail;
 import grith.jgrith.cred.details.LoginTypeDetail;
-import grith.jgrith.credential.Credential.PROPERTY;
 import grith.jgrith.myProxy.MyProxy_light;
 import grith.jgrith.utils.CertHelpers;
 import grith.jgrith.utils.CredentialHelpers;
-import grith.jgrith.voms.VOManagement.VOManagement;
+import grith.jgrith.voms.VOManagement.VOManager;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -41,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public abstract class AbstractCred extends BaseCred implements Cred {
 
@@ -70,11 +70,60 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		}
 	}
 
+	public enum PROPERTY {
+		LoginType(LoginType.class), Username(String.class), Password(
+				char[].class), MyProxyHost(String.class), MyProxyPort(
+				Integer.class), VO(VO.class), FQAN(String.class), md5sum(
+				String.class), SlcsUrl(String.class), SlcsResponse(String.class), IdP(String.class), CertFile(
+				String.class), KeyFile(String.class), MyProxyPassword(
+				char[].class), MyProxyUsername(String.class), LifetimeInSeconds(
+				Integer.class), LocalPath(String.class), Uploaded(Boolean.class), StorePasswordInMemory(
+				Boolean.class);
+		private Class valueClass;
+
+		private PROPERTY(Class valueClass) {
+			this.valueClass = valueClass;
+		}
+
+		public Class getValueClass() {
+			return valueClass;
+		}
+	}
+
 	static final Logger myLogger = LoggerFactory.getLogger(AbstractCred.class
 			.getName());
+	
+	public static VOManager DEFAULT_VO_MANAGER = new VOManager();
 
 	public static AbstractCred create(AbstractCallback callback) {
 		return loadFromConfig(null, callback);
+	}
+	
+	public static AbstractCred getExistingCredential() {
+		ProxyCred pc = null;
+		try {
+			pc = new ProxyCred();
+			if ( pc.isValid() ) {
+				return pc;
+			} else {
+				return null;
+			}
+		} catch (CredentialException c) {
+			return null;
+		}
+	}
+	
+	public static AbstractCred getExistingOrCliCredential() {
+		
+		ProxyCred pc = new ProxyCred();
+		
+		if ( pc.isValid() ) {
+			return pc;
+		}
+		
+		AbstractCred c = AbstractCred.loadFromConfig(null, new CliCallback());
+		
+		return c;
 	}
 
 	public static AbstractCred loadFromConfig(Map<PROPERTY, Object> config) {
@@ -204,9 +253,13 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private CredentialMinThreshold minThresholdTask = null;
 
 	private CredentialRenewTask renewTask = null;
-	private final Timer timer = new Timer(true);
+	private final Timer timer = new Timer("CredentialUpdate timer", true);
+
+	private boolean saveProxyOnCreation = true;
 
 	private volatile Date lastCredentialAutoRefresh = new Date();
+	
+	private VOManager vom = null;
 
 	public AbstractCred() {
 		super();
@@ -224,10 +277,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	/**
 	 * Constructor to create a credential out of a provided config map.
-	 *
+	 * 
 	 * All credential properties need to be set, otherwise an error will be
 	 * thrown. No Callback is set.
-	 *
+	 * 
 	 * @param config
 	 *            the credential properties
 	 */
@@ -245,6 +298,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		pcs.addPropertyChangeListener(l);
 	}
 
+	
+	
 	public synchronized void createGSSCredential() {
 
 		cachedCredential = createGSSCredentialInstance();
@@ -265,22 +320,29 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		t1.setName("MyProxyUpdateThread");
 		t1.start();
 
-		Thread t2 = new Thread() {
-			@Override
-			public void run() {
+		if (getSaveProxyOnCreation()) {
 
-				if (StringUtils.isNotBlank(localPath)) {
-					saveProxy(localPath);
-				}
+			Thread t2 = new Thread() {
+				@Override
+				public void run() {
 
-				for (String group : groupPathCache.keySet()) {
-					String path = groupPathCache.get(group);
-					saveGroupProxy(group, path);
+					if (StringUtils.isNotBlank(localPath) && ! (AbstractCred.this instanceof GroupCred )) {
+						myLogger.debug("Saving proxy as part of gss cred creation. Path: "
+								+ localPath);
+						saveProxy(localPath);
+					}
+
+					for (String group : groupPathCache.keySet()) {
+						String path = groupPathCache.get(group);
+						saveGroupProxy(group, path);
+					}
+
 				}
-			}
-		};
-		t2.setName("Proxy save thread");
-		t2.start();
+			};
+			t2.setName("Proxy save thread");
+			t2.start();
+
+		}
 
 		Thread t3 = new Thread() {
 			@Override
@@ -288,12 +350,13 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 				for (String group : groupCache.keySet()) {
 
 					AbstractCred cred = groupCache.get(group);
-					if ( cred instanceof GroupCred ) {
-						myLogger.debug("not updating myproxy for group "+group);
+					if (cred instanceof GroupCred) {
+						myLogger.debug("not updating myproxy for group "
+								+ group);
 						return;
 					}
 					myLogger.debug("updating group cred: " + group);
-					GroupCred gc = (GroupCred)cred;
+					GroupCred gc = (GroupCred) cred;
 					gc.setBaseCred(AbstractCred.this);
 
 				}
@@ -343,12 +406,14 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	abstract public GSSCredential createGSSCredentialInstance();
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see grith.jgrith.cred.Cred#destroy()
 	 */
 	@Override
 	public void destroy() {
-		if ( cachedCredential != null ) {
+		if (cachedCredential != null) {
 
 			new Thread() {
 				@Override
@@ -417,16 +482,20 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	/**
 	 * Get a map of all Fqans (and VOs) the user has access to.
-	 *
+	 * 
 	 * @return the Fqans of the user
 	 */
 	public synchronized Map<String, VO> getAvailableFqans() {
 
 		if (fqans == null) {
-			fqans = VOManagement.getAllFqans(getGSSCredential());
+			fqans = getVOManager().getAllFqans(getGSSCredential());
 		}
 		return fqans;
 
+	}
+
+	public Set<String> getAvailableGroups() {
+		return getAvailableFqans().keySet();
 	}
 
 	private AbstractCallback getCallback() {
@@ -437,12 +506,45 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return credCallback;
 	}
 
-	/* (non-Javadoc)
+	private Set<CredDetail> getDetails() {
+
+		Set<CredDetail> details = Sets.newLinkedHashSet();
+
+		for (Field f : this.getClass().getDeclaredFields()) {
+			myLogger.debug("populating field: {}", f);
+			try {
+				Class c = f.get(this).getClass().getSuperclass();
+				if (CredDetail.class.equals(c)) {
+					CredDetail d = (CredDetail) f.get(this);
+					details.add(d);
+				}
+			} catch (Exception e) {
+//				myLogger.debug("Error when trying to get field: {}, {}", f,
+//						e.getLocalizedMessage());
+			}
+		}
+		return details;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see grith.jgrith.cred.Cred#getDN()
 	 */
 	@Override
 	public String getDN() {
 		return CertHelpers.getDnInProperFormat(getGSSCredential());
+	}
+
+	public String getFqan() {
+
+		if (this instanceof GroupCred) {
+			return ((GroupCred) this).getGroup();
+		} else {
+			return Constants.NON_VO_FQAN;
+		}
+
 	}
 
 	public AbstractCred getGroupCredential(String fqan) {
@@ -456,14 +558,16 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			AbstractCred temp = groupCache.get(fqan);
 			if (temp == null) {
 				myLogger.debug("creating GroupCred for: " + fqan);
-				if (StringUtils.isBlank(fqan) || Constants.NON_VO_FQAN.equals(fqan)) {
+				if (StringUtils.isBlank(fqan)
+						|| Constants.NON_VO_FQAN.equals(fqan)) {
 					AbstractCred groupCred = this;
 					groupCache.put(fqan, groupCred);
 				} else {
 
 					VO vo = getAvailableFqans().get(fqan);
 					if (vo == null) {
-						throw new CredentialException("Can't find VO for fqan: " + fqan);
+						throw new CredentialException(
+								"Can't find VO for fqan: " + fqan);
 					} else {
 						GroupCred groupCred = getGroupCredential(vo, fqan);
 						groupCache.put(fqan, groupCred);
@@ -478,7 +582,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	/**
 	 * Creates a new, voms-enabled Credential object from an arbitrary VO.
-	 *
+	 * 
 	 * @param vo
 	 *            the VO
 	 * @param fqan
@@ -519,7 +623,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	public GSSCredential getGSSCredential() {
 
 		try {
-			if ((cachedCredential == null) ) {
+			if ((cachedCredential == null)) {
 				if (!isPopulated) {
 					throw new CredentialException(
 							"Credential not populated (yet).");
@@ -578,8 +682,25 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return null;
 
 	}
+	
+	public synchronized VOManager getVOManager() {
+		if ( vom == null ) {
+			if ( DEFAULT_VO_MANAGER != null ) {
+				vom = DEFAULT_VO_MANAGER;
+			} else {
+				vom = new VOManager();
+			}
+		}
+		return vom;
+	}
 
-	/* (non-Javadoc)
+	public void setVOManager(VOManager vom) {
+		this.vom = vom;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see grith.jgrith.cred.Cred#getRemainingLifetime()
 	 */
 	@Override
@@ -594,6 +715,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		}
 	}
 
+	public boolean getSaveProxyOnCreation() {
+		return saveProxyOnCreation;
+	}
+
 	public synchronized void init() {
 		init(new HashMap<PROPERTY, Object>());
 	}
@@ -603,7 +728,8 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		init();
 	}
 
-	public synchronized void init(AbstractCallback callback, Map<PROPERTY, Object> config) {
+	public synchronized void init(AbstractCallback callback,
+			Map<PROPERTY, Object> config) {
 		setCallback(callback);
 		init(config);
 	}
@@ -618,7 +744,14 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		groupCache.clear();
 		groupPathCache.clear();
 		fqans = null;
-		localPath = null;
+		if (StringUtils.isBlank(localPath)) {
+			if (!StringUtils.isBlank(localMPPath)) {
+				localPath = localMPPath.substring(0, localMPPath.length()
+						- BaseCred.DEFAULT_MYPROXY_FILE_EXTENSION.length());
+			} else {
+				localPath = null;
+			}
+		}
 
 		if (invalidTask != null) {
 			invalidTask.cancel();
@@ -635,7 +768,7 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		// just so that doesn't need to be configured for every Cred that
 		// inherits this
 		Object mph = config.get(PROPERTY.MyProxyHost);
-		if ( (mph != null) && StringUtils.isNotBlank((String)mph) ) {
+		if ((mph != null) && StringUtils.isNotBlank((String) mph)) {
 			setMyProxyHost((String) mph);
 		}
 
@@ -654,7 +787,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		return isUploaded;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see grith.jgrith.cred.Cred#isValid()
 	 */
 	@Override
@@ -665,33 +800,22 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 	private void populate() {
 
 		if (!isPopulated) {
-
-			for (Field f : this.getClass().getDeclaredFields()) {
-				myLogger.debug("populating field: {}", f);
-				try {
-					Class c = f.get(this).getClass().getSuperclass();
-					if (CredDetail.class.equals(c)) {
-						CredDetail d = (CredDetail) f.get(this);
-						if (d.isSet()) {
-							myLogger.debug("field {} already set", f);
-						} else {
-							myLogger.debug(
-									"field {} not set, calling callback...",
-									f.toString());
-							getCallback().fill(d);
-							if (!d.isSet()) {
-								myLogger.debug(
-										"field {} still not set, callback failed...",
-										f);
-								throw new CredentialException(d.toString()
-										+ " not filled");
-							}
-						}
+			for (CredDetail d : getDetails()) {
+				if (d.isSet()) {
+					myLogger.debug("detail {} already set", d.getName());
+				} else {
+					myLogger.debug("detail {} not set, calling callback...",
+							d.getName());
+					getCallback().fill(d);
+					if (!d.isSet()) {
+						myLogger.debug(
+								"detail {} still not set, callback failed...",
+								d.getName());
+						throw new CredentialException(d.getName()
+								+ " not filled");
 					}
-				} catch (Exception e) {
-					myLogger.debug("Error when trying to get field: {}, {}", f,
-							e.getLocalizedMessage());
 				}
+
 			}
 
 			createGSSCredential();
@@ -709,11 +833,23 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 			return false;
 		}
 
-		int lt = getRemainingLifetime();
+		int lt = Integer.MIN_VALUE;
+		if ( cachedCredential != null ) {
+			try {
+				lt = cachedCredential.getRemainingLifetime();
+			} catch (GSSException e) {
+				e.printStackTrace();
+			}
+		}
 
 		createGSSCredential();
 
-		int newLt = getRemainingLifetime();
+		int newLt = Integer.MIN_VALUE;
+		try {
+			newLt = cachedCredential.getRemainingLifetime();
+		} catch (GSSException e) {
+			e.printStackTrace();
+		}
 
 		return (newLt > lt);
 
@@ -756,6 +892,10 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 	@Override
 	public String saveProxy(String path) {
+		
+		if (( this instanceof GroupCred) && (StringUtils.isBlank(path)) ) {
+			return null;
+		}
 
 		if (StringUtils.isBlank(path) && StringUtils.isNotBlank(this.localPath)) {
 			path = this.localPath;
@@ -766,8 +906,9 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 
 			this.localPath = path;
 
-			CredentialHelpers.writeToDisk(getGSSCredential(), new File(localPath));
-			if (isUploaded()) {
+			File file = new File(localPath);
+			CredentialHelpers.writeToDisk(getGSSCredential(), file);
+			if (isUploaded() || this instanceof MyProxyCred) {
 				saveMyProxy(path);
 			} else {
 				FileUtils.deleteQuietly(new File(path
@@ -857,12 +998,26 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		this.proxyLifetimeInSeconds = p;
 	}
 
+	public void setSaveDetails(boolean save) {
+
+		for (CredDetail d : getDetails()) {
+			d.setSaveToPropertiesFile(save);
+		}
+
+	}
+
+	public void setSaveProxyOnCreation(boolean save) {
+		this.saveProxyOnCreation = save;
+	}
+
 	@Override
 	public void uploadMyProxy() {
 		uploadMyProxy(false);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see grith.jgrith.cred.Cred#uploadMyProxy(boolean)
 	 */
 	public synchronized void uploadMyProxy(boolean force) {
@@ -927,7 +1082,11 @@ public abstract class AbstractCred extends BaseCred implements Cred {
 		}
 
 		if (StringUtils.isNotBlank(this.localPath)) {
+			myLogger.debug(
+					"Saving myproxy credential as part of myproxy upload. Path: {}",
+					this.localPath);
 			saveProxy();
+			saveMyProxy();
 		}
 	}
 
