@@ -6,7 +6,7 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<grid-jcommons.version>2.9</grid-jcommons.version>
+		<grid-jcommons.version>2.10</grid-jcommons.version>
 	</properties>
 
 	<repositories>
@@ -220,9 +220,9 @@
             </excludes>
         </resource>
 
-    </resources>	
-	
-	
+    </resources>
+
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -1,28 +1,36 @@
 package grith.jgrith.cred;
 
+import grisu.jcommons.dependencies.BouncyCastleTool;
 import grisu.jcommons.exceptions.CredentialException;
 import grith.jgrith.cred.callbacks.AbstractCallback;
 import grith.jgrith.cred.callbacks.StaticCallback;
 import grith.jgrith.cred.details.FileDetail;
 import grith.jgrith.cred.details.PasswordDetail;
 import grith.jgrith.plainProxy.PlainProxy;
-
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.globus.common.CoGProperties;
 import org.ietf.jgss.GSSCredential;
 
+import java.util.Map;
+
 public class X509Cred extends AbstractCred {
-	
+
 	public static X509Cred create(char[] passphrase) {
-		
+
 		X509Cred temp = new X509Cred();
 		temp.setCallback(new StaticCallback(passphrase));
-		
+        temp.init();
 		return temp;
-		
+
 	}
+
+    public static void main(String[] args) {
+
+        BouncyCastleTool.initBouncyCastle();
+        X509Cred c = create(args[0].toCharArray());
+
+        System.out.println(c.getDN());
+    }
 
 	protected FileDetail certFile = new FileDetail("X509 certificate file");
 	protected FileDetail keyFile = new FileDetail("X509 key file");
